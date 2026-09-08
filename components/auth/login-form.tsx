@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +30,7 @@ type FormValues = z.infer<typeof schema>;
 
 export function LoginForm({ next }: { next?: string }) {
   const router = useRouter();
-  const { session, loading } = useSession();
+  const { session } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
   const [demoBusy, setDemoBusy] = useState<UserRole | null>(null);
 
@@ -42,12 +42,6 @@ export function LoginForm({ next }: { next?: string }) {
     resolver: zodResolver(schema),
     defaultValues: { email: "", password: "" },
   });
-
-  useEffect(() => {
-    if (!loading && session) {
-      router.replace(next || homePathForRole(session.role));
-    }
-  }, [loading, session, next, router]);
 
   function go(role: UserRole) {
     router.replace(next || homePathForRole(role));
@@ -93,6 +87,13 @@ export function LoginForm({ next }: { next?: string }) {
       }
     >
       <div className="space-y-4">
+        {session && (
+          <div className="rounded-md border border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
+            Signed in as{" "}
+            <span className="font-medium text-foreground">{session.user.name}</span>.
+            Logging in below switches accounts.
+          </div>
+        )}
         <div className="grid gap-2">
           <Button
             variant="secondary"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +26,7 @@ import type {
 } from "@/lib/types";
 import { signup } from "@/lib/mock-auth";
 import { ServiceError } from "@/lib/services";
-import { homePathForRole, useSession } from "@/lib/hooks/use-session";
+import { homePathForRole } from "@/lib/hooks/use-session";
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -91,7 +91,6 @@ const CHIP =
 
 export function SignupForm() {
   const router = useRouter();
-  const { session, loading } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -121,10 +120,6 @@ export function SignupForm() {
   const role = useWatch({ control, name: "role" });
   const genres = useWatch({ control, name: "preferredGenres" }) ?? [];
   const platforms = useWatch({ control, name: "platforms" }) ?? [];
-
-  useEffect(() => {
-    if (!loading && session) router.replace(homePathForRole(session.role));
-  }, [loading, session, router]);
 
   function toggleArray(
     field: "preferredGenres" | "platforms",

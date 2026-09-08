@@ -1,11 +1,12 @@
 /**
- * Data access layer.
+ * Server-side seed accessors.
  *
- * Every page/component reads Grogu data through these functions — never by
- * importing the raw arrays. They are `async` on purpose: today they resolve
- * mock arrays synchronously, but the signatures already match a network layer,
- * so swapping the bodies for `fetch(...)` / a client SDK later requires no
- * changes at the call sites.
+ * Used by Server Components (landing, /discover, /playtests/[id]) for the
+ * initial render. Client Components read live state through `lib/hooks/*` over
+ * the persisted store instead; mutations go through `lib/services/*`.
+ *
+ * These are `async` on purpose: the signatures already match a network layer,
+ * so swapping the bodies for `fetch(...)` later needs no call-site changes.
  */
 
 import type {

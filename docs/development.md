@@ -5,81 +5,96 @@
 - **Node.js** ≥ 20 (developed on Node 24)
 - **pnpm** ≥ 11 (`corepack enable` or `npm i -g pnpm`)
 
-## Install
+## Install & run
 
 ```bash
 pnpm install
+pnpm dev            # http://localhost:3000 (next free port if taken)
 ```
-
-## Run locally
-
-```bash
-pnpm dev
-```
-
-Serves on http://localhost:3000 (Next.js picks the next free port if 3000 is
-taken). Uses Turbopack with Fast Refresh.
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Start the dev server |
-| `pnpm build` | Production build (`next build`) — also runs full type checking |
-| `pnpm start` | Serve the production build (run `pnpm build` first) |
-| `pnpm lint` | ESLint (`eslint-config-next` — core-web-vitals + TypeScript rules) |
+| `pnpm dev` | Dev server (Turbopack, Fast Refresh) |
+| `pnpm build` | Production build — also runs full type checking |
+| `pnpm start` | Serve the production build |
+| `pnpm lint` | ESLint (`eslint-config-next`) |
 | `pnpm typecheck` | `tsc --noEmit` |
 
-Run all three before committing:
+Run before committing:
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm build
 ```
 
+## Trying the prototype
+
+1. `/` → **Log in** → "Continue as Priya Nair · Tester".
+2. **Discover** → open a playtest → **Apply**.
+3. Sign out (avatar menu) → log in as **Mara Okafor · Developer**.
+4. **Playtests** → open one → **Applicants** tab → **Accept** your tester.
+5. Sign back in as the tester → **My tests** → download build, tick tasks →
+   **feedback form** → submit.
+6. Back as the developer → the playtest's **Feedback** / **Analytics** tabs
+   update.
+
+"Reset demo data" in the avatar menu reseeds everything.
+
 ## Project layout
 
-See `docs/architecture.md`. Short version:
+```
+app/            Routes. Route groups: (marketing) (auth) (tester) (developer)
+components/      ui/ layout/ navigation/ marketing/ games/ playtests/
+                tests/ feedback/ dashboard/ charts/ tester/ developer/ auth/
+data/           Seed data + data/index.ts (Server-Component reads)
+lib/
+  types.ts      Domain models
+  constants.ts  Labels, nav config
+  domain.ts     Pure join/filter/aggregate helpers
+  utils.ts      cn() + formatters
+  store/        Zustand persisted store (mock DB)
+  services/     Async mock service layer (writes + auth)
+  hooks/        Reactive selector hooks (reads)
+  mock-auth.ts  Public mock-auth entry point
+docs/           This documentation
+public/images/  Placeholder dir — cover art + avatars are procedural
+```
 
-```
-app/        Routes (App Router, route groups per surface)
-components/ ui/ · layout/ · navigation/ · marketing/ · games/ · (reserved dirs)
-data/       Mock data + the async accessor layer (data/index.ts)
-lib/        types.ts (domain models) · constants.ts (labels/nav) · utils.ts (cn + formatters)
-docs/       This documentation
-public/     Static assets (images/ is a placeholder — cover art is procedural)
-```
+See `docs/architecture.md` and `docs/state-management.md`.
 
 ## Conventions
 
-- **Server Components by default.** Add `"use client"` only for real
-  interactivity (state, effects, browser APIs, `usePathname`). Keep client
-  components small and at the leaves.
-- **Types are centralized** in `lib/types.ts`. Never redeclare an entity shape in
-  a page or component. No `any`.
-- **No raw hex / magic numbers** in components — colours come from the design
-  tokens (`docs/design-system.md`), domain labels from `lib/constants.ts`.
-- **Data access only through `@/data`.** Components receive typed props; they do
-  not import raw arrays or fetch.
-- **Reuse `components/ui/` primitives** before writing new ones. Domain
-  components compose primitives.
-- **Accessibility**: semantic elements (`<button>`, `<nav>`, `<ol>`, `<dl>`…),
-  `aria-current` on active nav links, meaningful `alt` / `aria-label` on
-  imagery, visible focus rings (global `:focus-visible` rule).
-- **Imports**: use the `@/` alias; group external → internal.
-- **Formatting**: match surrounding code. Class lists ordered
-  layout → box → color → state.
+- **Server Components by default.** `"use client"` only for real interactivity.
+  Interactive pages = thin server `page.tsx` + client feature component.
+- **Reads via `lib/hooks/*`, writes via `lib/services/*`.** Components never
+  import the store or raw seed arrays.
+- **Types centralized** in `lib/types.ts`. No `any`. Strict TS.
+- **No raw hex / magic strings** — design tokens + `lib/constants.ts`.
+- **Reuse `components/ui/`** before adding primitives.
+- **Accessibility**: semantic elements, `aria-current` on active nav, labelled
+  inputs (`Field`), `aria-label` on icon-only controls, visible focus rings,
+  Radix for dialogs / menus / tabs. State is never colour-only (icon + text).
+- **Responsive**: mobile → large desktop; no horizontal overflow; tables/charts
+  scroll inside their container.
 
 ## Adding a route
 
-1. Create `app/(group)/<segment>/page.tsx` (pick the group whose layout/shell
-   fits: marketing, auth, tester, developer).
-2. Export `metadata` (title + description).
-3. For not-yet-built screens, render `<PlaceholderPage />`.
+1. `app/(group)/<segment>/page.tsx` — pick the group whose shell fits.
+2. Export `metadata`; `await params` / wrap `useSearchParams` consumers in
+   `<Suspense>`.
+3. Put the UI in a client feature component under the matching `components/`
+   folder.
 4. Update `docs/routes.md`.
 
-## Adding a dependency
+## Dependencies
 
-Keep the surface small. The following are intentionally **out of scope** for this
-phase and must not be added: Prisma, Postgres clients, Firebase, Supabase,
-Auth.js, Stripe, Socket.io, AI SDKs. Discuss before adding anything beyond the
-current set (see `docs/architecture.md` → Stack).
+Current runtime set: `next`, `react`, `zustand`, `recharts`, `lucide-react`,
+`react-hook-form`, `zod`, `@hookform/resolvers`,
+`class-variance-authority` / `clsx` / `tailwind-merge`, and `@radix-ui/react-*`
+(dialog, dropdown-menu, tabs, label, checkbox, radio-group, select, slot, avatar,
+progress, separator, scroll-area).
+
+Do **not** add: Prisma, Postgres clients, Firebase, Supabase, Auth.js, Stripe,
+Socket.io, AI SDKs. TanStack Query comes in with the real API. Discuss anything
+else first (`AGENTS.md` §6).
