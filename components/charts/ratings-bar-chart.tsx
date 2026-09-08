@@ -17,7 +17,7 @@ import { CHART_COLORS } from "@/components/charts/chart-theme";
 export function RatingsBarChart({ ratings }: { ratings: FeedbackRatings }) {
   const data = RATING_DIMENSIONS.map((dim) => ({
     name: dim.label,
-    value: ratings[dim.key],
+    value: Math.round(ratings[dim.key] * 10) / 10,
   }));
 
   return (
@@ -44,7 +44,6 @@ export function RatingsBarChart({ ratings }: { ratings: FeedbackRatings }) {
               position="top"
               fill={CHART_COLORS.secondary}
               fontSize={12}
-              formatter={(value: number) => value.toFixed(1)}
             />
           </Bar>
         </BarChart>

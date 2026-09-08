@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { PageSkeleton } from "@/components/ui/states";
+import { PlaytestForm } from "@/components/playtests/playtest-form";
 
 export const metadata: Metadata = {
   title: "Create a playtest",
@@ -9,12 +11,8 @@ export const metadata: Metadata = {
 
 export default function NewPlaytestPage() {
   return (
-    <PlaceholderPage
-      title="Create a playtest"
-      description="Multi-step form: pick a game, write goals and focus areas, define tester requirements, and add testing tasks."
-      plannedFor="Developer playtest creation task"
-      backHref="/developer/dashboard"
-      backLabel="Back to dashboard"
-    />
+    <Suspense fallback={<PageSkeleton />}>
+      <PlaytestForm />
+    </Suspense>
   );
 }

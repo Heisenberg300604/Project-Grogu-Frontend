@@ -15,6 +15,7 @@ import type {
   Game,
   Notification,
   PlaytestWithRelations,
+  TestProgress,
   TesterProfile,
   User,
 } from "@/lib/types";
@@ -221,6 +222,91 @@ export function useDeveloperProfile(
     const profile = profiles.find((p) => p.userId === userId);
     return user && profile ? { user, profile } : undefined;
   }, [users, profiles, userId]);
+}
+
+export interface ApplicantView {
+  application: Application;
+  tester: User;
+  profile?: TesterProfile;
+}
+
+/** Applicants for a playtest, joined with tester + profile, newest first. */
+export function usePlaytestApplicants(
+  playtestId: string | undefined,
+): ApplicantView[] {
+  const applications = useGroguStore((s) => s.applications);
+  const users = useGroguStore((s) => s.users);
+  const profiles = useGroguStore((s) => s.testerProfiles);
+  return useMemo(() => {
+    const list: ApplicantView[] = [];
+    for (const application of applications) {
+      if (application.playtestId !== playtestId) continue;
+      const tester = users.find((u) => u.id === application.testerId);
+      if (!tester) continue;
+      list.push({
+        application,
+        tester,
+        profile: profiles.find((p) => p.userId === tester.id),
+      });
+    }
+    return list.sort((a, b) =>
+      b.application.submittedAt.localeCompare(a.application.submittedAt),
+    );
+  }, [applications, users, profiles, playtestId]);
+}
+
+export interface AcceptedTesterView {
+  application: Application;
+  tester: User;
+  progress: TestProgress | null;
+}
+
+export function useAcceptedTesters(
+  playtestId: string | undefined,
+): AcceptedTesterView[] {
+  const applications = useGroguStore((s) => s.applications);
+  const users = useGroguStore((s) => s.users);
+  const progress = useGroguStore((s) => s.testProgress);
+  return useMemo(() => {
+    const list: AcceptedTesterView[] = [];
+    for (const application of applications) {
+      if (application.playtestId !== playtestId || application.status !== "accepted") {
+        continue;
+      }
+      const tester = users.find((u) => u.id === application.testerId);
+      if (!tester) continue;
+      list.push({
+        application,
+        tester,
+        progress:
+          progress.find(
+            (p) =>
+              p.playtestId === playtestId && p.testerId === application.testerId,
+          ) ?? null,
+      });
+    }
+    return list;
+  }, [applications, users, progress, playtestId]);
+}
+
+/** All feedback across a developer's playtests, joined with tester + playtest. */
+export function useDeveloperFeedback(developerId: string | undefined) {
+  const playtests = useDeveloperPlaytests(developerId);
+  const feedback = useGroguStore((s) => s.feedback);
+  const users = useGroguStore((s) => s.users);
+  return useMemo(() => {
+    const byId = new Map(playtests.map((p) => [p.id, p]));
+    return feedback
+      .filter((f) => byId.has(f.playtestId))
+      .map((entry) => ({
+        feedback: entry,
+        playtest: byId.get(entry.playtestId)!,
+        tester: users.find((u) => u.id === entry.testerId),
+      }))
+      .sort((a, b) =>
+        b.feedback.submittedAt.localeCompare(a.feedback.submittedAt),
+      );
+  }, [playtests, feedback, users]);
 }
 
 /** Aggregate stats for a developer's dashboard. */

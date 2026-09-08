@@ -165,6 +165,8 @@ export interface Playtest {
   status: PlaytestStatus;
   requirements: TesterRequirements;
   tasks: PlaytestTask[];
+  /** What testers get. Free-text for the prototype (e.g. "Steam key + credit"). */
+  reward: string;
   maxTesters: number;
   acceptedTesters: number;
   applicantCount: number;
@@ -342,6 +344,7 @@ export interface NewPlaytestInput {
   focusAreas: PlaytestFocus[];
   requirements: TesterRequirements;
   tasks: Omit<PlaytestTask, "id">[];
+  reward: string;
   maxTesters: number;
   closesAt: ISODateString;
   publish: boolean;

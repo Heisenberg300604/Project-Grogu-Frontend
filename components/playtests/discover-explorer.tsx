@@ -1,22 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Compass } from "lucide-react";
 
-import { EMPTY_DISCOVER_FILTERS, type DiscoverFilters } from "@/lib/domain";
-import { useDiscoverPlaytests } from "@/lib/hooks/use-grogu";
+import {
+  EMPTY_DISCOVER_FILTERS,
+  matchesDiscoverFilters,
+  type DiscoverFilters,
+} from "@/lib/domain";
+import type { PlaytestWithRelations } from "@/lib/types";
+import { usePlaytests } from "@/lib/hooks/use-grogu";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CardGridSkeleton, EmptyState } from "@/components/ui/states";
+import { EmptyState } from "@/components/ui/states";
 import { PlaytestCard } from "@/components/playtests/playtest-card";
 import { DiscoverFilterPanel } from "@/components/playtests/discover-filters";
 
-export function DiscoverExplorer() {
+export function DiscoverExplorer({
+  initialPlaytests,
+}: {
+  initialPlaytests: PlaytestWithRelations[];
+}) {
   const hydrated = useHydrated();
   const [filters, setFilters] = useState<DiscoverFilters>(EMPTY_DISCOVER_FILTERS);
-  const results = useDiscoverPlaytests(filters);
+  const storePlaytests = usePlaytests();
+
+  // Use the server-rendered list until the persisted store has hydrated, so the
+  // page shows content immediately and the first client render matches the HTML.
+  const source = hydrated
+    ? storePlaytests.filter((p) => p.status === "recruiting")
+    : initialPlaytests;
+
+  const results = useMemo(
+    () =>
+      source
+        .filter((p) => matchesDiscoverFilters(p, filters))
+        .sort((a, b) => a.closesAt.localeCompare(b.closesAt)),
+    [source, filters],
+  );
 
   return (
     <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
@@ -25,15 +48,13 @@ export function DiscoverExplorer() {
           <DiscoverFilterPanel
             filters={filters}
             onChange={setFilters}
-            resultCount={hydrated ? results.length : 0}
+            resultCount={results.length}
           />
         </Card>
       </aside>
 
       <div>
-        {!hydrated ? (
-          <CardGridSkeleton count={6} />
-        ) : results.length === 0 ? (
+        {results.length === 0 ? (
           <EmptyState
             icon={Compass}
             title="No playtests match your filters"
@@ -58,7 +79,7 @@ export function DiscoverExplorer() {
 
         <Card className="mt-8 flex flex-col items-start gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Run playtests for your own game?
+            Running playtests for your own game?
           </p>
           <Button asChild variant="secondary" size="sm">
             <Link href="/developers">Learn about Grogu for developers</Link>

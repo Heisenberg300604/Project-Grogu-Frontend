@@ -5,6 +5,7 @@ import { Compass, Target } from "lucide-react";
 
 import { formatDate } from "@/lib/utils";
 import { FOCUS_LABELS, GENRE_LABELS, PLATFORM_LABELS } from "@/lib/constants";
+import type { PlaytestWithRelations } from "@/lib/types";
 import { usePlaytest, useDeveloperProfile } from "@/lib/hooks/use-grogu";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { Badge } from "@/components/ui/badge";
@@ -19,12 +20,19 @@ import { RequirementsList } from "@/components/playtests/requirements-list";
 import { TaskList } from "@/components/playtests/task-list";
 import { ApplyPanel } from "@/components/playtests/apply-panel";
 
-export function PlaytestDetail({ playtestId }: { playtestId: string }) {
+export function PlaytestDetail({
+  playtestId,
+  initialPlaytest,
+}: {
+  playtestId: string;
+  initialPlaytest: PlaytestWithRelations | null;
+}) {
   const hydrated = useHydrated();
-  const playtest = usePlaytest(playtestId);
+  const fromStore = usePlaytest(playtestId);
+  const playtest = hydrated ? fromStore : (initialPlaytest ?? undefined);
   const developer = useDeveloperProfile(playtest?.developerId);
 
-  if (!hydrated) {
+  if (!hydrated && !initialPlaytest) {
     return (
       <Container className="py-12">
         <PageSkeleton />
@@ -54,7 +62,7 @@ export function PlaytestDetail({ playtestId }: { playtestId: string }) {
       <div className="relative border-b border-border">
         <div className="absolute inset-0">
           <GameCover game={playtest.game} className="opacity-30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+          <div className="absolute inset-0 bg-linear-to-t from-background via-background/80 to-background/40" />
         </div>
         <Container className="relative py-10 sm:py-14">
           <nav aria-label="Breadcrumb" className="mb-4 text-xs text-muted-foreground">

@@ -386,6 +386,7 @@ export const useGroguStore = create<GroguState>()(
           status: input.publish ? "recruiting" : "draft",
           requirements: input.requirements,
           tasks: input.tasks.map((t, i) => ({ ...t, id: `${newId("task")}-${i}` })),
+          reward: input.reward,
           maxTesters: input.maxTesters,
           acceptedTesters: 0,
           applicantCount: 0,

@@ -2,6 +2,7 @@ import {
   CalendarClock,
   Clock,
   Gauge,
+  Gift,
   Globe,
   MonitorSmartphone,
   ShieldCheck,
@@ -47,6 +48,7 @@ export function RequirementsList({
 }) {
   return (
     <dl className="divide-y divide-border">
+      <Row icon={Gift} label="Reward" value={playtest.reward} />
       <Row
         icon={Gauge}
         label="Experience"
