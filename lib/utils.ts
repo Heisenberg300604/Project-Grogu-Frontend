@@ -31,3 +31,35 @@ export function daysUntil(iso: string) {
   const ms = new Date(iso).getTime() - Date.now();
   return Math.ceil(ms / (1000 * 60 * 60 * 24));
 }
+
+const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+  ["year", 60 * 60 * 24 * 365],
+  ["month", 60 * 60 * 24 * 30],
+  ["week", 60 * 60 * 24 * 7],
+  ["day", 60 * 60 * 24],
+  ["hour", 60 * 60],
+  ["minute", 60],
+];
+
+/** "3 days ago", "in 2 hours", "just now". */
+export function formatRelativeTime(iso: string) {
+  const seconds = (new Date(iso).getTime() - Date.now()) / 1000;
+  const abs = Math.abs(seconds);
+  if (abs < 45) return "just now";
+  const formatter = new Intl.RelativeTimeFormat("en-US", { numeric: "auto" });
+  for (const [unit, unitSeconds] of RELATIVE_UNITS) {
+    if (abs >= unitSeconds) {
+      return formatter.format(Math.round(seconds / unitSeconds), unit);
+    }
+  }
+  return "just now";
+}
+
+/** Deadline phrasing: "Closes in 5 days", "Closed", "Closes today". */
+export function formatDeadline(iso: string) {
+  const days = daysUntil(iso);
+  if (days < 0) return "Closed";
+  if (days === 0) return "Closes today";
+  if (days === 1) return "Closes tomorrow";
+  return `Closes in ${days} days`;
+}

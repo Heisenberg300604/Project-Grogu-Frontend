@@ -7,16 +7,20 @@ import { Menu, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { MARKETING_NAV } from "@/lib/constants";
+import { useSession, homePathForRole } from "@/lib/hooks/use-session";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
+import { NotificationMenu } from "@/components/navigation/notification-menu";
+import { UserMenu } from "@/components/navigation/user-menu";
 
 /**
- * Marketing / top-level site header. Client component: it owns the mobile menu
- * disclosure and highlights the active route.
+ * Top-level site header for the public / browse pages. Session-aware: shows
+ * auth CTAs when signed out and the account controls when signed in.
  */
 export function SiteHeader() {
   const pathname = usePathname();
+  const { session, isAuthenticated } = useSession();
   const [open, setOpen] = useState(false);
 
   return (
@@ -48,18 +52,33 @@ export function SiteHeader() {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Link
-            href="/login"
-            className={buttonVariants({ variant: "ghost", size: "sm" })}
-          >
-            Log in
-          </Link>
-          <Link
-            href="/signup"
-            className={buttonVariants({ variant: "primary", size: "sm" })}
-          >
-            Get started
-          </Link>
+          {isAuthenticated && session ? (
+            <>
+              <Link
+                href={homePathForRole(session.role)}
+                className={buttonVariants({ variant: "secondary", size: "sm" })}
+              >
+                {session.role === "tester" ? "Tester home" : "Developer home"}
+              </Link>
+              <NotificationMenu userId={session.user.id} />
+              <UserMenu session={session} />
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className={buttonVariants({ variant: "ghost", size: "sm" })}
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className={buttonVariants({ variant: "primary", size: "sm" })}
+              >
+                Get started
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -88,20 +107,32 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="mt-2 flex flex-col gap-2">
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className={buttonVariants({ variant: "secondary", size: "md" })}
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                onClick={() => setOpen(false)}
-                className={buttonVariants({ variant: "primary", size: "md" })}
-              >
-                Get started
-              </Link>
+              {isAuthenticated && session ? (
+                <Link
+                  href={homePathForRole(session.role)}
+                  onClick={() => setOpen(false)}
+                  className={buttonVariants({ variant: "primary", size: "md" })}
+                >
+                  Go to {session.role === "tester" ? "tester" : "developer"} home
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className={buttonVariants({ variant: "secondary", size: "md" })}
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setOpen(false)}
+                    className={buttonVariants({ variant: "primary", size: "md" })}
+                  >
+                    Get started
+                  </Link>
+                </>
+              )}
             </div>
           </Container>
         </div>

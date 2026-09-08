@@ -1,26 +1,17 @@
 import type { Metadata } from "next";
 
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { Workspace } from "@/components/tests/workspace";
 
 export const metadata: Metadata = {
-  title: "Active test",
+  title: "Test workspace",
   description: "Complete testing tasks and submit feedback.",
 };
 
-export default async function ActiveTestPage({
+export default async function TestWorkspacePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
-  return (
-    <PlaceholderPage
-      title={`Active test ${id}`}
-      description="The workspace an accepted tester uses during a playtest: task checklist, build download, and the structured feedback form."
-      plannedFor="Tester testing + feedback task"
-      backHref="/applications"
-      backLabel="Back to applications"
-    />
-  );
+  return <Workspace playtestId={id} />;
 }

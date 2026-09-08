@@ -247,3 +247,123 @@ export interface PlaytestAnalytics {
   totalBugs: number;
   averageHoursPlayed: number;
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Tester test progress (workspace workflow)                                  */
+/* -------------------------------------------------------------------------- */
+
+export type TestStage =
+  | "not-started"
+  | "in-progress"
+  | "tasks-complete"
+  | "feedback-submitted"
+  | "completed";
+
+/** One tester's progress through one playtest they were accepted to. */
+export interface TestProgress {
+  id: ID;
+  playtestId: ID;
+  testerId: ID;
+  stage: TestStage;
+  completedTaskIds: ID[];
+  buildDownloaded: boolean;
+  startedAt: ISODateString | null;
+  completedAt: ISODateString | null;
+  feedbackId: ID | null;
+}
+
+/** A playtest joined with the current tester's application + progress. */
+export interface TesterTest {
+  playtest: PlaytestWithRelations;
+  application: Application;
+  progress: TestProgress | null;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Notifications                                                              */
+/* -------------------------------------------------------------------------- */
+
+export type NotificationType =
+  | "application-accepted"
+  | "application-rejected"
+  | "application-received"
+  | "feedback-received"
+  | "playtest-published"
+  | "test-reminder"
+  | "system";
+
+export interface Notification {
+  id: ID;
+  userId: ID;
+  type: NotificationType;
+  title: string;
+  body: string;
+  /** In-app link the notification points to, if any. */
+  href: string | null;
+  read: boolean;
+  createdAt: ISODateString;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Mock session                                                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Frontend-only session. Produced by `lib/services/auth` and held in the
+ * persisted client store. A real auth provider replaces the producer only.
+ */
+export interface Session {
+  user: User;
+  role: UserRole;
+  /** Epoch ms — used to show a friendly "signed in" time, nothing security-related. */
+  issuedAt: number;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Form inputs (create flows)                                                 */
+/* -------------------------------------------------------------------------- */
+
+export interface NewGameInput {
+  title: string;
+  tagline: string;
+  description: string;
+  genres: GameGenre[];
+  platforms: GamePlatform[];
+  status: GameStatus;
+  buildVersion: string;
+  accentHue: number;
+}
+
+export interface NewPlaytestInput {
+  gameId: ID;
+  title: string;
+  summary: string;
+  goals: string[];
+  focusAreas: PlaytestFocus[];
+  requirements: TesterRequirements;
+  tasks: Omit<PlaytestTask, "id">[];
+  maxTesters: number;
+  closesAt: ISODateString;
+  publish: boolean;
+}
+
+/** Payload the tester feedback form produces. */
+export interface FeedbackInput {
+  ratings: FeedbackRatings;
+  sentiment: FeedbackSentiment;
+  summary: string;
+  highlights: string[];
+  painPoints: string[];
+  bugs: string[];
+  answers: FeedbackAnswer[];
+  wouldRecommend: boolean;
+  hoursPlayed: number;
+}
+
+/** Payload the tester application form produces. */
+export interface ApplicationInput {
+  message: string;
+  device: string;
+  experienceNote: string;
+  agreedToTerms: boolean;
+}

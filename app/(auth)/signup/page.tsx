@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SignupForm } from "@/components/auth/signup-form";
 
 export const metadata: Metadata = {
   title: "Sign up",
@@ -9,23 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function SignupPage() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create your account</CardTitle>
-        <CardDescription>
-          Sign-up (tester vs. developer role selection, validation with React
-          Hook Form + Zod) is built in a later task.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        <p>
-          Already have an account?{" "}
-          <Link href="/login" className="text-secondary underline-offset-4 hover:underline">
-            Log in
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
-  );
+  return <SignupForm />;
 }

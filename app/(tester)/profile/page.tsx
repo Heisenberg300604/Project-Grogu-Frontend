@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
 
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { TesterProfileView } from "@/components/tester/tester-profile-view";
 
 export const metadata: Metadata = {
-  title: "Tester profile",
+  title: "Profile",
   description: "Your tester profile and reputation.",
 };
 
 export default function ProfilePage() {
-  return (
-    <PlaceholderPage
-      title="Tester profile"
-      description="Public tester profile: reputation score, completed playtests, badges, preferred genres/platforms, and editable availability."
-      plannedFor="Tester profile task"
-      backHref="/"
-    />
-  );
+  return <TesterProfileView />;
 }
