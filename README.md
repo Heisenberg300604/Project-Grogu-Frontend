@@ -57,6 +57,7 @@ The full MVP for both roles:
 | [`docs/components.md`](docs/components.md) | Reusable components and where they live |
 | [`docs/mock-data.md`](docs/mock-data.md) | Seed entities, relationships, consumption |
 | [`docs/development.md`](docs/development.md) | Install, run, conventions, walkthrough |
+| [`docs/status.md`](docs/status.md) | What's built, known limitations, what's left |
 
 ## Not real
 
