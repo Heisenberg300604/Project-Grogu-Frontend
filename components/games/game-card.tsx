@@ -3,14 +3,8 @@ import { GENRE_LABELS, PLATFORM_LABELS } from "@/lib/constants";
 import type { Game } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { GameCover } from "@/components/games/game-cover";
-
-const STATUS_LABELS: Record<Game["status"], string> = {
-  "in-development": "In development",
-  alpha: "Alpha",
-  beta: "Beta",
-  released: "Released",
-};
 
 /** Compact game card used in marketing "Featured Games" and future catalogues. */
 export function GameCard({
@@ -29,9 +23,9 @@ export function GameCard({
     >
       <div className="relative aspect-[16/9] w-full border-b border-border">
         <GameCover game={game} />
-        <Badge tone="outline" className="absolute right-3 top-3 bg-background/70">
-          {STATUS_LABELS[game.status]}
-        </Badge>
+        <div className="absolute right-3 top-3">
+          <StatusBadge kind="game" status={game.status} />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-5">

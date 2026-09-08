@@ -28,5 +28,6 @@ export default async function PlaytestPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <PlaytestDetail playtestId={id} />;
+  const playtest = await getPlaytestById(id);
+  return <PlaytestDetail playtestId={id} initialPlaytest={playtest ?? null} />;
 }

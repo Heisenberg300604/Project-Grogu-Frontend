@@ -1,138 +1,122 @@
 # Architecture
 
-Project Grogu frontend — a game playtesting platform prototype. **Frontend-first
-phase**: no backend, all data is mocked. The architecture is built so the mock
+Project Grogu frontend — a game playtesting platform prototype connecting indie
+**developers** with **playtesters**.
+
+**Phase: frontend-first.** There is no backend. Authentication, persistence, and
+every mutation are simulated on the client. The code is structured so the mock
 layer can be swapped for a real API without touching pages or components.
 
 ## Stack
 
-| Concern        | Choice                                   |
-| -------------- | ---------------------------------------- |
-| Framework      | Next.js 16 (App Router, Turbopack)       |
-| Language       | TypeScript (strict)                      |
-| Styling        | Tailwind CSS v4 (CSS-first `@theme`)     |
-| UI primitives  | Hand-rolled, shadcn/ui-compatible        |
-| Icons          | lucide-react                             |
-| Forms (later)  | React Hook Form + Zod (`@hookform/resolvers`) |
-| Package manager | pnpm                                    |
+| Concern         | Choice                                            |
+| --------------- | ------------------------------------------------- |
+| Framework       | Next.js 16 (App Router, Turbopack)                |
+| Language        | TypeScript (strict)                               |
+| Styling         | Tailwind CSS v4 (CSS-first `@theme`)              |
+| UI primitives   | Radix UI + hand-rolled, shadcn/ui-compatible      |
+| Icons           | lucide-react                                      |
+| Forms           | React Hook Form + Zod (`@hookform/resolvers`)     |
+| Client state    | Zustand (persisted) — the mock "database"         |
+| Charts          | Recharts                                          |
+| Package manager | pnpm                                              |
+
+## Layers
+
+```
+components/**            UI. Reads via hooks, writes via services. Never touches the store directly.
+        │
+lib/hooks/**             Reactive selector hooks over the store (reads).
+lib/services/**          Async mock service layer (writes + auth). THE SEAM.
+        │
+lib/store/grogu-store    Zustand store — the single source of mutable truth, persisted to localStorage.
+        │
+data/**                  Seed data (typed by lib/types). Also read directly by Server Components.
+lib/domain.ts            Pure join / filter / aggregate helpers (no React, no store).
+lib/types.ts             Domain models — the single source of entity shapes.
+```
+
+Rule of thumb: **components call `lib/hooks/*` to read and `lib/services/*` to
+write.** Only the store and `data/index.ts` import raw seed arrays.
 
 ## App Router structure
 
-Routes live at the repo root in `app/` (no `src/` directory). Route **groups**
-separate the four surfaces of the product without adding URL segments:
+Routes live at the repo root in `app/` (no `src/`). Route **groups** attach a
+shared layout without adding a URL segment:
 
 ```
 app/
-  layout.tsx              Root layout: <html>, fonts, global metadata
-  not-found.tsx           Global 404
-  globals.css             Design tokens + base layer (see design-system.md)
+  layout.tsx                 Root: <html>, fonts, metadata
+  not-found.tsx
 
-  (marketing)/            Public site — SiteHeader + SiteFooter
-    layout.tsx
-    page.tsx              "/"  Landing page
-    how-it-works/page.tsx
-    developers/page.tsx
+  (marketing)/               Public — SiteHeader + SiteFooter (session-aware)
+    page.tsx                 "/"  Landing
+    how-it-works/  developers/
+    discover/                "/discover"          (public browse)
+    playtests/[id]/          "/playtests/[id]"    (public detail + apply)
 
-  (auth)/                 Centered card layout, no chrome
-    login/page.tsx
-    signup/page.tsx
+  (auth)/                     Centered card layout
+    login/  signup/
 
-  (tester)/               Authenticated tester area — AppShell (roleLabel="Tester")
-    discover/page.tsx
-    playtests/[id]/page.tsx
-    applications/page.tsx
-    tests/[id]/page.tsx
-    profile/page.tsx
+  (tester)/                   AppShell role="tester" — sidebar + topbar, route-guarded
+    dashboard/  applications/  profile/
+    tests/  tests/[id]/  tests/[id]/feedback/
 
-  (developer)/            Authenticated developer area — AppShell (roleLabel="Developer")
-    developer/dashboard/page.tsx
-    developer/games/page.tsx
-    developer/games/new/page.tsx
-    developer/playtests/new/page.tsx
-    developer/playtests/[id]/page.tsx
+  (developer)/                AppShell role="developer"
+    developer/dashboard/  developer/games/  developer/games/new/
+    developer/playtests/  developer/playtests/new/  developer/playtests/[id]/
+    developer/analytics/  developer/profile/
 ```
 
-Each group owns a `layout.tsx` that provides its shell. The developer routes keep
-a literal `/developer/...` prefix (the group is only for the shared layout).
-
-## Component organization
-
-```
-components/
-  ui/            Design-system primitives (Button, Card, Badge, Input,
-                 Container, SectionHeading, Logo). No domain knowledge.
-  layout/        Page-level structure: SiteFooter, AppShell, PlaceholderPage
-  navigation/    SiteHeader (marketing nav + mobile menu)
-  marketing/     Landing-page sections: Hero, HowItWorks, FeaturedGames, DeveloperCta
-  games/         Domain components for games: GameCard, GameCover
-  playtests/ feedback/ dashboard/ charts/   Reserved for later tasks
-```
-
-Rules:
-
-- `components/ui/*` never imports from `data/` or `components/*` outside `ui`.
-- Domain components (`games/`, later `playtests/`, …) compose `ui/` primitives
-  and accept typed props — they do not fetch data themselves.
-- Pages fetch data and pass it down.
+`AppShell` (client) guards the authenticated areas: it redirects to `/login`
+when signed out and to the other role's home on a role mismatch, and it gates
+rendering on store hydration.
 
 ## Server vs. Client Components
 
-Server Components are the default. `"use client"` is used in exactly two places
-so far, both for genuine interactivity:
+Server Components are the default. Client Components are used where there is real
+interactivity: the app shell + navigation, every form, dialogs, tabs, charts,
+and any view that reads the persisted store.
 
-- `components/navigation/site-header.tsx` — mobile menu disclosure + active link
-- `components/layout/app-shell.tsx` — active nav link via `usePathname()`
+Pattern for interactive pages: a **thin Server Component `page.tsx`** (exports
+`metadata`, awaits `params`) renders a **client feature component** from
+`components/`.
 
-Everything else — including the landing page and every section component —
-renders on the server.
+Public read pages (`/discover`, `/playtests/[id]`) fetch seed data in the Server
+Component and pass it to the client component as `initialData`. The client uses
+that value until the store has hydrated, then switches to live store state — so
+the page shows content immediately with no SSR/CSR mismatch.
 
-## Data flow
+## Data flow (read)
 
 ```
-data/*.ts  (raw mock arrays, typed by lib/types.ts)
-   │
-   ▼
-data/index.ts  (async accessor functions — the API seam)
-   │
-   ▼
-app/**/page.tsx  (Server Component: await the accessors)
-   │
-   ▼
-components/**  (presentational, receive typed props)
+Server Component  ──►  data/index.ts (seed)  ──►  props
+Client Component  ──►  lib/hooks/use-grogu   ──►  useGroguStore selector + useMemo derive
 ```
 
-- **Types** (`lib/types.ts`) are the single source of truth for entity shapes.
-- **Mock data** (`data/games.ts`, `data/users.ts`, …) implements those types.
-- **Accessors** (`data/index.ts`) are `async` and return domain types /
-  view-models. Pages only ever import from `@/data`, never the raw arrays.
+## Data flow (write)
 
-## Future API integration strategy
-
-Because every read already goes through an `async` function in `data/index.ts`
-with a domain-typed signature, migrating to a real backend is a body swap:
-
-```ts
-// today
-export async function getPlaytestById(id: string) {
-  const match = playtests.find((p) => p.id === id);
-  return match ? joinPlaytest(match) : undefined;
-}
-
-// later
-export async function getPlaytestById(id: string) {
-  const res = await fetch(`${API_URL}/playtests/${id}`, { next: { revalidate: 60 } });
-  if (!res.ok) return undefined;
-  return (await res.json()) as PlaytestWithRelations;
-}
+```
+Component event ──► lib/services/<entity>.<verb>()  (async, ~simulated latency)
+                      └─► useGroguStore.getState().<action>()  (immutable update)
+                            └─► persist middleware writes localStorage
+                                  └─► subscribed hooks re-render
 ```
 
-Call sites, components, and types are unaffected. Mutations (apply to a playtest,
-accept an applicant, submit feedback) will be added as Server Actions or route
-handlers in `app/` when the backend exists.
+## Future API integration
+
+Every service function is already `async` and returns a domain type. Swap the
+body for `fetch` / an SDK call — the signatures and every call site stay the
+same. Reads would move to TanStack Query (already a documented dependency in
+`AGENTS.md`); the selector hooks in `lib/hooks/*` are the seam for that.
+
+See `docs/mock-data.md` and `docs/state-management.md` for specifics.
 
 ## Conventions
 
-- Path alias `@/*` → repo root (e.g. `@/lib/types`, `@/components/ui/button`).
-- No magic strings for domain unions — use the label maps in `lib/constants.ts`.
-- `cn()` (`lib/utils.ts`) merges class names; every primitive accepts `className`.
-- Dates are ISO strings in data; format with helpers in `lib/utils.ts`.
+- Path alias `@/*` → repo root.
+- No raw hex or magic strings in components — colours are design tokens
+  (`docs/design-system.md`), labels come from `lib/constants.ts`.
+- `cn()` merges class names; every primitive accepts `className`.
+- Dates are ISO strings; format with `lib/utils.ts` helpers.
+- No `any`. Strict TypeScript. ESLint (`eslint-config-next`) must pass clean.

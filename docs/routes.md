@@ -1,58 +1,67 @@
 # Routes
 
-Status legend: **Built** = implemented this phase · **Placeholder** = route +
-metadata exist, content is a stub for a later task.
+All app data is mock/persisted client state. "Auth" is simulated.
 
-## Marketing — `app/(marketing)/`
+## Marketing / public — `app/(marketing)/`
 
-| Route | User | Purpose | Status |
-| --- | --- | --- | --- |
-| `/` | Public | Landing page: hero, how-it-works, featured games, developer CTA, footer | **Built** |
-| `/how-it-works` | Public | Explains the playtest loop for both roles | Placeholder (reuses the `HowItWorks` section) |
-| `/developers` | Public / developers | Developer-focused marketing | Placeholder (reuses the `DeveloperCta` section) |
+Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
+
+| Route | User | Purpose |
+| --- | --- | --- |
+| `/` | Everyone | Landing: hero, how-it-works, featured games, developer CTA, footer |
+| `/how-it-works` | Everyone | The playtest loop, tester journey |
+| `/developers` | Developers | Developer-focused pitch + feature breakdown |
+| `/discover` | Everyone | Browse open playtests. Working search + genre/platform/time/NDA filters |
+| `/playtests/[id]` | Everyone | Playtest detail: banner, goals, tasks, requirements, reward, developer, apply CTA. Apply requires a tester session |
 
 ## Auth — `app/(auth)/`
 
-| Route | User | Purpose | Status |
-| --- | --- | --- | --- |
-| `/login` | Public | Log in | Placeholder — no auth in this phase |
-| `/signup` | Public | Create a tester or developer account | Placeholder — form + role selection later (RHF + Zod) |
+| Route | Purpose |
+| --- | --- |
+| `/login` | Demo-account buttons + email/password (mock). Honours `?next=`. Redirects if already signed in |
+| `/signup` | Role selection (tester / developer) → role-specific form (RHF + Zod). Creates a mock account and signs in |
 
 ## Tester area — `app/(tester)/`
 
-Shared shell: `AppShell` with `roleLabel="Tester"` and `TESTER_NAV`.
+`AppShell` role `tester`. Nav: Dashboard · Discover · Applications · My tests · Profile.
 
-| Route | User | Purpose | Status |
-| --- | --- | --- | --- |
-| `/discover` | Tester | Browse/filter open playtests | Placeholder |
-| `/playtests/[id]` | Tester | Playtest detail + apply flow | Placeholder (resolves mock playtest by id; `generateStaticParams` from mock data) |
-| `/applications` | Tester | Track application statuses | Placeholder |
-| `/tests/[id]` | Tester | Active-test workspace: tasks + feedback form | Placeholder |
-| `/profile` | Tester | Tester profile & reputation | Placeholder |
+| Route | Purpose |
+| --- | --- |
+| `/dashboard` | Welcome, reputation + counts, continue-testing, recent applications, recommendations |
+| `/applications` | All applications, tabbed by status; withdraw pending ones |
+| `/tests` | Accepted playtests, split active / completed, with progress |
+| `/tests/[id]` | Workspace: download build → task checklist → unlock feedback. Workflow stepper |
+| `/tests/[id]/feedback` | Structured feedback form (ratings, summary, highlights, pain points, controls, bugs, recommend, hours) → marks the test complete |
+| `/profile` | Public tester profile: reputation, completion rate, badges, testing history, preferences |
 
 ## Developer area — `app/(developer)/`
 
-Shared shell: `AppShell` with `roleLabel="Developer"` and `DEVELOPER_NAV`.
+`AppShell` role `developer`. Nav: Dashboard · Games · Playtests · Analytics · Profile.
 
-| Route | User | Purpose | Status |
-| --- | --- | --- | --- |
-| `/developer/dashboard` | Developer | Overview of games, playtests, pending applicants, recent feedback | Placeholder |
-| `/developer/games` | Developer | Manage games | Placeholder |
-| `/developer/games/new` | Developer | Add a game (form) | Placeholder |
-| `/developer/playtests/new` | Developer | Create a playtest (multi-step form) | Placeholder |
-| `/developer/playtests/[id]` | Developer | Manage a playtest: applicants, testers, feedback, analytics | Placeholder (resolves mock playtest by id; `generateStaticParams` from mock data) |
+| Route | Purpose |
+| --- | --- |
+| `/developer/dashboard` | Studio stats, active playtests with roster + feedback progress, recent feedback |
+| `/developer/games` | Game grid with per-game playtest / tester / feedback counts |
+| `/developer/games/new` | Create-game form with live cover preview + accent picker |
+| `/developer/playtests` | All playtests, tabbed by status |
+| `/developer/playtests/new` | 4-step create flow: game & info → requirements & reward → tasks → review. Save draft or publish |
+| `/developer/playtests/[id]` | Manage: tabs for Overview / Applicants (accept–reject) / Testers / Feedback / Analytics. `?tab=` deep-links. Status control |
+| `/developer/analytics` | Cross-playtest feedback: ratings chart, sentiment donut, common pain points & bugs, qualitative feed. Scope selector |
+| `/developer/profile` | Studio profile: details, stats, games |
 
 ## System
 
 | Route | Purpose |
 | --- | --- |
-| `not-found` (`app/not-found.tsx`) | Global 404 |
+| `not-found` | Global 404 |
 
 ## Notes
 
-- Route **groups** `(marketing)` / `(auth)` / `(tester)` / `(developer)` do not
-  appear in URLs — they exist to attach a shared `layout.tsx`.
-- The `/developer` prefix on developer routes is a real segment; only the layout
-  is shared via the group.
-- Placeholder pages render `components/layout/placeholder-page.tsx` with a short
-  description of what the finished screen will contain.
+- Route groups `(marketing)` / `(auth)` / `(tester)` / `(developer)` don't appear
+  in URLs.
+- `/discover` and `/playtests/[id]` are **public** (Steam-style): browsable
+  without an account; applying redirects to `/login?next=…`.
+- `/developer/...` keeps a literal `/developer` segment; the group only shares the
+  layout.
+- `/playtests/[id]` is prerendered for seed playtests (`generateStaticParams`);
+  playtests created in a session render on demand from the store.

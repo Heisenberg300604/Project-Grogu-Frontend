@@ -1,78 +1,74 @@
 # Mock Data
 
-All data is mocked for the frontend-first phase. It is realistic, internally
-consistent, and typed by `lib/types.ts`.
+Seed data is realistic and internally consistent, typed by `lib/types.ts`. At
+runtime the seed is loaded into the persisted client store
+(`lib/store/grogu-store.ts`), which is the mutable source of truth — see
+`docs/state-management.md`.
 
-## Files
+## Seed files — `data/`
 
 | File | Exports | Contents |
 | --- | --- | --- |
-| `data/users.ts` | `users`, `testerProfiles`, `developerProfiles` | 3 developers, 6 testers, and the role-specific profile for each |
-| `data/games.ts` | `games` | 6 games across the 3 developers |
-| `data/playtests.ts` | `playtests` | 6 playtests (one per game), covering every `PlaytestStatus` of interest |
-| `data/applications.ts` | `applications` | 21 applications across the playtests |
-| `data/feedback.ts` | `feedback` | 9 feedback submissions for the in-progress / in-review / completed playtests |
-| `data/index.ts` | accessor functions | **The only module pages import from.** |
+| `users.ts` | `users`, `testerProfiles`, `developerProfiles` | 3 developers, 6 testers + a profile each |
+| `games.ts` | `games` | 6 games across the 3 developers |
+| `playtests.ts` | `playtests` | 6 playtests (one per game) covering every relevant status |
+| `applications.ts` | `applications` | 21 applications |
+| `feedback.ts` | `feedback` | 9 feedback reports (for in-progress / review / completed playtests) |
+| `test-progress.ts` | `testProgress` | Workspace progress for the demo tester's accepted tests |
+| `notifications.ts` | `notifications` | Seeded for the two demo accounts |
+| `index.ts` | async accessors | Read by **Server Components** only (landing, discover, playtest detail) |
+
+## Demo accounts
+
+| Role | User id | Email |
+| --- | --- | --- |
+| Tester | `tester-1` (Priya Nair) | `priya.nair@example.com` |
+| Developer | `dev-1` (Mara Okafor, Driftwood Games) | `mara@driftwoodgames.dev` |
+
+Both have pre-seeded applications, tests, feedback, and notifications so every
+screen has content on first load.
 
 ## Entities & relationships
 
 ```
-User (role: developer)  1 ──── *  Game            Game.developerId
-User (role: developer)  1 ──── *  Playtest        Playtest.developerId
-Game                    1 ──── *  Playtest        Playtest.gameId
-Playtest                1 ──── *  Application     Application.playtestId
-User (role: tester)     1 ──── *  Application     Application.testerId
-Playtest                1 ──── *  Feedback        Feedback.playtestId
-User (role: tester)     1 ──── *  Feedback        Feedback.testerId
-Playtest                1 ──── 1  PlaytestTask[]  (embedded in Playtest.tasks)
-User (role: tester)     1 ──── 1  TesterProfile   TesterProfile.userId
-User (role: developer)  1 ──── 1  DeveloperProfile DeveloperProfile.userId
+User(developer) 1─* Game            Game.developerId
+User(developer) 1─* Playtest        Playtest.developerId
+Game            1─* Playtest        Playtest.gameId
+Playtest        1─* Application     Application.playtestId
+User(tester)    1─* Application     Application.testerId
+Playtest        1─* Feedback        Feedback.playtestId
+User(tester)    1─* Feedback        Feedback.testerId
+Playtest        1─* TestProgress    (per accepted tester)
+Playtest        1─1 PlaytestTask[]  (embedded)
+User            1─1 Tester/DeveloperProfile
+User            1─* Notification
 ```
 
-Composed view-models (in `lib/types.ts`):
+Composed view models (`lib/types.ts`): `PlaytestWithRelations`, `TesterTest`,
+`PlaytestAnalytics`, `Session`.
 
-- `PlaytestWithRelations` = `Playtest` + its `game` + its `developer`
-- `PlaytestAnalytics` = aggregates computed from `feedback` for one playtest
+## Consistency
 
-## Consistency rules kept by hand
-
-- `Playtest.acceptedTesters` == count of `accepted` applications for that playtest.
-- `Playtest.applicantCount` == total applications for that playtest.
-- Every `Feedback` / `Application` `testerId` is a `role: "tester"` user; every
-  `developerId` is a `role: "developer"` user.
-- `Feedback` only exists for playtests with status `in-progress`, `review`, or
+- Playtest counters (`applicantCount`, `acceptedTesters`) are **re-derived** from
+  applications when the store seeds and on every mutation — authored values are
+  a fallback only.
+- Every `testerId` is a `role:"tester"` user; every `developerId` a
+  `role:"developer"` user.
+- `Feedback` exists only for playtests that are `in-progress` / `review` /
   `completed`.
-- All dates are ISO strings; "today" in the dataset is around **2026-09-08**.
+- Dates are ISO strings; "today" in the dataset ≈ **2026-09-08**.
 
-## How mock data is consumed
+## How it's consumed
 
-Pages call the `async` accessors in `data/index.ts` — never the raw arrays:
+**Server Components** (`app/(marketing)/*`) call the `async` accessors in
+`data/index.ts` directly for the initial render.
 
-```ts
-import { getFeaturedGames, getPlatformStats } from "@/data";
+**Client Components** call selector hooks in `lib/hooks/use-grogu.ts`, which read
+the store. Writes go through `lib/services/*`, which call store actions.
 
-export default async function LandingPage() {
-  const [stats, games] = await Promise.all([
-    getPlatformStats(),
-    getFeaturedGames(6),
-  ]);
-  // ...
-}
-```
+## Replacing with an API
 
-Key accessors:
-
-| Function | Returns |
-| --- | --- |
-| `getGames()` / `getGameById(id)` / `getFeaturedGames(limit)` / `getGamesByDeveloper(id)` | `Game`(s) |
-| `getUserById(id)` / `getTesterProfile(id)` / `getDeveloperProfile(id)` | user + profile |
-| `getPlaytests({ status })` / `getDiscoverablePlaytests()` / `getPlaytestById(id)` / `getPlaytestsByDeveloper(id)` | `PlaytestWithRelations`(s) |
-| `getApplicationsByTester(id)` / `getApplicationsForPlaytest(id)` | `Application[]` |
-| `getFeedbackForPlaytest(id)` / `getPlaytestAnalytics(id)` | `Feedback[]` / `PlaytestAnalytics` |
-| `getPlatformStats()` | landing-page totals |
-
-## Replacing with a real API
-
-Every accessor is already `async` and returns a domain type. Swap the function
-body for a `fetch` / SDK call; pages and components do not change. See
-`docs/architecture.md` → "Future API integration strategy".
+`data/index.ts` accessors and `lib/services/*` functions are all `async` and
+return domain types. Replace their bodies with `fetch` calls; move client reads
+to TanStack Query behind the same `lib/hooks/*` names. Nothing in `components/`
+changes.

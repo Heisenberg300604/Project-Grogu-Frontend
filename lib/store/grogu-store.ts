@@ -75,7 +75,7 @@ interface SeedCollections {
 }
 
 function freshSeed(): SeedCollections {
-  return clone({
+  const seed = clone({
     users: seedUsers,
     testerProfiles: seedTesterProfiles,
     developerProfiles: seedDeveloperProfiles,
@@ -86,6 +86,11 @@ function freshSeed(): SeedCollections {
     notifications: seedNotifications,
     testProgress: seedTestProgress,
   });
+  // Keep the denormalised playtest counters honest against the seed applications.
+  seed.playtests = seed.playtests.map((p) =>
+    withPlaytestCounts(p, seed.applications),
+  );
+  return seed;
 }
 
 /** Recompute the denormalised counters kept on a playtest. */
