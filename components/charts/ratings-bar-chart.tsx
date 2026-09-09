@@ -21,13 +21,13 @@ export function RatingsBarChart({ ratings }: { ratings: FeedbackRatings }) {
   }));
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-56 w-full sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 12, right: 8, bottom: 0, left: -16 }}>
           <CartesianGrid vertical={false} stroke={CHART_COLORS.grid} />
           <XAxis
             dataKey="name"
-            tick={{ fill: CHART_COLORS.axis, fontSize: 12 }}
+            tick={{ fill: CHART_COLORS.axis, fontSize: 10 }}
             tickLine={false}
             axisLine={{ stroke: CHART_COLORS.grid }}
           />

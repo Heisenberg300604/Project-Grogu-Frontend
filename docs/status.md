@@ -1,6 +1,6 @@
 # App Status
 
-Last updated: 2026-09-09 · Phase: **frontend-first MVP — complete**
+Last updated: 2026-09-09 · Phase: **frontend-first MVP + edit flows — complete**
 
 This is a **frontend prototype**. There is no backend, database, or auth
 provider. Data is seeded mock data; auth and every mutation are simulated on the
@@ -33,7 +33,9 @@ client with a persisted Zustand store (`docs/state-management.md`).
 | Tester | Profile | ✅ |
 | Developer | Dashboard | ✅ |
 | Developer | Games + Create game | ✅ |
+| Developer | Edit game | ✅ |
 | Developer | Playtests + 4-step Create playtest wizard | ✅ |
+| Developer | Edit draft playtest | ✅ |
 | Developer | Manage playtest — Overview / Applicants / Testers / Feedback / Analytics | ✅ |
 | Developer | Analytics (cross-playtest) | ✅ |
 | Developer | Studio profile | ✅ |
@@ -51,8 +53,10 @@ The full product workflow runs end to end on mock state and survives refresh.
   — no real image upload/hosting (`GameCover`, `UserAvatar`).
 - **No email / notifications delivery.** Notifications are store rows only.
 - **No file handling.** "Download build" just flips a flag; build URLs are fake.
-- **Editing is partial.** You can create games and playtests and change a
-  playtest's status; there are no dedicated edit-game / edit-playtest forms yet.
+- **Lifecycle editing is intentionally constrained.** Games can be edited;
+  playtest drafts can be edited while published, active, completed, closed, and
+  archived playtests are protected from content edits. `recruiting` is the
+  existing published/open status in this model.
 - **No pagination / virtualization.** Fine at mock-data scale.
 - **`/tests/[id]` and `/developer/playtests/[id]`** render on demand (not
   prerendered) because they're session-gated.
@@ -78,7 +82,6 @@ admin tools · email. See `AGENTS.md` §5.
 
 ## Next tasks (suggested)
 
-1. Edit flows: edit game, edit playtest (draft → publish lifecycle).
-2. Tester ↔ developer messaging on a playtest.
-3. Real image upload for covers/avatars.
-4. Wire a backend: start with auth + read APIs behind TanStack Query.
+1. Tester ↔ developer messaging on a playtest.
+2. Real image upload for covers/avatars.
+3. Wire a backend: start with auth + read APIs behind TanStack Query.

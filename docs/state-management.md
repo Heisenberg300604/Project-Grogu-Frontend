@@ -24,8 +24,8 @@ session:
 ### Actions (mutations)
 
 `setSession`, `applyToPlaytest`, `withdrawApplication`, `setBuildDownloaded`,
-`toggleTask`, `submitFeedback`, `decideApplication`, `createGame`,
-`createPlaytest`, `setPlaytestStatus`, `markNotificationRead`,
+`toggleTask`, `submitFeedback`, `decideApplication`, `createGame`, `updateGame`,
+`createPlaytest`, `updatePlaytest`, `setPlaytestStatus`, `markNotificationRead`,
 `markAllNotificationsRead`, `resetDemo`.
 
 Every action is a pure immutable update. Cross-entity effects are handled inline
@@ -70,8 +70,8 @@ real loading states), then call a store action. They throw `ServiceError` with a
 | `auth.ts` (`lib/mock-auth.ts` re-exports) | `login`, `loginAsDemo`, `signup`, `logout`, `getSession` |
 | `applications.ts` | `applyToPlaytest`, `withdrawApplication`, `decideApplication` |
 | `tests.ts` | `downloadBuild`, `toggleTask`, `submitFeedback` |
-| `games.ts` | `createGame` |
-| `playtests.ts` | `createPlaytest`, `setPlaytestStatus` |
+| `games.ts` | `createGame`, `updateGame` |
+| `playtests.ts` | `createPlaytest`, `updatePlaytest`, `setPlaytestStatus` |
 | `notifications.ts` | `markRead`, `markAllRead` |
 
 ## Mock authentication
@@ -104,3 +104,8 @@ Developer
 ```
 
 All of it runs on mock state and survives refresh.
+
+Playtest lifecycle rules are frontend-only and enforced by the domain/service
+boundary: drafts can be edited, `recruiting` is the published/open state,
+active or completed playtests are locked for editing, and `completed` or
+`closed` playtests may move to terminal `archived` status.

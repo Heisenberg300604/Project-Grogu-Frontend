@@ -108,13 +108,19 @@ export function SiteHeader() {
             ))}
             <div className="mt-2 flex flex-col gap-2">
               {isAuthenticated && session ? (
-                <Link
-                  href={homePathForRole(session.role)}
-                  onClick={() => setOpen(false)}
-                  className={buttonVariants({ variant: "primary", size: "md" })}
-                >
-                  Go to {session.role === "tester" ? "tester" : "developer"} home
-                </Link>
+                <>
+                  <div className="flex items-center justify-end gap-2 border-b border-border pb-3">
+                    <NotificationMenu userId={session.user.id} />
+                    <UserMenu session={session} />
+                  </div>
+                  <Link
+                    href={homePathForRole(session.role)}
+                    onClick={() => setOpen(false)}
+                    className={buttonVariants({ variant: "primary", size: "md" })}
+                  >
+                    Go to {session.role === "tester" ? "tester" : "developer"} home
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link

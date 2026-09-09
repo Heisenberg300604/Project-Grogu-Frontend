@@ -27,6 +27,7 @@ import {
 import type {
   ExperienceLevel,
   GamePlatform,
+  Playtest,
   PlaytestFocus,
   TaskType,
 } from "@/lib/types";
@@ -53,6 +54,7 @@ import { PageHeader } from "@/components/layout/page-header";
 const TASK_TYPES = Object.keys(TASK_TYPE_LABELS) as TaskType[];
 
 const taskSchema = z.object({
+  taskId: z.string().optional(),
   title: z.string().trim().min(3, "Name the task."),
   description: z.string().trim().min(8, "Add a short instruction."),
   type: z.enum(TASK_TYPES),
@@ -113,13 +115,15 @@ function defaultCloseDate() {
   return d.toISOString().slice(0, 10);
 }
 
-export function PlaytestForm() {
+export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useSession();
   const games = useDeveloperGames(user?.id);
   const [step, setStep] = useState(0);
   const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const isEdit = Boolean(initialPlaytest);
 
   const {
     register,
@@ -133,30 +137,35 @@ export function PlaytestForm() {
     resolver: zodResolver(schema),
     mode: "onTouched",
     defaultValues: {
-      gameId: searchParams.get("game") ?? games[0]?.id ?? "",
-      title: "",
-      summary: "",
-      goals: "",
-      focusAreas: [],
-      closesAt: defaultCloseDate(),
-      minExperienceLevel: "regular",
-      platforms: [],
-      languages: "English",
-      minReputation: 40,
-      estimatedHours: 4,
-      ndaRequired: false,
-      reward: "Grogu reputation",
-      maxTesters: 20,
+      gameId: initialPlaytest?.gameId ?? searchParams.get("game") ?? games[0]?.id ?? "",
+      title: initialPlaytest?.title ?? "",
+      summary: initialPlaytest?.summary ?? "",
+      goals: initialPlaytest?.goals.join("\n") ?? "",
+      focusAreas: initialPlaytest?.focusAreas ?? [],
+      closesAt: initialPlaytest?.closesAt.slice(0, 10) ?? defaultCloseDate(),
+      minExperienceLevel: initialPlaytest?.requirements.minExperienceLevel ?? "regular",
+      platforms: initialPlaytest?.requirements.platforms ?? [],
+      languages: initialPlaytest?.requirements.languages.join(", ") ?? "English",
+      minReputation: initialPlaytest?.requirements.minReputation ?? 40,
+      estimatedHours: initialPlaytest?.requirements.estimatedHours ?? 4,
+      ndaRequired: initialPlaytest?.requirements.ndaRequired ?? false,
+      reward: initialPlaytest?.reward ?? "Grogu reputation",
+      maxTesters: initialPlaytest?.maxTesters ?? 20,
       tasks: [
-        {
-          title: "Play the first session",
-          description: "Play for the estimated time and note first impressions.",
-          type: "objective",
-          required: true,
-          estimatedMinutes: 45,
-        },
+        ...(initialPlaytest?.tasks.map(({ id, ...task }) => ({
+          ...task,
+          taskId: id,
+        })) ?? [
+          {
+            title: "Play the first session",
+            description: "Play for the estimated time and note first impressions.",
+            type: "objective" as const,
+            required: true,
+            estimatedMinutes: 45,
+          },
+        ]),
       ],
-      publish: true,
+      publish: false,
     },
   });
 
@@ -201,9 +210,18 @@ export function PlaytestForm() {
   async function submit(publish: boolean) {
     setValue("publish", publish);
     setFormError(null);
+    setSuccessMessage(null);
     await handleSubmit(async (values) => {
       try {
-        const created = await playtestsService.createPlaytest({
+        const taskValues = values.tasks.map(({ taskId, ...task }) => ({
+          ...(taskId ? { id: taskId } : {}),
+          title: task.title,
+          description: task.description,
+          type: task.type as TaskType,
+          required: task.required,
+          estimatedMinutes: Number(task.estimatedMinutes),
+        }));
+        const input = {
           gameId: values.gameId,
           title: values.title,
           summary: values.summary,
@@ -218,19 +236,28 @@ export function PlaytestForm() {
             estimatedHours: Number(values.estimatedHours),
             ndaRequired: values.ndaRequired,
           },
-          tasks: values.tasks.map((t) => ({
-            title: t.title,
-            description: t.description,
-            type: t.type as TaskType,
-            required: t.required,
-            estimatedMinutes: Number(t.estimatedMinutes),
-          })),
+          tasks: taskValues,
           reward: values.reward,
           maxTesters: Number(values.maxTesters),
           closesAt: new Date(values.closesAt).toISOString(),
-          publish,
-        });
-        router.push(`/developer/playtests/${created.id}`);
+        };
+        if (initialPlaytest) {
+          await playtestsService.updatePlaytest(initialPlaytest.id, input);
+          setSuccessMessage("Draft playtest updated successfully.");
+        } else {
+          const created = await playtestsService.createPlaytest({
+            ...input,
+            publish,
+            tasks: taskValues.map((task) => ({
+              title: task.title,
+              description: task.description,
+              type: task.type,
+              required: task.required,
+              estimatedMinutes: task.estimatedMinutes,
+            })),
+          });
+          router.push(`/developer/playtests/${created.id}`);
+        }
       } catch (error) {
         setFormError(
           error instanceof ServiceError
@@ -249,10 +276,14 @@ export function PlaytestForm() {
       <PageHeader
         breadcrumbs={[
           { label: "Playtests", href: "/developer/playtests" },
-          { label: "New playtest" },
+          { label: isEdit ? "Edit draft" : "New playtest" },
         ]}
-        title="Create a playtest"
-        description="Set it up in four steps. Save a draft any time."
+        title={isEdit ? "Edit draft playtest" : "Create a playtest"}
+        description={
+          isEdit
+            ? "Update this draft before publishing it to testers."
+            : "Set it up in four steps. Save a draft any time."
+        }
       />
 
       <ol className="flex flex-wrap gap-2">
@@ -633,6 +664,15 @@ export function PlaytestForm() {
           </p>
         )}
 
+        {successMessage && (
+          <p
+            className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+            role="status"
+          >
+            {successMessage}
+          </p>
+        )}
+
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             {step > 0 && (
@@ -642,21 +682,37 @@ export function PlaytestForm() {
             )}
           </div>
           <div className="flex gap-2">
+            <Button asChild type="button" variant="ghost">
+              <Link
+                href={
+                  initialPlaytest
+                    ? `/developer/playtests/${initialPlaytest.id}`
+                    : "/developer/playtests"
+                }
+              >
+                Cancel
+              </Link>
+            </Button>
             <Button
               type="button"
               variant="secondary"
               loading={isSubmitting}
               onClick={() => submit(false)}
             >
-              Save draft
+              {isEdit ? "Save changes" : "Save draft"}
             </Button>
-            {step < STEPS.length - 1 ? (
+            {!isEdit && step < STEPS.length - 1 ? (
               <Button type="button" onClick={next}>
                 Continue
               </Button>
-            ) : (
+            ) : !isEdit ? (
               <Button type="button" loading={isSubmitting} onClick={() => submit(true)}>
                 Publish playtest
+              </Button>
+            ) : null}
+            {isEdit && step < STEPS.length - 1 && (
+              <Button type="button" onClick={next}>
+                Continue
               </Button>
             )}
           </div>
@@ -668,7 +724,7 @@ export function PlaytestForm() {
 
 function ReviewRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[7rem_1fr] gap-3 border-b border-border pb-3 last:border-0">
+    <div className="grid gap-1 border-b border-border pb-3 last:border-0 sm:grid-cols-[7rem_1fr] sm:gap-3">
       <span className="text-xs uppercase tracking-wide text-muted-foreground">
         {label}
       </span>

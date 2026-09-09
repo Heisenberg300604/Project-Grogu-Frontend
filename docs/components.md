@@ -53,7 +53,7 @@ landing-page sections, composed by `app/(marketing)/page.tsx`.
 | `game-cover.tsx` | Procedural SVG cover art from `accentHue` + title (no image assets). Renders `coverImageUrl` if set |
 | `game-card.tsx` | Game summary card (featured games, catalogues) |
 | `developer-card.tsx` | Studio summary (playtest detail sidebar) |
-| `game-form.tsx` | Create-game form + live preview. Client |
+| `game-form.tsx` | Create/edit game form + live preview. Client |
 
 ## `components/playtests/`
 
@@ -66,7 +66,7 @@ landing-page sections, composed by `app/(marketing)/page.tsx`.
 | `apply-panel.tsx` | Right-rail CTA: resolves session / application / capacity state |
 | `apply-dialog.tsx` | Application form dialog (RHF + Zod) with success state |
 | `discover-explorer.tsx` / `discover-filters.tsx` | Discover results + working filter panel |
-| `playtest-form.tsx` | 4-step create-playtest wizard (`useFieldArray` for tasks). Client |
+| `playtest-form.tsx` | 4-step create/edit-draft wizard (`useFieldArray` for tasks). Client |
 | `applicant-row.tsx` | One applicant with accept / reject actions |
 
 ## `components/tests/`

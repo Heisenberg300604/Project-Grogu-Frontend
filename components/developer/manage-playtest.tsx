@@ -3,11 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CalendarClock, Gift, Lock, Users } from "lucide-react";
+import { CalendarClock, Gift, Lock, Pencil, Users } from "lucide-react";
 
 import { formatDate, formatDeadline } from "@/lib/utils";
-import { computeAnalytics } from "@/lib/domain";
-import { FOCUS_LABELS } from "@/lib/constants";
+import {
+  computeAnalytics,
+  PLAYTEST_STATUS_TRANSITIONS,
+} from "@/lib/domain";
+import { FOCUS_LABELS, PLAYTEST_STATUS_META } from "@/lib/constants";
 import type { PlaytestStatus } from "@/lib/types";
 import {
   useAcceptedTesters,
@@ -42,15 +45,6 @@ import { RatingBar } from "@/components/feedback/rating";
 import { RatingsBarChart } from "@/components/charts/ratings-bar-chart";
 import { SentimentDonut } from "@/components/charts/sentiment-donut";
 
-const STATUS_OPTIONS: PlaytestStatus[] = [
-  "draft",
-  "recruiting",
-  "in-progress",
-  "review",
-  "completed",
-  "closed",
-];
-
 const TABS = ["overview", "applicants", "testers", "feedback", "analytics"] as const;
 
 export function ManagePlaytest({ playtestId }: { playtestId: string }) {
@@ -64,6 +58,7 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
   const feedback = useFeedbackForPlaytest(playtestId);
   const users = useGroguStore((s) => s.users);
   const [statusBusy, setStatusBusy] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
   const tabParam = searchParams.get("tab");
   const tab = TABS.includes(tabParam as (typeof TABS)[number])
@@ -96,8 +91,13 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
 
   async function changeStatus(status: PlaytestStatus) {
     setStatusBusy(true);
+    setStatusError(null);
     try {
       await playtestsService.setPlaytestStatus(playtestId, status);
+    } catch (error) {
+      setStatusError(
+        error instanceof Error ? error.message : "Couldn't update playtest status.",
+      );
     } finally {
       setStatusBusy(false);
     }
@@ -119,30 +119,55 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
         title={playtest.title}
         description={playtest.summary}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
             <StatusBadge kind="playtest" status={playtest.status} />
             <Select
               value={playtest.status}
               onValueChange={(v) => changeStatus(v as PlaytestStatus)}
               disabled={statusBusy}
             >
-              <SelectTrigger className="h-9 w-40">
+              <SelectTrigger className="h-9 w-full sm:w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {STATUS_OPTIONS.map((status) => (
+                {[playtest.status, ...PLAYTEST_STATUS_TRANSITIONS[playtest.status]].map(
+                  (status) => (
                   <SelectItem key={status} value={status}>
-                    {status}
+                    {PLAYTEST_STATUS_META[status].label}
                   </SelectItem>
-                ))}
+                  ),
+                )}
               </SelectContent>
             </Select>
+            {playtest.status === "draft" && (
+              <Button asChild variant="secondary" size="sm">
+                <Link href={`/developer/playtests/${playtest.id}/edit`}>
+                  <Pencil className="size-4" /> Edit draft
+                </Link>
+              </Button>
+            )}
             <Button asChild variant="ghost" size="sm">
               <Link href={`/playtests/${playtest.id}`}>Public page</Link>
             </Button>
           </div>
         }
       />
+
+      {statusError && (
+        <p
+          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
+          {statusError}
+        </p>
+      )}
+
+      {playtest.status !== "draft" && playtest.status !== "archived" && (
+        <p className="text-sm text-muted-foreground">
+          This playtest is {PLAYTEST_STATUS_META[playtest.status].label.toLowerCase()}.
+          Editing is locked to protect tester applications and progress.
+        </p>
+      )}
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>

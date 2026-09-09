@@ -28,6 +28,8 @@ import type {
   Notification,
   Playtest,
   PlaytestStatus,
+  UpdateGameInput,
+  UpdatePlaytestInput,
   Session,
   TestProgress,
   TesterProfile,
@@ -45,6 +47,7 @@ import {
   testerProfiles as seedTesterProfiles,
   users as seedUsers,
 } from "@/data/users";
+import { canTransitionPlaytestStatus } from "@/lib/domain";
 
 const now = () => new Date().toISOString();
 
@@ -127,7 +130,17 @@ export interface GroguState extends SeedCollections {
     note?: string,
   ) => void;
   createGame: (developerId: string, input: NewGameInput) => Game;
+  updateGame: (
+    developerId: string,
+    gameId: string,
+    input: UpdateGameInput,
+  ) => Game;
   createPlaytest: (developerId: string, input: NewPlaytestInput) => Playtest;
+  updatePlaytest: (
+    developerId: string,
+    playtestId: string,
+    input: UpdatePlaytestInput,
+  ) => Playtest;
   setPlaytestStatus: (playtestId: string, status: PlaytestStatus) => void;
 
   /* notifications */
@@ -379,6 +392,20 @@ export const useGroguStore = create<GroguState>()(
         return game;
       },
 
+      updateGame: (developerId, gameId, input) => {
+        const existing = get().games.find(
+          (game) => game.id === gameId && game.developerId === developerId,
+        );
+        if (!existing) throw new Error("Game not found");
+        const updated = { ...existing, ...input, updatedAt: now() };
+        set((state) => ({
+          games: state.games.map((game) =>
+            game.id === gameId ? updated : game,
+          ),
+        }));
+        return updated;
+      },
+
       createPlaytest: (developerId, input) => {
         const playtest: Playtest = {
           id: newId("pt"),
@@ -423,12 +450,49 @@ export const useGroguStore = create<GroguState>()(
         return playtest;
       },
 
-      setPlaytestStatus: (playtestId, status) =>
+      updatePlaytest: (developerId, playtestId, input) => {
+        const existing = get().playtests.find(
+          (playtest) =>
+            playtest.id === playtestId && playtest.developerId === developerId,
+        );
+        if (!existing) throw new Error("Playtest not found");
+        if (existing.status !== "draft") {
+          throw new Error("Only draft playtests can be edited");
+        }
+        const existingTaskIds = new Set(existing.tasks.map((task) => task.id));
+        const tasks = input.tasks.map((task, index) => ({
+          ...task,
+          id:
+            task.id && existingTaskIds.has(task.id)
+              ? task.id
+              : `${newId("task")}-${index}`,
+        }));
+        const updated: Playtest = {
+          ...existing,
+          ...input,
+          status: "draft",
+          tasks,
+        };
         set((state) => ({
-          playtests: state.playtests.map((p) =>
-            p.id === playtestId ? { ...p, status } : p,
+          playtests: state.playtests.map((playtest) =>
+            playtest.id === playtestId ? updated : playtest,
           ),
-        })),
+        }));
+        return updated;
+      },
+
+      setPlaytestStatus: (playtestId, status) =>
+        set((state) => {
+          const existing = state.playtests.find((p) => p.id === playtestId);
+          if (!existing || !canTransitionPlaytestStatus(existing.status, status)) {
+            return state;
+          }
+          return {
+            playtests: state.playtests.map((p) =>
+              p.id === playtestId ? { ...p, status } : p,
+            ),
+          };
+        }),
 
       markNotificationRead: (id) =>
         set((state) => ({

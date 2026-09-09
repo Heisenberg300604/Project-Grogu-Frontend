@@ -43,9 +43,11 @@ Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
 | `/developer/dashboard` | Studio stats, active playtests with roster + feedback progress, recent feedback |
 | `/developer/games` | Game grid with per-game playtest / tester / feedback counts |
 | `/developer/games/new` | Create-game form with live cover preview + accent picker |
+| `/developer/games/[id]/edit` | Edit an owned game's details with the same validated form |
 | `/developer/playtests` | All playtests, tabbed by status |
 | `/developer/playtests/new` | 4-step create flow: game & info → requirements & reward → tasks → review. Save draft or publish |
 | `/developer/playtests/[id]` | Manage: tabs for Overview / Applicants (accept–reject) / Testers / Feedback / Analytics. `?tab=` deep-links. Status control |
+| `/developer/playtests/[id]/edit` | Edit an owned draft playtest; published and terminal states are locked |
 | `/developer/analytics` | Cross-playtest feedback: ratings chart, sentiment donut, common pain points & bugs, qualitative feed. Scope selector |
 | `/developer/profile` | Studio profile: details, stats, games |
 

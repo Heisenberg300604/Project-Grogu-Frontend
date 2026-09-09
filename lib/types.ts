@@ -38,7 +38,8 @@ export type PlaytestStatus =
   | "in-progress"
   | "review"
   | "completed"
-  | "closed";
+  | "closed"
+  | "archived";
 
 export type PlaytestFocus =
   | "onboarding"
@@ -336,6 +337,8 @@ export interface NewGameInput {
   accentHue: number;
 }
 
+export type UpdateGameInput = NewGameInput;
+
 export interface NewPlaytestInput {
   gameId: ID;
   title: string;
@@ -348,6 +351,19 @@ export interface NewPlaytestInput {
   maxTesters: number;
   closesAt: ISODateString;
   publish: boolean;
+}
+
+export interface UpdatePlaytestInput {
+  gameId: ID;
+  title: string;
+  summary: string;
+  goals: string[];
+  focusAreas: PlaytestFocus[];
+  requirements: TesterRequirements;
+  tasks: Array<Omit<PlaytestTask, "id"> & { id?: ID }>;
+  reward: string;
+  maxTesters: number;
+  closesAt: ISODateString;
 }
 
 /** Payload the tester feedback form produces. */

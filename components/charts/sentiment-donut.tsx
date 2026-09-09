@@ -30,8 +30,8 @@ export function SentimentDonut({
   }
 
   return (
-    <div className="flex items-center gap-6">
-      <div className="h-40 w-40 shrink-0">
+    <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+      <div className="size-32 shrink-0 sm:size-40">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

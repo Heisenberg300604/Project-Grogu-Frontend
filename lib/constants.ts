@@ -184,6 +184,7 @@ export const PLAYTEST_STATUS_META: Record<
   review: { label: "In review", tone: "warning" },
   completed: { label: "Completed", tone: "muted" },
   closed: { label: "Closed", tone: "muted" },
+  archived: { label: "Archived", tone: "muted" },
 };
 
 export const APPLICATION_STATUS_META: Record<

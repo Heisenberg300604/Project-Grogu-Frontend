@@ -23,6 +23,8 @@ const FILTERS: { value: PlaytestStatus | "all"; label: string }[] = [
   { value: "review", label: "In review" },
   { value: "completed", label: "Completed" },
   { value: "draft", label: "Drafts" },
+  { value: "closed", label: "Closed" },
+  { value: "archived", label: "Archived" },
 ];
 
 export function PlaytestsView() {

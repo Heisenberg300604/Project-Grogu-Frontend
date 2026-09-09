@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Gamepad2, Plus } from "lucide-react";
+import { Gamepad2, Pencil, Plus } from "lucide-react";
 
 import { GENRE_LABELS } from "@/lib/constants";
 import {
@@ -110,6 +110,11 @@ export function GamesView() {
                     </div>
                   </dl>
                   <div className="mt-auto flex gap-2 pt-1">
+                    <Button asChild size="sm" variant="ghost" aria-label={`Edit ${game.title}`}>
+                      <Link href={`/developer/games/${game.id}/edit`}>
+                        <Pencil className="size-4" />
+                      </Link>
+                    </Button>
                     <Button asChild size="sm" variant="secondary" className="flex-1">
                       <Link href={`/developer/playtests/new?game=${game.id}`}>
                         New playtest

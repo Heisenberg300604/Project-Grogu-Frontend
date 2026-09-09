@@ -16,6 +16,7 @@ import type {
   GamePlatform,
   Playtest,
   PlaytestAnalytics,
+  PlaytestStatus,
   PlaytestWithRelations,
   TestProgress,
   TesterTest,
@@ -28,6 +29,26 @@ export const EXPERIENCE_ORDER: ExperienceLevel[] = [
   "hardcore",
   "professional",
 ];
+
+export const PLAYTEST_STATUS_TRANSITIONS: Record<
+  PlaytestStatus,
+  readonly PlaytestStatus[]
+> = {
+  draft: ["recruiting"],
+  recruiting: ["in-progress", "closed"],
+  "in-progress": ["review", "closed"],
+  review: ["completed", "closed"],
+  completed: ["archived"],
+  closed: ["archived"],
+  archived: [],
+};
+
+export function canTransitionPlaytestStatus(
+  from: PlaytestStatus,
+  to: PlaytestStatus,
+): boolean {
+  return PLAYTEST_STATUS_TRANSITIONS[from].includes(to);
+}
 
 export function experienceRank(level: ExperienceLevel) {
   return EXPERIENCE_ORDER.indexOf(level);

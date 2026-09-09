@@ -15,7 +15,7 @@ import {
   PLATFORM_LABELS,
   PLATFORM_OPTIONS,
 } from "@/lib/constants";
-import type { GameGenre, GamePlatform, GameStatus } from "@/lib/types";
+import type { Game, GameGenre, GamePlatform, GameStatus } from "@/lib/types";
 import { gamesService, ServiceError } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,9 +51,11 @@ type FormValues = z.infer<typeof schema>;
 const CHIP =
   "rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-export function GameForm() {
+export function GameForm({ initialGame }: { initialGame?: Game }) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const isEdit = Boolean(initialGame);
 
   const {
     register,
@@ -64,14 +66,14 @@ export function GameForm() {
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      title: "",
-      tagline: "",
-      description: "",
-      genres: [],
-      platforms: [],
-      status: "in-development",
-      buildVersion: "0.1.0",
-      accentHue: 190,
+      title: initialGame?.title ?? "",
+      tagline: initialGame?.tagline ?? "",
+      description: initialGame?.description ?? "",
+      genres: initialGame?.genres ?? [],
+      platforms: initialGame?.platforms ?? [],
+      status: initialGame?.status ?? "in-development",
+      buildVersion: initialGame?.buildVersion ?? "0.1.0",
+      accentHue: initialGame?.accentHue ?? 190,
     },
   });
 
@@ -92,8 +94,9 @@ export function GameForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
+    setSuccessMessage(null);
     try {
-      await gamesService.createGame({
+      const input = {
         title: values.title,
         tagline: values.tagline,
         description: values.description,
@@ -102,8 +105,14 @@ export function GameForm() {
         status: values.status,
         buildVersion: values.buildVersion,
         accentHue: values.accentHue,
-      });
-      router.push("/developer/games");
+      };
+      if (initialGame) {
+        await gamesService.updateGame(initialGame.id, input);
+        setSuccessMessage("Game updated successfully.");
+      } else {
+        await gamesService.createGame(input);
+        router.push("/developer/games");
+      }
     } catch (error) {
       setFormError(
         error instanceof ServiceError
@@ -118,10 +127,14 @@ export function GameForm() {
       <PageHeader
         breadcrumbs={[
           { label: "Games", href: "/developer/games" },
-          { label: "New game" },
+          { label: isEdit ? "Edit game" : "New game" },
         ]}
-        title="Add a game"
-        description="Register a game so you can run playtests for it. You can edit these details later."
+        title={isEdit ? "Edit game" : "Add a game"}
+        description={
+          isEdit
+            ? "Update your game's details without changing its playtest history."
+            : "Register a game so you can run playtests for it."
+        }
       />
 
       <form onSubmit={onSubmit} className="grid gap-6 lg:grid-cols-[1fr_18rem]">
@@ -240,9 +253,18 @@ export function GameForm() {
             </p>
           )}
 
+          {successMessage && (
+            <p
+              className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+              role="status"
+            >
+              {successMessage}
+            </p>
+          )}
+
           <div className="flex gap-2">
             <Button type="submit" loading={isSubmitting}>
-              {isSubmitting ? "Saving…" : "Add game"}
+              {isSubmitting ? "Saving…" : isEdit ? "Save changes" : "Add game"}
             </Button>
             <Button asChild variant="ghost" type="button">
               <Link href="/developer/games">Cancel</Link>
