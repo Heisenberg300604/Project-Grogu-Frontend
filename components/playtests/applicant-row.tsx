@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, Gauge, MonitorSmartphone, Star, X } from "lucide-react";
 
 import { formatRelativeTime } from "@/lib/utils";
 import { EXPERIENCE_LABELS, PLATFORM_LABELS } from "@/lib/constants";
@@ -9,10 +9,18 @@ import type { Application, TesterProfile, User } from "@/lib/types";
 import { applicationsService } from "@/lib/services";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { MetaItem, MetaRow } from "@/components/ui/meta";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { UserAvatar } from "@/components/ui/avatar";
+import { useToast } from "@/components/ui/toast";
 
+/**
+ * One applicant awaiting a decision.
+ *
+ * A card rather than a table row: the developer needs the pitch, the hardware,
+ * and the reputation together to decide, and that never fits a row on mobile
+ * without horizontal scrolling.
+ */
 export function ApplicantRow({
   application,
   tester,
@@ -24,6 +32,7 @@ export function ApplicantRow({
   profile?: TesterProfile;
   spotsLeft: number;
 }) {
+  const toast = useToast();
   const [busy, setBusy] = useState<"accepted" | "rejected" | null>(null);
   const pending = application.status === "pending";
 
@@ -31,30 +40,44 @@ export function ApplicantRow({
     setBusy(decision);
     try {
       await applicationsService.decideApplication(application.id, decision);
+      toast({
+        title:
+          decision === "accepted"
+            ? `${tester.name} accepted`
+            : `${tester.name} was not selected`,
+        description:
+          decision === "accepted"
+            ? "They can now download the build and start testing."
+            : undefined,
+        tone: decision === "accepted" ? "success" : "info",
+      });
     } finally {
       setBusy(null);
     }
   }
 
   return (
-    <Card className="space-y-3 p-4">
+    <article className="space-y-4 rounded-xl border border-border bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <UserAvatar name={tester.name} src={tester.avatarUrl} className="size-10" />
-          <div>
-            <p className="text-sm font-medium">{tester.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {tester.location} · applied {formatRelativeTime(application.submittedAt)}
+        <div className="flex min-w-0 items-center gap-3">
+          <UserAvatar
+            name={tester.name}
+            src={tester.avatarUrl}
+            className="size-11 shrink-0"
+          />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{tester.name}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              @{tester.handle} · {tester.location}
+            </p>
+            <p className="text-xs text-subtle-foreground">
+              Applied {formatRelativeTime(application.submittedAt)}
             </p>
           </div>
         </div>
+
         {pending ? (
-          <div className="flex flex-wrap items-center gap-2">
-            {profile && (
-              <span className="text-xs text-muted-foreground">
-                Rep {profile.reputation}
-              </span>
-            )}
+          <div className="flex shrink-0 items-center gap-2">
             <Button
               size="sm"
               variant="ghost"
@@ -62,7 +85,7 @@ export function ApplicantRow({
               loading={busy === "rejected"}
               disabled={busy !== null}
             >
-              <X className="size-4" /> Reject
+              <X /> Reject
             </Button>
             <Button
               size="sm"
@@ -70,7 +93,7 @@ export function ApplicantRow({
               loading={busy === "accepted"}
               disabled={busy !== null || spotsLeft <= 0}
             >
-              <Check className="size-4" /> Accept
+              <Check /> Accept
             </Button>
           </div>
         ) : (
@@ -79,26 +102,49 @@ export function ApplicantRow({
       </div>
 
       {profile && (
+        <MetaRow className="gap-x-5">
+          <MetaItem
+            icon={Gauge}
+            label="Experience"
+            value={EXPERIENCE_LABELS[profile.experienceLevel]}
+            tone="strong"
+          />
+          <MetaItem
+            icon={MonitorSmartphone}
+            label="Platforms"
+            value={profile.platforms
+              .slice(0, 3)
+              .map((p) => PLATFORM_LABELS[p])
+              .join(", ")}
+          />
+          <MetaItem
+            icon={Star}
+            label="Reputation"
+            value={`${profile.reputation}/100 · ${profile.completedPlaytests} completed`}
+          />
+        </MetaRow>
+      )}
+
+      <blockquote className="rounded-lg border border-border bg-elevated p-3.5 text-sm leading-relaxed text-muted-foreground">
+        “{application.message}”
+      </blockquote>
+
+      {profile && profile.badges.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          <Badge tone="muted">{EXPERIENCE_LABELS[profile.experienceLevel]}</Badge>
-          {profile.platforms.slice(0, 3).map((p) => (
-            <Badge key={p} tone="default">
-              {PLATFORM_LABELS[p]}
+          {profile.badges.map((badge) => (
+            <Badge key={badge} tone="muted">
+              {badge}
             </Badge>
           ))}
-          <Badge tone="muted">{profile.completedPlaytests} playtests done</Badge>
         </div>
       )}
 
-      <p className="rounded-md border border-border bg-surface p-3 text-sm text-muted-foreground">
-        “{application.message}”
-      </p>
-
       {pending && spotsLeft <= 0 && (
-        <p className="text-xs text-warning">
-          All tester slots are full — reject someone or raise the tester limit to accept more.
+        <p className="text-xs text-warning" role="status">
+          All tester slots are full — reject someone or raise the tester limit to
+          accept more.
         </p>
       )}
-    </Card>
+    </article>
   );
 }

@@ -25,14 +25,14 @@ export function NotificationMenu({ userId }: { userId: string }) {
       >
         <Bell className="size-4" />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+          <span className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground ring-2 ring-background">
             {unread}
           </span>
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[22rem] p-0">
-        <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
-          <p className="text-sm font-medium">Notifications</p>
+        <div className="flex items-center justify-between border-b border-border px-3.5 py-3">
+          <p className="text-sm font-semibold">Notifications</p>
           {unread > 0 && (
             <button
               type="button"
@@ -45,7 +45,7 @@ export function NotificationMenu({ userId }: { userId: string }) {
         </div>
         <ul className="max-h-96 divide-y divide-border overflow-y-auto">
           {notifications.length === 0 && (
-            <li className="px-3 py-8 text-center text-sm text-muted-foreground">
+            <li className="px-3 py-10 text-center text-sm text-muted-foreground">
               You&apos;re all caught up.
             </li>
           )}
@@ -77,7 +77,7 @@ export function NotificationMenu({ userId }: { userId: string }) {
                   <p className="line-clamp-2 text-xs text-muted-foreground">
                     {n.body}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[11px] text-subtle-foreground">
                     {formatRelativeTime(n.createdAt)}
                   </p>
                 </div>
@@ -89,7 +89,7 @@ export function NotificationMenu({ userId }: { userId: string }) {
                   <Link
                     href={n.href}
                     onClick={() => notificationsService.markRead(n.id)}
-                    className="block px-3 py-3 transition-colors hover:bg-accent"
+                    className="block px-3.5 py-3 transition-colors hover:bg-accent"
                   >
                     {body}
                   </Link>
@@ -97,7 +97,7 @@ export function NotificationMenu({ userId }: { userId: string }) {
                   <button
                     type="button"
                     onClick={() => notificationsService.markRead(n.id)}
-                    className="block w-full px-3 py-3 text-left transition-colors hover:bg-accent"
+                    className="block w-full px-3.5 py-3 text-left transition-colors hover:bg-accent"
                   >
                     {body}
                   </button>

@@ -29,7 +29,7 @@ export function RatingStars({
           key={i}
           aria-hidden
           className={cn(
-            size === "sm" ? "size-3.5" : "size-4",
+            size === "sm" ? "size-3.5" : "size-5",
             i < rounded
               ? "fill-warning text-warning"
               : "fill-transparent text-border-strong",
@@ -52,15 +52,20 @@ export function RatingInput({
   max?: number;
   labelledBy?: string;
 }) {
+  const [hovered, setHovered] = React.useState(0);
+  // Preview the hovered value so the control feels responsive before commit.
+  const shown = hovered || value;
+
   return (
     <div
       role="radiogroup"
       aria-labelledby={labelledBy}
       className="inline-flex items-center gap-1"
+      onMouseLeave={() => setHovered(0)}
     >
       {Array.from({ length: max }).map((_, i) => {
         const rating = i + 1;
-        const active = rating <= value;
+        const active = rating <= shown;
         return (
           <button
             key={rating}
@@ -69,18 +74,21 @@ export function RatingInput({
             aria-checked={value === rating}
             aria-label={`${rating} star${rating > 1 ? "s" : ""}`}
             onClick={() => onChange(rating)}
-            className="rounded p-0.5 text-border-strong transition-colors hover:text-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onMouseEnter={() => setHovered(rating)}
+            className="rounded p-0.5 transition-transform duration-[120ms] hover:scale-110 focus-visible:outline-none"
           >
             <Star
               className={cn(
-                "size-6",
-                active ? "fill-warning text-warning" : "fill-transparent",
+                "size-7 transition-colors duration-[120ms]",
+                active
+                  ? "fill-warning text-warning"
+                  : "fill-transparent text-border-strong",
               )}
             />
           </button>
         );
       })}
-      <span className="ml-2 text-sm tabular-nums text-muted-foreground">
+      <span className="ml-2.5 text-sm tabular-nums text-muted-foreground">
         {value ? `${value}/${max}` : "—"}
       </span>
     </div>
@@ -99,14 +107,14 @@ export function RatingBar({
 }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">{label}</span>
         <span className="font-medium tabular-nums">{value.toFixed(1)}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-primary"
+          className="h-full rounded-full bg-primary transition-[width] duration-500 ease-[var(--ease-out-soft)]"
           style={{ width: `${pct}%` }}
         />
       </div>

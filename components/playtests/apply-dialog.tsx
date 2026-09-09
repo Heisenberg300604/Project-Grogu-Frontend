@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 
 import type { PlaytestWithRelations } from "@/lib/types";
@@ -24,6 +23,9 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SuccessState } from "@/components/ui/states";
+import { useToast } from "@/components/ui/toast";
+import { GameArt } from "@/components/games/game-cover";
 
 const schema = z.object({
   message: z
@@ -53,6 +55,7 @@ export function ApplyDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -96,6 +99,10 @@ export function ApplyDialog({
         agreedToTerms: true,
       });
       setSubmitted(true);
+      toast({
+        title: "Application submitted",
+        description: `${playtest.developer.name} will review it shortly.`,
+      });
       router.refresh();
     } catch (error) {
       setFormError(
@@ -110,18 +117,19 @@ export function ApplyDialog({
     <Dialog open={open} onOpenChange={close}>
       <DialogContent className="max-w-md">
         {submitted ? (
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <span className="grid size-12 place-items-center rounded-full bg-success/15 text-success">
-              <CheckCircle2 className="size-6" aria-hidden />
-            </span>
-            <DialogHeader className="items-center pr-0">
+          <>
+            <DialogHeader className="sr-only">
               <DialogTitle>Application submitted</DialogTitle>
               <DialogDescription>
-                {playtest.developer.name} will review your application for{" "}
-                {playtest.title}. You&apos;ll see the status in your Applications.
+                {playtest.developer.name} will review your application.
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="w-full">
+            <SuccessState
+              title="Application submitted"
+              description={`${playtest.developer.name} will review your application for ${playtest.title}. You'll see the status in your Applications.`}
+              className="border-0 bg-transparent"
+            />
+            <DialogFooter>
               <Button variant="secondary" onClick={() => close(false)}>
                 Keep browsing
               </Button>
@@ -129,16 +137,36 @@ export function ApplyDialog({
                 <Link href="/applications">View my applications</Link>
               </Button>
             </DialogFooter>
-          </div>
+          </>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
             <DialogHeader>
-              <DialogTitle>Apply to {playtest.title}</DialogTitle>
+              <DialogTitle>Apply for playtest</DialogTitle>
               <DialogDescription>
-                {playtest.game.title} · ~{playtest.requirements.estimatedHours}h ·{" "}
-                {playtest.requirements.ndaRequired ? "NDA required" : "No NDA"}
+                Two short questions. It takes about a minute.
               </DialogDescription>
             </DialogHeader>
+
+            {/* Always show what is being applied for. */}
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3">
+              <GameArt
+                game={playtest.game}
+                ratio="3/2"
+                className="w-20 shrink-0 rounded-md"
+              />
+              <div className="min-w-0">
+                <p className="truncate font-display text-sm font-semibold">
+                  {playtest.game.title}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {playtest.title}
+                </p>
+                <p className="mt-0.5 truncate text-xs text-subtle-foreground">
+                  ~{playtest.requirements.estimatedHours}h ·{" "}
+                  {playtest.requirements.ndaRequired ? "NDA required" : "No NDA"}
+                </p>
+              </div>
+            </div>
 
             <Field
               label="Why do you want to test this game?"

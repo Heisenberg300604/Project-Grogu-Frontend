@@ -55,14 +55,14 @@ app/
     discover/                "/discover"          (public browse)
     playtests/[id]/          "/playtests/[id]"    (public detail + apply)
 
-  (auth)/                     Centered card layout
+  (auth)/                     Split layout — form + game-art panel
     login/  signup/
 
-  (tester)/                   AppShell role="tester" — sidebar + topbar, route-guarded
+  (tester)/                   AppShell role="tester" — top nav, route-guarded
     dashboard/  applications/  profile/
     tests/  tests/[id]/  tests/[id]/feedback/
 
-  (developer)/                AppShell role="developer"
+  (developer)/                AppShell role="developer" — top nav, route-guarded
     developer/dashboard/  developer/games/  developer/games/new/
     developer/playtests/  developer/playtests/new/  developer/playtests/[id]/
     developer/analytics/  developer/profile/

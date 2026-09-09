@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Compass, Target } from "lucide-react";
+import { CalendarClock, Clock, Compass, Gift, Target, Users } from "lucide-react";
 
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDeadline } from "@/lib/utils";
+import { playtestCapacity } from "@/lib/domain";
 import { FOCUS_LABELS, GENRE_LABELS, PLATFORM_LABELS } from "@/lib/constants";
 import type { PlaytestWithRelations } from "@/lib/types";
 import { usePlaytest, useDeveloperProfile } from "@/lib/hooks/use-grogu";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { MetaStat, MetaStatGrid } from "@/components/ui/meta";
 import { EmptyState, PageSkeleton } from "@/components/ui/states";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { GameCover } from "@/components/games/game-cover";
@@ -19,6 +20,34 @@ import { DeveloperCard } from "@/components/games/developer-card";
 import { RequirementsList } from "@/components/playtests/requirements-list";
 import { TaskList } from "@/components/playtests/task-list";
 import { ApplyPanel } from "@/components/playtests/apply-panel";
+
+/** Section wrapper — heading plus content, no card. Keeps the page reading. */
+function Section({
+  title,
+  icon: Icon,
+  description,
+  children,
+}: {
+  title: string;
+  icon?: typeof Target;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4 border-t border-border pt-8 first:border-0 first:pt-0">
+      <div className="space-y-1.5">
+        <h2 className="flex items-center gap-2 font-display text-xl font-semibold">
+          {Icon && <Icon className="size-4.5 text-secondary" aria-hidden />}
+          {title}
+        </h2>
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export function PlaytestDetail({
   playtestId,
@@ -57,66 +86,104 @@ export function PlaytestDetail({
     );
   }
 
+  const { spotsLeft, isFull } = playtestCapacity(playtest);
+
   return (
     <div>
-      <div className="relative border-b border-border">
-        <div className="absolute inset-0">
-          <GameCover game={playtest.game} className="opacity-30" />
-          <div className="absolute inset-0 bg-linear-to-t from-background via-background/80 to-background/40" />
+      {/* ---- Banner ------------------------------------------------------- */}
+      <header className="relative border-b border-border">
+        <div className="absolute inset-0" aria-hidden>
+          <GameCover game={playtest.game} />
+          {/* Two stacked scrims: one for overall legibility, one to anchor the
+              text block at the bottom-left. */}
+          <div className="absolute inset-0 bg-background/45" />
+          <div className="absolute inset-0 bg-linear-to-t from-background via-background/85 to-background/30" />
         </div>
-        <Container className="relative py-10 sm:py-14">
-          <nav aria-label="Breadcrumb" className="mb-4 text-xs text-muted-foreground">
-            <Link href="/discover" className="hover:text-foreground">
+
+        <Container className="relative flex min-h-[22rem] flex-col justify-end pb-10 pt-8 sm:min-h-[26rem] sm:pb-12">
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-auto text-xs text-muted-foreground"
+          >
+            <Link href="/discover" className="transition-colors hover:text-foreground">
               Discover
             </Link>
-            <span className="mx-1">/</span>
+            <span className="mx-1.5 text-subtle-foreground">/</span>
             <span className="text-foreground">{playtest.game.title}</span>
           </nav>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge kind="playtest" status={playtest.status} />
-            {playtest.game.genres.map((g) => (
-              <Badge key={g} tone="muted">
-                {GENRE_LABELS[g]}
-              </Badge>
-            ))}
-          </div>
-          <h1 className="mt-3 max-w-3xl text-3xl font-semibold sm:text-4xl">
-            {playtest.title}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {playtest.game.title} · {playtest.developer.name} · build{" "}
-            {playtest.game.buildVersion} · {" "}
-            {playtest.requirements.platforms
-              .map((p) => PLATFORM_LABELS[p])
-              .join(", ")}
-          </p>
-        </Container>
-      </div>
 
-      <Container className="grid gap-10 py-10 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-10">
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold">About this playtest</h2>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {playtest.summary}
+          <div className="mt-10 max-w-3xl space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge kind="playtest" status={playtest.status} />
+              {playtest.game.genres.map((g) => (
+                <Badge key={g} tone="muted">
+                  {GENRE_LABELS[g]}
+                </Badge>
+              ))}
+              {playtest.requirements.ndaRequired && (
+                <Badge tone="outline">NDA required</Badge>
+              )}
+            </div>
+
+            <h1 className="text-display-sm">{playtest.game.title}</h1>
+
+            <p className="text-lg leading-snug text-secondary">
+              {playtest.title}
             </p>
-            <p className="text-sm leading-relaxed text-muted-foreground">
+
+            <p className="text-sm text-muted-foreground">
+              {playtest.developer.name} · build {playtest.game.buildVersion} ·{" "}
+              {playtest.requirements.platforms
+                .map((p) => PLATFORM_LABELS[p])
+                .join(", ")}
+            </p>
+          </div>
+        </Container>
+      </header>
+
+      {/* ---- Key facts ---------------------------------------------------- */}
+      <Container className="-mt-px py-8">
+        <MetaStatGrid>
+          <MetaStat label="Reward" value={playtest.reward} />
+          <MetaStat
+            label="Time commitment"
+            value={`~${playtest.requirements.estimatedHours}h`}
+            hint={`${playtest.tasks.length} tasks`}
+          />
+          <MetaStat
+            label="Tester slots"
+            value={isFull ? "Full" : spotsLeft}
+            hint={`${playtest.acceptedTesters} of ${playtest.maxTesters} filled`}
+          />
+          <MetaStat
+            label="Applications close"
+            value={formatDate(playtest.closesAt)}
+            hint={formatDeadline(playtest.closesAt)}
+          />
+        </MetaStatGrid>
+      </Container>
+
+      {/* ---- Body --------------------------------------------------------- */}
+      <Container className="grid gap-12 pb-20 lg:grid-cols-[1fr_21rem] lg:gap-14">
+        <div className="min-w-0 space-y-8">
+          <Section title="About the game">
+            <p className="text-base leading-relaxed text-muted-foreground">
               {playtest.game.description}
             </p>
-          </section>
+          </Section>
 
-          <section className="space-y-3">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <Target className="size-4 text-secondary" aria-hidden />
-              What the developer wants to learn
-            </h2>
-            <ul className="space-y-2">
+          <Section
+            title="What you'll be testing"
+            icon={Target}
+            description={playtest.summary}
+          >
+            <ul className="space-y-2.5">
               {playtest.goals.map((goal) => (
                 <li
                   key={goal}
-                  className="flex gap-2 rounded-lg border border-border bg-surface p-3 text-sm"
+                  className="flex gap-3 rounded-lg border border-border bg-surface p-3.5 text-sm leading-relaxed"
                 >
-                  <span aria-hidden className="text-secondary">
+                  <span aria-hidden className="mt-0.5 text-secondary">
                     →
                   </span>
                   {goal}
@@ -130,47 +197,60 @@ export function PlaytestDetail({
                 </Badge>
               ))}
             </div>
-          </section>
+          </Section>
 
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold">
-              Testing tasks ({playtest.tasks.length})
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              You&apos;ll work through these once accepted. Required tasks must be
-              done before submitting feedback.
-            </p>
+          <Section
+            title={`Testing tasks (${playtest.tasks.length})`}
+            description="You'll work through these once accepted. Required tasks must be done before submitting feedback."
+          >
             <TaskList tasks={playtest.tasks} />
-          </section>
+          </Section>
 
-          <section className="lg:hidden">
-            {developer && (
+          <Section
+            title="Tester requirements"
+            description="The developer reviews every applicant against these."
+          >
+            <RequirementsList
+              requirements={playtest.requirements}
+              playtest={playtest}
+            />
+          </Section>
+
+          <Section title="About the developer">
+            {developer ? (
               <DeveloperCard user={developer.user} profile={developer.profile} />
+            ) : (
+              <DeveloperCard user={playtest.developer} />
             )}
-          </section>
+          </Section>
         </div>
 
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
+        {/* ---- Apply rail ------------------------------------------------- */}
+        <aside className="lg:sticky lg:top-24 lg:h-fit">
           <ApplyPanel playtest={playtest} />
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Tester requirements</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <RequirementsList
-                requirements={playtest.requirements}
-                playtest={playtest}
-              />
-            </CardContent>
-          </Card>
-          <div className="hidden lg:block">
-            {developer && (
-              <DeveloperCard user={developer.user} profile={developer.profile} />
-            )}
-          </div>
-          <p className="text-center text-xs text-muted-foreground">
-            Playtest opened {formatDate(playtest.opensAt)}
-          </p>
+
+          <dl className="mt-5 space-y-3 px-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Gift className="size-3.5 text-subtle-foreground" aria-hidden />
+              <dt className="sr-only">Reward</dt>
+              <dd>{playtest.reward}</dd>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="size-3.5 text-subtle-foreground" aria-hidden />
+              <dt className="sr-only">Time commitment</dt>
+              <dd>~{playtest.requirements.estimatedHours} hours total</dd>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="size-3.5 text-subtle-foreground" aria-hidden />
+              <dt className="sr-only">Applicants</dt>
+              <dd>{playtest.applicantCount} testers have applied</dd>
+            </div>
+            <div className="flex items-center gap-2">
+              <CalendarClock className="size-3.5 text-subtle-foreground" aria-hidden />
+              <dt className="sr-only">Opened</dt>
+              <dd>Opened {formatDate(playtest.opensAt)}</dd>
+            </div>
+          </dl>
         </aside>
       </Container>
     </div>

@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Star,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { formatDate } from "@/lib/utils";
 import {
@@ -22,23 +23,26 @@ function Row({
   label,
   value,
 }: {
-  icon: typeof Clock;
+  icon: LucideIcon;
   label: string;
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3 py-3">
-      <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+    <div className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3.5">
+      <Icon className="mt-0.5 size-4 shrink-0 text-subtle-foreground" aria-hidden />
       <div className="min-w-0">
-        <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-          {label}
-        </dt>
-        <dd className="text-sm text-foreground">{value}</dd>
+        <dt className="text-label text-subtle-foreground">{label}</dt>
+        <dd className="mt-1 text-sm text-foreground">{value}</dd>
       </div>
     </div>
   );
 }
 
+/**
+ * What a developer expects from applicants. A two-column grid of small tiles
+ * rather than a long divided list — testers scan this to decide whether they
+ * qualify, so every requirement needs to be findable at a glance.
+ */
 export function RequirementsList({
   requirements,
   playtest,
@@ -47,7 +51,7 @@ export function RequirementsList({
   playtest: Playtest;
 }) {
   return (
-    <dl className="divide-y divide-border">
+    <dl className="grid gap-2.5 sm:grid-cols-2">
       <Row icon={Gift} label="Reward" value={playtest.reward} />
       <Row
         icon={Gauge}
@@ -63,9 +67,7 @@ export function RequirementsList({
         <Row
           icon={Star}
           label="Genre familiarity"
-          value={requirements.preferredGenres
-            .map((g) => GENRE_LABELS[g])
-            .join(", ")}
+          value={requirements.preferredGenres.map((g) => GENRE_LABELS[g]).join(", ")}
         />
       )}
       <Row

@@ -51,12 +51,14 @@ export interface AppNavItem extends NavItem {
   icon: LucideIcon;
   /** Match child routes too (e.g. /discover also active on /playtests/[id]). */
   match?: string[];
+  /** Reachable from the account menu / mobile drawer, but not the top nav. */
+  menuOnly?: boolean;
 }
 
 export const MARKETING_NAV: NavItem[] = [
+  { label: "Discover", href: "/discover" },
   { label: "How it works", href: "/how-it-works" },
   { label: "For developers", href: "/developers" },
-  { label: "Discover games", href: "/discover" },
 ];
 
 export const TESTER_NAV: AppNavItem[] = [
@@ -74,18 +76,15 @@ export const TESTER_NAV: AppNavItem[] = [
 
 export const DEVELOPER_NAV: AppNavItem[] = [
   { label: "Dashboard", href: "/developer/dashboard", icon: LayoutDashboard },
-  {
-    label: "Games",
-    href: "/developer/games",
-    icon: Gamepad2,
-  },
-  {
-    label: "Playtests",
-    href: "/developer/playtests",
-    icon: ListChecks,
-  },
+  { label: "My games", href: "/developer/games", icon: Gamepad2 },
+  { label: "Playtests", href: "/developer/playtests", icon: ListChecks },
   { label: "Analytics", href: "/developer/analytics", icon: LineChart },
-  { label: "Profile", href: "/developer/profile", icon: UserRound },
+  {
+    label: "Studio profile",
+    href: "/developer/profile",
+    icon: UserRound,
+    menuOnly: true,
+  },
 ];
 
 /* -------------------------------------------------------------------------- */

@@ -18,7 +18,6 @@ import {
 import type { Game, GameGenre, GamePlatform, GameStatus } from "@/lib/types";
 import { gamesService, ServiceError } from "@/lib/services";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,8 +28,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/layout/page-header";
-import { GameCover } from "@/components/games/game-cover";
+import { GameArt } from "@/components/games/game-cover";
 
 const HUES = [190, 130, 25, 95, 275, 320, 210, 0, 50, 160];
 const STATUSES = Object.keys(GAME_STATUS_LABELS) as GameStatus[];
@@ -49,12 +49,36 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const CHIP =
-  "rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-[120ms] focus-visible:outline-none";
+
+/** Section wrapper — heading plus fields, separated by a hairline. */
+function FormSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-5 border-t border-border pt-6 first:border-0 first:pt-0">
+      <div className="space-y-1">
+        <h2 className="font-display text-lg font-semibold">{title}</h2>
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export function GameForm({ initialGame }: { initialGame?: Game }) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const toast = useToast();
   const isEdit = Boolean(initialGame);
 
   const {
@@ -109,6 +133,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
       if (initialGame) {
         await gamesService.updateGame(initialGame.id, input);
         setSuccessMessage("Game updated successfully.");
+        toast({ title: "Game updated" });
       } else {
         await gamesService.createGame(input);
         router.push("/developer/games");
@@ -137,13 +162,13 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
         }
       />
 
-      <form onSubmit={onSubmit} className="grid gap-6 lg:grid-cols-[1fr_18rem]">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Basics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-0">
+      <form onSubmit={onSubmit} className="grid gap-10 lg:grid-cols-[1fr_19rem]">
+        <div className="min-w-0 space-y-6">
+          <FormSection
+            title="Basics"
+            description="How your game is introduced to testers."
+          >
+            <div className="space-y-5">
               <Field label="Title" htmlFor="game-title" error={errors.title?.message} required>
                 <Input id="game-title" {...register("title")} />
               </Field>
@@ -164,14 +189,14 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
               >
                 <Textarea id="game-description" rows={4} {...register("description")} />
               </Field>
-            </CardContent>
-          </Card>
+            </div>
+          </FormSection>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Classification</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-0">
+          <FormSection
+            title="Classification"
+            description="Genre and platform drive how testers find the game — and the cover art Grogu generates for it."
+          >
+            <div className="space-y-5">
               <Field label="Genres" error={errors.genres?.message} required>
                 <div className="flex flex-wrap gap-1.5">
                   {GENRE_OPTIONS.map((genre) => (
@@ -183,8 +208,8 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                       className={cn(
                         CHIP,
                         genres.includes(genre)
-                          ? "border-primary bg-primary/15 text-secondary"
-                          : "border-border text-muted-foreground hover:text-foreground",
+                          ? "border-primary-line bg-primary-soft text-secondary"
+                          : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
                       )}
                     >
                       {GENRE_LABELS[genre]}
@@ -203,8 +228,8 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                       className={cn(
                         CHIP,
                         platforms.includes(platform)
-                          ? "border-primary bg-primary/15 text-secondary"
-                          : "border-border text-muted-foreground hover:text-foreground",
+                          ? "border-primary-line bg-primary-soft text-secondary"
+                          : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
                       )}
                     >
                       {PLATFORM_LABELS[platform]}
@@ -220,7 +245,9 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger id="game-status">
-                          <SelectValue />
+                          <SelectValue>
+                            {GAME_STATUS_LABELS[field.value as GameStatus]}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {STATUSES.map((status) => (
@@ -241,8 +268,8 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                   <Input id="game-build" {...register("buildVersion")} />
                 </Field>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </FormSection>
 
           {formError && (
             <p
@@ -272,20 +299,29 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
           </div>
         </div>
 
-        <aside className="space-y-4">
-          <Card className="overflow-hidden">
-            <div className="relative aspect-[16/10] border-b border-border">
-              <GameCover game={{ title: title || "Your game", accentHue: hue }} />
-            </div>
-            <div className="p-4">
-              <p className="text-xs text-muted-foreground">Cover preview</p>
-              <p className="mt-1 text-sm font-medium">{title || "Your game"}</p>
-            </div>
-          </Card>
-          <Card className="p-4">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">
-              Cover accent
+        <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
+          <div className="overflow-hidden rounded-xl border border-border bg-surface">
+            <GameArt
+              game={{
+                title: title || "Your game",
+                accentHue: hue,
+                genres: genres as GameGenre[],
+              }}
+              ratio="16/10"
+              scrim
+            >
+              <p className="absolute inset-x-4 bottom-3 truncate font-display text-base font-semibold text-white">
+                {title || "Your game"}
+              </p>
+            </GameArt>
+            <p className="p-4 text-xs text-muted-foreground">
+              Cover art is generated from the accent colour and the game&apos;s
+              first genre.
             </p>
+          </div>
+
+          <div className="rounded-xl border border-border bg-surface p-4">
+            <p className="text-label mb-3 text-subtle-foreground">Cover accent</p>
             <div className="flex flex-wrap gap-2">
               {HUES.map((h) => (
                 <button
@@ -302,7 +338,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                 />
               ))}
             </div>
-          </Card>
+          </div>
         </aside>
       </form>
     </div>

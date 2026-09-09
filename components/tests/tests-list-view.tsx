@@ -7,7 +7,7 @@ import { useTesterTests } from "@/lib/hooks/use-grogu";
 import { useSession } from "@/lib/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/states";
-import { PageHeader } from "@/components/layout/page-header";
+import { PageHeader, SectionTitle } from "@/components/layout/page-header";
 import { TestProgressCard } from "@/components/tests/test-progress-card";
 
 export function TestsListView() {
@@ -20,10 +20,15 @@ export function TestsListView() {
   const completed = tests.filter((t) => t.progress?.stage === "completed");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <PageHeader
         title="My tests"
         description="Playtests you've been accepted to. Work through the tasks, then submit feedback."
+        actions={
+          <Button asChild variant="secondary">
+            <Link href="/discover">Find more playtests</Link>
+          </Button>
+        }
       />
 
       {tests.length === 0 ? (
@@ -38,30 +43,37 @@ export function TestsListView() {
           }
         />
       ) : (
-        <div className="space-y-8">
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Active ({active.length})
-            </h2>
+        <div className="space-y-10">
+          <section className="space-y-5">
+            <SectionTitle title={`Active (${active.length})`} />
             {active.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Nothing active right now.
-              </p>
+              <EmptyState
+                icon={ClipboardList}
+                title="Nothing active right now"
+                description="Every playtest you've been accepted to is finished."
+                action={
+                  <Button asChild size="sm" variant="secondary">
+                    <Link href="/discover">Find another playtest</Link>
+                  </Button>
+                }
+              />
             ) : (
-              active.map((test) => (
-                <TestProgressCard key={test.playtest.id} test={test} />
-              ))
+              <div className="space-y-3">
+                {active.map((test) => (
+                  <TestProgressCard key={test.playtest.id} test={test} />
+                ))}
+              </div>
             )}
           </section>
 
           {completed.length > 0 && (
-            <section className="space-y-3">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Completed ({completed.length})
-              </h2>
-              {completed.map((test) => (
-                <TestProgressCard key={test.playtest.id} test={test} />
-              ))}
+            <section className="space-y-5">
+              <SectionTitle title={`Completed (${completed.length})`} />
+              <div className="space-y-3">
+                {completed.map((test) => (
+                  <TestProgressCard key={test.playtest.id} test={test} />
+                ))}
+              </div>
             </section>
           )}
         </div>

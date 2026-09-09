@@ -223,3 +223,41 @@ export function testCompletion(progress: TestProgress | null, playtest: Playtest
     ratio: required.length ? done / required.length : 0,
   };
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Playtest capacity + urgency                                                */
+/* -------------------------------------------------------------------------- */
+
+/** Days a playtest counts as "closing soon" for the purposes of a badge. */
+export const CLOSING_SOON_DAYS = 5;
+
+export interface PlaytestCapacity {
+  spotsLeft: number;
+  /** 0–1, how much of the roster is filled. */
+  filledRatio: number;
+  isFull: boolean;
+  /** Fewer than a quarter of the slots remain, but it isn't full yet. */
+  isNearlyFull: boolean;
+}
+
+/** Roster maths for a playtest. Shared by cards, the apply panel and manage. */
+export function playtestCapacity(
+  playtest: Pick<Playtest, "maxTesters" | "acceptedTesters">,
+): PlaytestCapacity {
+  const max = Math.max(1, playtest.maxTesters);
+  const spotsLeft = Math.max(0, playtest.maxTesters - playtest.acceptedTesters);
+  const filledRatio = Math.min(1, playtest.acceptedTesters / max);
+  return {
+    spotsLeft,
+    filledRatio,
+    isFull: spotsLeft === 0,
+    isNearlyFull: spotsLeft > 0 && spotsLeft / max <= 0.25,
+  };
+}
+
+/** True when applications close within `CLOSING_SOON_DAYS` (and haven't yet). */
+export function isClosingSoon(closesAt: string): boolean {
+  const ms = new Date(closesAt).getTime() - Date.now();
+  const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
+  return days >= 0 && days <= CLOSING_SOON_DAYS;
+}

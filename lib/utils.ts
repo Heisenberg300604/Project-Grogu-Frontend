@@ -63,3 +63,15 @@ export function formatDeadline(iso: string) {
   if (days === 1) return "Closes tomorrow";
   return `Closes in ${days} days`;
 }
+
+/**
+ * Time-of-day greeting. Call only from client components — it reads the
+ * viewer's clock, so rendering it on the server would risk a hydration
+ * mismatch.
+ */
+export function greeting(date = new Date()) {
+  const hour = date.getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}

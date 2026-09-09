@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { CheckCircle2, Lock } from "lucide-react";
+import { Controller, useForm, type FieldPath } from "react-hook-form";
+import { ArrowLeft, ArrowRight, Lock } from "lucide-react";
 import { z } from "zod";
 
+import { cn } from "@/lib/utils";
 import { testCompletion } from "@/lib/domain";
 import { RATING_DIMENSIONS } from "@/lib/constants";
-import type { FeedbackSentiment } from "@/lib/types";
+import type { FeedbackRatings, FeedbackSentiment } from "@/lib/types";
 import {
   usePlaytest,
   useTestProgress,
@@ -20,13 +21,15 @@ import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { useSession } from "@/lib/hooks/use-session";
 import { testsService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptyState, PageSkeleton } from "@/components/ui/states";
+import { EmptyState, PageSkeleton, SuccessState } from "@/components/ui/states";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/layout/page-header";
+import { GameArt } from "@/components/games/game-cover";
 import { RatingInput } from "@/components/feedback/rating";
 
 const ratingField = z
@@ -53,26 +56,92 @@ const schema = z.object({
 
 type FormValues = z.input<typeof schema>;
 
+/**
+ * The form is one payload, but asking for thirteen answers on one screen reads
+ * as a chore. Three steps, each validated before advancing.
+ */
+const STEPS = ["Ratings", "Your report", "Wrap up"] as const;
+
+const STEP_FIELDS: FieldPath<FormValues>[][] = [
+  ["fun", "polish", "difficulty", "clarity", "performance"],
+  ["summary", "highlights", "painPoints", "controlsNote", "bugs"],
+  ["sentiment", "wouldRecommend", "hoursPlayed"],
+];
+
+/** Rating dimensions grouped the way a tester thinks about them. */
+const RATING_GROUPS: {
+  title: string;
+  hint: string;
+  keys: (keyof FeedbackRatings)[];
+}[] = [
+  {
+    title: "Overall experience",
+    hint: "Your gut reaction to the build as a whole.",
+    keys: ["fun", "polish"],
+  },
+  {
+    title: "Gameplay",
+    hint: "How the moment-to-moment play landed.",
+    keys: ["difficulty", "clarity"],
+  },
+  {
+    title: "Technical",
+    hint: "How the build ran on your setup.",
+    keys: ["performance"],
+  },
+];
+
 const lines = (value?: string) =>
   (value ?? "")
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
 
+/** Grouped block of fields. Heading + hairline, never a nested card. */
+function FormSection({
+  title,
+  hint,
+  children,
+  className,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={cn(
+        "space-y-5 border-t border-border pt-6 first:border-0 first:pt-0",
+        className,
+      )}
+    >
+      <div className="space-y-1">
+        <h2 className="font-display text-base font-semibold">{title}</h2>
+        {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
 export function FeedbackForm({ playtestId }: { playtestId: string }) {
   const router = useRouter();
   const hydrated = useHydrated();
+  const toast = useToast();
   const { user } = useSession();
   const playtest = usePlaytest(playtestId);
   const application = useTesterApplication(user?.id, playtestId);
   const progress = useTestProgress(user?.id, playtestId);
   const [formError, setFormError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [step, setStep] = useState(0);
 
   const {
     register,
     handleSubmit,
     control,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -127,27 +196,21 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
 
   if (done || alreadySubmitted) {
     return (
-      <div className="mx-auto max-w-md py-10">
-        <Card className="flex flex-col items-center gap-4 p-8 text-center">
-          <span className="grid size-12 place-items-center rounded-full bg-success/15 text-success">
-            <CheckCircle2 className="size-6" aria-hidden />
-          </span>
-          <div className="space-y-1">
-            <h1 className="text-lg font-semibold">Feedback submitted</h1>
-            <p className="text-sm text-muted-foreground">
-              Thanks for testing {playtest.game.title}. Your report is with{" "}
-              {playtest.developer.name}.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button asChild variant="secondary">
-              <Link href="/tests">My tests</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/discover">Find another playtest</Link>
-            </Button>
-          </div>
-        </Card>
+      <div className="mx-auto max-w-lg py-10">
+        <SuccessState
+          title="Feedback submitted"
+          description={`Thanks for testing ${playtest.game.title}. Your report is with ${playtest.developer.name}, and it counts towards your tester reputation.`}
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button asChild variant="secondary">
+                <Link href="/tests">My tests</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/discover">Find another playtest</Link>
+              </Button>
+            </div>
+          }
+        />
       </div>
     );
   }
@@ -155,6 +218,11 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
   const surveyTasks = playtest.tasks.filter(
     (t) => t.type === "survey" || t.type === "bug-report",
   );
+
+  async function nextStep() {
+    const valid = await trigger(STEP_FIELDS[step]);
+    if (valid) setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  }
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
@@ -190,14 +258,20 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
         hoursPlayed: Number(values.hoursPlayed),
       });
       setDone(true);
+      toast({
+        title: "Feedback submitted",
+        description: `${playtest.developer.name} can see your report now.`,
+      });
       router.refresh();
     } catch {
       setFormError("Couldn't submit your feedback. Please try again.");
     }
   });
 
+  const stepPct = ((step + 1) / STEPS.length) * 100;
+
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-3xl space-y-8">
       <PageHeader
         breadcrumbs={[
           { label: "My tests", href: "/tests" },
@@ -205,198 +279,283 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
           { label: "Feedback" },
         ]}
         title="Playtest feedback"
-        description={`Structured feedback for ${playtest.title}. This goes straight to the developer.`}
+        description="Structured feedback goes straight to the developer — and counts towards your reputation."
       />
 
-      <form onSubmit={onSubmit} className="space-y-6" noValidate>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Ratings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5 pt-0">
-            {RATING_DIMENSIONS.map((dim) => (
-              <div key={dim.key} className="space-y-1.5">
-                <div>
-                  <p id={`rating-${dim.key}`} className="text-sm font-medium">
-                    {dim.label}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{dim.hint}</p>
+      {/* What's being reviewed, so the tester never loses the thread. */}
+      <div className="flex items-center gap-3.5 rounded-xl border border-border bg-surface p-3.5">
+        <GameArt
+          game={playtest.game}
+          ratio="3/2"
+          className="w-24 shrink-0 rounded-lg"
+        />
+        <div className="min-w-0">
+          <p className="truncate font-display text-sm font-semibold">
+            {playtest.game.title}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">
+            {playtest.title}
+          </p>
+        </div>
+      </div>
+
+      {/* ---- Step progress --------------------------------------------- */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-sm">
+          <p className="font-medium">
+            Step {step + 1} of {STEPS.length}
+            <span className="ml-2 font-normal text-muted-foreground">
+              {STEPS[step]}
+            </span>
+          </p>
+          <p className="text-xs tabular-nums text-subtle-foreground">
+            {Math.round(stepPct)}%
+          </p>
+        </div>
+        <Progress value={stepPct} aria-label={`Step ${step + 1} of ${STEPS.length}`} />
+      </div>
+
+      <form onSubmit={onSubmit} noValidate>
+        {/* ---- Step 1 · Ratings ---------------------------------------- */}
+        {step === 0 && (
+          <div className="space-y-6">
+            {RATING_GROUPS.map((group) => (
+              <FormSection key={group.title} title={group.title} hint={group.hint}>
+                <div className="space-y-6">
+                  {group.keys.map((key) => {
+                    const dim = RATING_DIMENSIONS.find((d) => d.key === key)!;
+                    return (
+                      <div key={key} className="space-y-2">
+                        <div>
+                          <p id={`rating-${key}`} className="text-sm font-medium">
+                            {dim.label}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {dim.hint}
+                          </p>
+                        </div>
+                        <Controller
+                          control={control}
+                          name={key}
+                          render={({ field }) => (
+                            <RatingInput
+                              labelledBy={`rating-${key}`}
+                              value={Number(field.value) || 0}
+                              onChange={field.onChange}
+                            />
+                          )}
+                        />
+                        {errors[key] && (
+                          <p
+                            className="text-xs font-medium text-destructive"
+                            role="alert"
+                          >
+                            {errors[key]?.message}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
+              </FormSection>
+            ))}
+          </div>
+        )}
+
+        {/* ---- Step 2 · Written report --------------------------------- */}
+        {step === 1 && (
+          <div className="space-y-6">
+            <FormSection
+              title="In your own words"
+              hint="The part developers read first. Be specific — “the tide UI confused me on day 2” beats “UI is bad”."
+            >
+              <Field
+                label="Overall summary"
+                htmlFor="fb-summary"
+                hint="What's the headline? How did the session feel start to finish?"
+                error={errors.summary?.message}
+                required
+              >
+                <Textarea
+                  id="fb-summary"
+                  rows={4}
+                  aria-invalid={!!errors.summary}
+                  {...register("summary")}
+                />
+              </Field>
+
+              <Field
+                label="What did you enjoy?"
+                htmlFor="fb-highlights"
+                hint="One per line."
+                error={errors.highlights?.message}
+                required
+              >
+                <Textarea
+                  id="fb-highlights"
+                  rows={3}
+                  aria-invalid={!!errors.highlights}
+                  placeholder={
+                    "The tide-forecast UI is intuitive\nSalvage loop is satisfying"
+                  }
+                  {...register("highlights")}
+                />
+              </Field>
+
+              <Field
+                label="What frustrated you?"
+                htmlFor="fb-pain"
+                hint="One per line."
+                error={errors.painPoints?.message}
+              >
+                <Textarea id="fb-pain" rows={3} {...register("painPoints")} />
+              </Field>
+            </FormSection>
+
+            <FormSection
+              title="Controls & technical"
+              hint="Anything that got between you and the game."
+            >
+              <Field
+                label="Controls & feel"
+                htmlFor="fb-controls"
+                hint="How did movement, camera, and inputs feel?"
+                error={errors.controlsNote?.message}
+              >
+                <Textarea id="fb-controls" rows={2} {...register("controlsNote")} />
+              </Field>
+
+              <Field
+                label="Bugs encountered"
+                htmlFor="fb-bugs"
+                hint="One per line — include repro steps where you can."
+                error={errors.bugs?.message}
+              >
+                <Textarea
+                  id="fb-bugs"
+                  rows={3}
+                  placeholder="Day 2: saving during a storm soft-locks the UI (happened twice)"
+                  {...register("bugs")}
+                />
+              </Field>
+            </FormSection>
+          </div>
+        )}
+
+        {/* ---- Step 3 · Wrap up ---------------------------------------- */}
+        {step === 2 && (
+          <FormSection
+            title="Wrap up"
+            hint="Two quick calls and how long you played."
+          >
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2.5">
+                <p className="text-sm font-medium">Overall impression</p>
                 <Controller
                   control={control}
-                  name={dim.key}
+                  name="sentiment"
                   render={({ field }) => (
-                    <RatingInput
-                      labelledBy={`rating-${dim.key}`}
-                      value={Number(field.value) || 0}
-                      onChange={field.onChange}
-                    />
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="gap-2"
+                    >
+                      {(
+                        [
+                          ["positive", "Positive"],
+                          ["neutral", "Mixed"],
+                          ["negative", "Negative"],
+                        ] as [FeedbackSentiment, string][]
+                      ).map(([value, label]) => (
+                        <label
+                          key={value}
+                          className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground"
+                        >
+                          <RadioGroupItem value={value} /> {label}
+                        </label>
+                      ))}
+                    </RadioGroup>
                   )}
                 />
-                {errors[dim.key] && (
-                  <p className="text-xs font-medium text-destructive" role="alert">
-                    {errors[dim.key]?.message}
-                  </p>
-                )}
               </div>
-            ))}
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Your report</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5 pt-0">
-            <Field
-              label="Overall summary"
-              htmlFor="fb-summary"
-              hint="What's the headline? How did the session feel start to finish?"
-              error={errors.summary?.message}
-              required
-            >
-              <Textarea id="fb-summary" rows={4} {...register("summary")} />
-            </Field>
-
-            <Field
-              label="Highlights — what worked"
-              htmlFor="fb-highlights"
-              hint="One per line."
-              error={errors.highlights?.message}
-              required
-            >
-              <Textarea
-                id="fb-highlights"
-                rows={3}
-                placeholder={"The tide-forecast UI is intuitive\nSalvage loop is satisfying"}
-                {...register("highlights")}
-              />
-            </Field>
-
-            <Field
-              label="Pain points — what got in the way"
-              htmlFor="fb-pain"
-              hint="One per line."
-              error={errors.painPoints?.message}
-            >
-              <Textarea id="fb-pain" rows={3} {...register("painPoints")} />
-            </Field>
-
-            <Field
-              label="Controls & feel"
-              htmlFor="fb-controls"
-              hint="How did movement, camera, and inputs feel?"
-              error={errors.controlsNote?.message}
-            >
-              <Textarea id="fb-controls" rows={2} {...register("controlsNote")} />
-            </Field>
-
-            <Field
-              label="Bugs"
-              htmlFor="fb-bugs"
-              hint="One per line — include repro steps where you can."
-              error={errors.bugs?.message}
-            >
-              <Textarea
-                id="fb-bugs"
-                rows={3}
-                placeholder="Day 2: saving during a storm soft-locks the UI (happened twice)"
-                {...register("bugs")}
-              />
-            </Field>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Wrap up</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-5 pt-0 sm:grid-cols-2">
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Overall impression</p>
-              <Controller
-                control={control}
-                name="sentiment"
-                render={({ field }) => (
-                  <RadioGroup
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    className="gap-1.5"
-                  >
-                    {(
-                      [
-                        ["positive", "Positive"],
-                        ["neutral", "Mixed"],
-                        ["negative", "Negative"],
-                      ] as [FeedbackSentiment, string][]
-                    ).map(([value, label]) => (
-                      <label
-                        key={value}
-                        className="flex items-center gap-2 text-sm text-muted-foreground"
-                      >
-                        <RadioGroupItem value={value} /> {label}
+              <div className="space-y-2.5">
+                <p className="text-sm font-medium">
+                  Would you recommend this build to a friend?
+                </p>
+                <Controller
+                  control={control}
+                  name="wouldRecommend"
+                  render={({ field }) => (
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="gap-2"
+                    >
+                      <label className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground">
+                        <RadioGroupItem value="yes" /> Yes
                       </label>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-            </div>
+                      <label className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground">
+                        <RadioGroupItem value="no" /> Not yet
+                      </label>
+                    </RadioGroup>
+                  )}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Would you recommend this build to a friend?</p>
-              <Controller
-                control={control}
-                name="wouldRecommend"
-                render={({ field }) => (
-                  <RadioGroup
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    className="gap-1.5"
-                  >
-                    <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <RadioGroupItem value="yes" /> Yes
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <RadioGroupItem value="no" /> Not yet
-                    </label>
-                  </RadioGroup>
-                )}
-              />
+              <Field
+                label="Hours played"
+                htmlFor="fb-hours"
+                error={errors.hoursPlayed?.message}
+                className="sm:max-w-xs"
+              >
+                <Input
+                  id="fb-hours"
+                  type="number"
+                  step="0.5"
+                  min={0.5}
+                  aria-invalid={!!errors.hoursPlayed}
+                  {...register("hoursPlayed")}
+                />
+              </Field>
             </div>
-
-            <Field
-              label="Hours played"
-              htmlFor="fb-hours"
-              error={errors.hoursPlayed?.message}
-              className="sm:col-span-2 sm:max-w-xs"
-            >
-              <Input
-                id="fb-hours"
-                type="number"
-                step="0.5"
-                min={0.5}
-                {...register("hoursPlayed")}
-              />
-            </Field>
-          </CardContent>
-        </Card>
+          </FormSection>
+        )}
 
         {formError && (
           <p
-            className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            className="mt-6 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
             role="alert"
           >
             {formError}
           </p>
         )}
 
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" loading={isSubmitting}>
-            {isSubmitting ? "Submitting…" : "Submit feedback"}
-          </Button>
-          <Button asChild variant="ghost" type="button">
-            <Link href={`/tests/${playtestId}`}>Back to workspace</Link>
-          </Button>
+        {/* ---- Step controls ------------------------------------------- */}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
+          {step > 0 ? (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+            >
+              <ArrowLeft /> Back
+            </Button>
+          ) : (
+            <Button asChild variant="ghost" type="button">
+              <Link href={`/tests/${playtestId}`}>Back to workspace</Link>
+            </Button>
+          )}
+
+          {step < STEPS.length - 1 ? (
+            <Button type="button" size="lg" onClick={nextStep}>
+              Continue <ArrowRight />
+            </Button>
+          ) : (
+            <Button type="submit" size="lg" loading={isSubmitting}>
+              {isSubmitting ? "Submitting…" : "Submit feedback"}
+            </Button>
+          )}
         </div>
       </form>
     </div>

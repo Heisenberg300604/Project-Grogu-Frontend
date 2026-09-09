@@ -8,19 +8,30 @@ import { cn } from "@/lib/utils";
 /**
  * Button styles. Exported separately so a `<Link>` can be styled as a button:
  * `<Link className={buttonVariants()}>` — or use `<Button asChild><Link/></Button>`.
+ *
+ * Hierarchy, strongest to weakest: primary → secondary → outline → ghost → link.
+ * A screen should carry exactly one primary action.
  */
 export const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  [
+    "relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap",
+    "rounded-md font-medium",
+    "transition-[background-color,border-color,color,transform,opacity] duration-[120ms] ease-[var(--ease-out-soft)]",
+    "focus-visible:outline-none",
+    "active:translate-y-px",
+    "disabled:pointer-events-none disabled:opacity-45",
+    "[&_svg]:size-4 [&_svg]:shrink-0",
+  ].join(" "),
   {
     variants: {
       variant: {
         primary:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:bg-primary-active",
         secondary:
-          "bg-elevated text-elevated-foreground border border-border hover:border-border-strong hover:bg-accent",
+          "border border-border bg-elevated text-elevated-foreground hover:border-border-strong hover:bg-accent",
         outline:
-          "border border-border-strong bg-transparent text-foreground hover:bg-accent",
-        ghost: "bg-transparent text-foreground hover:bg-accent",
+          "border border-border-strong bg-transparent text-foreground hover:border-secondary/50 hover:bg-accent",
+        ghost: "bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:opacity-90",
         success: "bg-success text-success-foreground shadow-sm hover:opacity-90",
@@ -28,8 +39,9 @@ export const buttonVariants = cva(
       },
       size: {
         sm: "h-8 px-3 text-xs",
-        md: "h-10 px-4",
-        lg: "h-12 px-6 text-base",
+        md: "h-10 px-4 text-sm",
+        lg: "h-11 px-5 text-sm",
+        xl: "h-13 px-7 text-base",
         icon: "size-10",
         "icon-sm": "size-8",
       },

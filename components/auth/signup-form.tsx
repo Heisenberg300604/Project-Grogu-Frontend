@@ -120,6 +120,8 @@ export function SignupForm() {
   const role = useWatch({ control, name: "role" });
   const genres = useWatch({ control, name: "preferredGenres" }) ?? [];
   const platforms = useWatch({ control, name: "platforms" }) ?? [];
+  const experienceLevel = useWatch({ control, name: "experienceLevel" });
+  const studioSize = useWatch({ control, name: "studioSize" });
 
   function toggleArray(
     field: "preferredGenres" | "platforms",
@@ -230,13 +232,19 @@ export function SignupForm() {
               error={errors.experienceLevel?.message}
             >
               <Select
-                defaultValue="regular"
+                value={experienceLevel ?? "regular"}
                 onValueChange={(v) =>
                   setValue("experienceLevel", v, { shouldValidate: true })
                 }
               >
                 <SelectTrigger id="su-experience">
-                  <SelectValue />
+                  {/* Radix leaves SelectValue empty until the menu is opened, so
+                      the current label is supplied explicitly. */}
+                  <SelectValue>
+                    {EXPERIENCE_LABELS[
+                      (experienceLevel ?? "regular") as ExperienceLevel
+                    ]}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {EXPERIENCE_OPTIONS.map((level) => (
@@ -317,7 +325,7 @@ export function SignupForm() {
             </Field>
             <Field label="Studio size" htmlFor="su-size" error={errors.studioSize?.message}>
               <Select
-                defaultValue="solo"
+                value={studioSize ?? "solo"}
                 onValueChange={(v) =>
                   setValue("studioSize", v as (typeof STUDIO_SIZES)[number], {
                     shouldValidate: true,
@@ -325,7 +333,9 @@ export function SignupForm() {
                 }
               >
                 <SelectTrigger id="su-size">
-                  <SelectValue />
+                  <SelectValue>
+                    {STUDIO_SIZE_LABELS[studioSize ?? "solo"]}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {STUDIO_SIZES.map((size) => (
