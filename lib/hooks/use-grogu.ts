@@ -330,3 +330,46 @@ export function useDeveloperStats(developerId: string | undefined) {
     };
   }, [games, playtests, applications, feedback]);
 }
+
+export interface PlaytestSummary {
+  applicants: number;
+  pending: number;
+  accepted: number;
+  feedbackCount: number;
+  completed: number;
+  /** 0–1 of the roster filled. */
+  rosterRatio: number;
+  /** 0–1 of accepted testers who have finished. */
+  completionRatio: number;
+}
+
+/**
+ * Roll-up counts for one playtest, as shown on the developer's list rows and
+ * dashboard. Kept here so both views agree on what "completed" means.
+ */
+export function usePlaytestSummary(playtestId: string, maxTesters: number): PlaytestSummary {
+  const applications = useGroguStore((s) => s.applications);
+  const feedback = useGroguStore((s) => s.feedback);
+  const progress = useGroguStore((s) => s.testProgress);
+
+  return useMemo(() => {
+    const mine = applications.filter((a) => a.playtestId === playtestId);
+    const accepted = mine.filter((a) => a.status === "accepted");
+    const completed = accepted.filter(
+      (a) =>
+        progress.find(
+          (p) => p.playtestId === playtestId && p.testerId === a.testerId,
+        )?.stage === "completed",
+    ).length;
+
+    return {
+      applicants: mine.length,
+      pending: mine.filter((a) => a.status === "pending").length,
+      accepted: accepted.length,
+      feedbackCount: feedback.filter((f) => f.playtestId === playtestId).length,
+      completed,
+      rosterRatio: Math.min(1, accepted.length / Math.max(1, maxTesters)),
+      completionRatio: accepted.length ? completed / accepted.length : 0,
+    };
+  }, [applications, feedback, progress, playtestId, maxTesters]);
+}

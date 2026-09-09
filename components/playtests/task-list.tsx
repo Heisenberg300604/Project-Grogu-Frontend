@@ -26,20 +26,23 @@ export function TaskList({
   const interactive = typeof onToggle === "function";
 
   return (
-    <ol className="space-y-3">
+    <ol className="space-y-2.5">
       {tasks.map((task, index) => {
         const done = completedIds?.includes(task.id) ?? false;
         return (
           <li
             key={task.id}
             className={cn(
-              "flex gap-3 rounded-lg border border-border bg-surface p-4 transition-colors",
-              done && "border-success/40 bg-success/5",
+              "flex gap-3.5 rounded-lg border p-4 transition-colors duration-[180ms]",
+              done
+                ? "border-success/35 bg-success/6"
+                : "border-border bg-surface",
+              interactive && !done && "hover:border-border-strong",
             )}
           >
             {interactive ? (
               <Checkbox
-                className="mt-0.5"
+                className="mt-0.5 size-4.5"
                 checked={done}
                 disabled={pendingId === task.id}
                 onCheckedChange={() => onToggle?.(task.id)}
@@ -49,17 +52,17 @@ export function TaskList({
               <span
                 aria-hidden
                 className={cn(
-                  "mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border text-[10px] font-semibold",
+                  "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border text-[10px] font-semibold tabular-nums",
                   done
                     ? "border-success bg-success text-success-foreground"
-                    : "border-border-strong text-muted-foreground",
+                    : "border-border-strong text-subtle-foreground",
                 )}
               >
                 {done ? <Check className="size-3" /> : index + 1}
               </span>
             )}
 
-            <div className="min-w-0 flex-1 space-y-1">
+            <div className="min-w-0 flex-1 space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
                 <p
                   className={cn(
@@ -76,8 +79,10 @@ export function TaskList({
                   <Badge tone="muted">Optional</Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">{task.description}</p>
-              <p className="flex items-center gap-1 text-xs text-muted-foreground">
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {task.description}
+              </p>
+              <p className="flex items-center gap-1.5 text-xs text-subtle-foreground">
                 <Clock className="size-3" aria-hidden />~{task.estimatedMinutes} min
               </p>
             </div>

@@ -1,64 +1,74 @@
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import type { TestStage } from "@/lib/types";
 
-const STEPS: { stage: TestStage; label: string }[] = [
-  { stage: "not-started", label: "Accepted" },
-  { stage: "in-progress", label: "Testing" },
-  { stage: "tasks-complete", label: "Tasks done" },
-  { stage: "completed", label: "Feedback in" },
-];
+export interface WorkflowStep {
+  label: string;
+  hint: string;
+  done: boolean;
+}
 
-const ORDER: TestStage[] = [
-  "not-started",
-  "in-progress",
-  "tasks-complete",
-  "feedback-submitted",
-  "completed",
-];
-
-export function WorkflowStepper({ stage }: { stage: TestStage }) {
-  const currentIndex = ORDER.indexOf(stage);
+/**
+ * Three-step progress rail for the tester workspace.
+ *
+ * Steps are derived from the tester's actual progress rather than the raw
+ * `TestStage`, so what the rail shows always matches what the page below it
+ * lets you do. The first step that isn't done is the active one.
+ */
+export function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
+  const activeIndex = steps.findIndex((step) => !step.done);
 
   return (
-    <ol className="flex items-center gap-2">
-      {STEPS.map((step, i) => {
-        const stepIndex = ORDER.indexOf(step.stage);
-        const done = currentIndex > stepIndex || stage === "completed";
-        const active = currentIndex === stepIndex && !done;
+    <ol className="grid gap-4 sm:grid-cols-3 sm:gap-0">
+      {steps.map((step, i) => {
+        const active = i === activeIndex;
         return (
-          <li key={step.stage} className="flex flex-1 items-center gap-2">
-            <div className="flex flex-col items-center gap-1 text-center">
+          <li
+            key={step.label}
+            className="relative flex items-start gap-3 sm:flex-col sm:gap-3"
+          >
+            <div className="flex items-center gap-3 sm:w-full">
               <span
                 className={cn(
-                  "grid size-7 place-items-center rounded-full border text-xs font-semibold",
-                  done
+                  "grid size-8 shrink-0 place-items-center rounded-full border text-xs font-semibold tabular-nums transition-colors duration-[180ms]",
+                  step.done
                     ? "border-success bg-success text-success-foreground"
                     : active
-                      ? "border-primary bg-primary/15 text-secondary"
-                      : "border-border-strong text-muted-foreground",
+                      ? "border-primary bg-primary-soft text-secondary"
+                      : "border-border-strong text-subtle-foreground",
                 )}
               >
-                {done ? <Check className="size-4" /> : i + 1}
+                {step.done ? <Check className="size-4" aria-hidden /> : i + 1}
               </span>
-              <span
+
+              {/* Connector — desktop only, and never after the last step. */}
+              {i < steps.length - 1 && (
+                <span
+                  aria-hidden
+                  className={cn(
+                    "hidden h-px flex-1 transition-colors duration-[180ms] sm:block",
+                    step.done ? "bg-success/60" : "bg-border",
+                  )}
+                />
+              )}
+            </div>
+
+            <div className="min-w-0 sm:pr-6">
+              <p
                 className={cn(
-                  "text-[11px]",
-                  done || active ? "text-foreground" : "text-muted-foreground",
+                  "text-sm font-medium",
+                  step.done || active ? "text-foreground" : "text-muted-foreground",
                 )}
               >
                 {step.label}
-              </span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <span
-                className={cn(
-                  "mb-4 h-px flex-1",
-                  done ? "bg-success" : "bg-border",
+                {active && (
+                  <span className="ml-2 text-xs font-normal text-secondary">
+                    Now
+                  </span>
                 )}
-              />
-            )}
+              </p>
+              <p className="mt-0.5 text-xs text-subtle-foreground">{step.hint}</p>
+            </div>
           </li>
         );
       })}

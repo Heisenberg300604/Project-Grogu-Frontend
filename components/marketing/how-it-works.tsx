@@ -2,7 +2,6 @@ import { ClipboardList, MessageSquareText, Search, UserCheck } from "lucide-reac
 import type { LucideIcon } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
-import { Card, CardContent } from "@/components/ui/card";
 import { SectionHeading } from "@/components/ui/section-heading";
 
 interface Step {
@@ -43,40 +42,50 @@ const STEPS: Step[] = [
   },
 ];
 
+/**
+ * The four-step loop. Numbered rail rather than four cards — the steps are a
+ * sequence, and boxing each one hides that.
+ */
 export function HowItWorks() {
   return (
-    <section className="py-20">
+    <section className="border-b border-border py-20">
       <Container className="flex flex-col gap-12">
         <SectionHeading
           eyebrow="How Grogu works"
           title="A playtest loop that respects everyone's time"
-          lead="Four steps from 'looking for testers' to feedback you can act on. No spreadsheets, no chasing people in Discord."
+          lead="Four steps from “looking for testers” to feedback you can act on. No spreadsheets, no chasing people in Discord."
         />
 
-        <ol className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <ol className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, index) => (
-            <li key={step.title}>
-              <Card className="h-full">
-                <CardContent className="flex h-full flex-col gap-4 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="grid size-10 place-items-center rounded-md bg-primary/15 text-secondary">
-                      <step.icon className="size-5" aria-hidden />
-                    </span>
-                    <span className="font-display text-sm text-muted-foreground">
-                      0{index + 1}
-                    </span>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h3 className="text-base font-semibold">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {step.description}
-                    </p>
-                  </div>
-                  <span className="mt-auto text-xs uppercase tracking-wide text-muted-foreground">
-                    {step.audience}
-                  </span>
-                </CardContent>
-              </Card>
+            <li key={step.title} className="relative flex flex-col gap-4">
+              {/* Connector rail — desktop only, and not after the last step. */}
+              {index < STEPS.length - 1 && (
+                <span
+                  aria-hidden
+                  className="absolute left-11 top-5 hidden h-px w-[calc(100%-1rem)] bg-linear-to-r from-border to-transparent lg:block"
+                />
+              )}
+
+              <div className="flex items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-primary-line bg-primary-soft text-secondary">
+                  <step.icon className="size-4.5" aria-hidden />
+                </span>
+                <span className="font-display text-sm tabular-nums text-subtle-foreground">
+                  0{index + 1}
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-base font-semibold">{step.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {step.description}
+                </p>
+              </div>
+
+              <span className="text-label mt-auto text-subtle-foreground">
+                {step.audience}
+              </span>
             </li>
           ))}
         </ol>

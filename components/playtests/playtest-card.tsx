@@ -1,15 +1,22 @@
 import Link from "next/link";
-import { Clock, Users } from "lucide-react";
+import { Clock, Gift, Users } from "lucide-react";
 
 import { cn, formatDeadline } from "@/lib/utils";
-import { FOCUS_LABELS, GENRE_LABELS } from "@/lib/constants";
+import { isClosingSoon, playtestCapacity } from "@/lib/domain";
+import { GENRE_LABELS, PLATFORM_LABELS } from "@/lib/constants";
 import type { PlaytestWithRelations } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { MetaItem, MetaRow } from "@/components/ui/meta";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { GameCover } from "@/components/games/game-cover";
+import { GameArt } from "@/components/games/game-cover";
 
-/** Playtest summary card — the primary unit on Discover and dashboards. */
+/**
+ * Playtest summary card — the primary unit on Discover and dashboards.
+ *
+ * Reads game-first: artwork, then the game's identity over the scrim, then what
+ * the test actually asks of you. The whole card is one link target, with the
+ * heading carrying the accessible name.
+ */
 export function PlaytestCard({
   playtest,
   href,
@@ -20,75 +27,91 @@ export function PlaytestCard({
   className?: string;
 }) {
   const link = href ?? `/playtests/${playtest.id}`;
-  const spotsLeft = Math.max(0, playtest.maxTesters - playtest.acceptedTesters);
+  const { spotsLeft, isFull, isNearlyFull } = playtestCapacity(playtest);
+  const closingSoon = isClosingSoon(playtest.closesAt);
 
   return (
-    <Card
+    <article
       className={cn(
-        "group flex flex-col overflow-hidden transition-colors hover:border-border-strong",
+        "lift group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface",
+        "hover:border-border-strong focus-within:border-border-strong",
         className,
       )}
     >
-      <Link
-        href={link}
-        className="relative block aspect-[16/9] border-b border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <GameCover game={playtest.game} />
-        <div className="absolute left-3 top-3 flex gap-1.5">
-          <StatusBadge kind="playtest" status={playtest.status} />
-          {playtest.requirements.ndaRequired && <Badge tone="outline">NDA</Badge>}
+      <GameArt game={playtest.game} ratio="16/9" scrim>
+        <div className="absolute inset-x-3 top-3 flex flex-wrap items-start justify-between gap-2">
+          <StatusBadge kind="playtest" status={playtest.status} overlay />
+          <div className="flex gap-1.5">
+            {playtest.requirements.ndaRequired && (
+              <Badge tone="overlay">NDA</Badge>
+            )}
+            {isFull ? (
+              <Badge tone="overlay">Full</Badge>
+            ) : (
+              closingSoon && <Badge tone="overlay">Closing soon</Badge>
+            )}
+          </div>
         </div>
-      </Link>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="space-y-1">
-          <p className="text-xs text-muted-foreground">
-            {playtest.game.title} · {playtest.developer.name}
-          </p>
-          <h3 className="font-display text-base font-semibold leading-snug">
-            <Link
-              href={link}
-              className="transition-colors hover:text-secondary focus-visible:outline-none focus-visible:underline"
-            >
-              {playtest.title}
-            </Link>
+        {/* Game identity sits on the art — this is a game first, a task second. */}
+        <div className="absolute inset-x-4 bottom-3">
+          <h3 className="font-display text-lg font-semibold leading-tight text-white">
+            {playtest.game.title}
           </h3>
+          <p className="mt-0.5 truncate text-xs text-white/70">
+            {playtest.game.genres.map((g) => GENRE_LABELS[g]).join(" • ")}
+            {" · "}
+            {playtest.requirements.platforms
+              .slice(0, 2)
+              .map((p) => PLATFORM_LABELS[p])
+              .join(", ")}
+          </p>
+        </div>
+      </GameArt>
+
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="space-y-1.5">
+          <p className="text-xs text-subtle-foreground">
+            {playtest.developer.name}
+          </p>
+          <h4 className="font-medium leading-snug">
+            <Link href={link} className="transition-colors hover:text-secondary">
+              {/* Stretched link makes the whole card clickable without a div-button. */}
+              <span className="absolute inset-0" aria-hidden />
+              <span className="line-clamp-2">{playtest.title}</span>
+            </Link>
+          </h4>
         </div>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground">
+        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {playtest.summary}
         </p>
 
-        <div className="flex flex-wrap gap-1.5">
-          {playtest.game.genres.slice(0, 1).map((g) => (
-            <Badge key={g} tone="muted">
-              {GENRE_LABELS[g]}
-            </Badge>
-          ))}
-          {playtest.focusAreas.slice(0, 2).map((focus) => (
-            <Badge key={focus} tone="primary">
-              {FOCUS_LABELS[focus]}
-            </Badge>
-          ))}
-        </div>
+        <MetaRow className="mt-auto border-t border-border pt-3">
+          <MetaItem
+            icon={Gift}
+            label="Reward"
+            value={playtest.reward.split(/[+·]/)[0].trim()}
+            tone="strong"
+            className="min-w-0 basis-full sm:basis-auto"
+          />
+          <MetaItem
+            icon={Clock}
+            label="Time commitment"
+            value={`~${playtest.requirements.estimatedHours}h`}
+          />
+          <MetaItem
+            icon={Users}
+            label="Slots"
+            value={isFull ? "Full" : `${spotsLeft} slots left`}
+            tone={isFull ? "warning" : isNearlyFull ? "warning" : "default"}
+          />
+        </MetaRow>
 
-        <dl className="mt-auto flex flex-wrap gap-x-5 gap-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <Users className="size-3.5" aria-hidden />
-            <dt className="sr-only">Spots</dt>
-            <dd>{spotsLeft > 0 ? `${spotsLeft} spots left` : "Full"}</dd>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Clock className="size-3.5" aria-hidden />
-            <dt className="sr-only">Estimated time</dt>
-            <dd>~{playtest.requirements.estimatedHours}h</dd>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <dt className="sr-only">Deadline</dt>
-            <dd>{formatDeadline(playtest.closesAt)}</dd>
-          </div>
-        </dl>
+        <p className="text-xs text-subtle-foreground">
+          {formatDeadline(playtest.closesAt)}
+        </p>
       </div>
-    </Card>
+    </article>
   );
 }

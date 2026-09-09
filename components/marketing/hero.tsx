@@ -1,10 +1,14 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, Users } from "lucide-react";
 
 import { formatCompactNumber } from "@/lib/utils";
+import { playtestCapacity } from "@/lib/domain";
+import { GENRE_LABELS } from "@/lib/constants";
+import type { PlaytestWithRelations } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
+import { Container } from "@/components/ui/container";
+import { GameArt, GameCover } from "@/components/games/game-cover";
 
 interface HeroStats {
   games: number;
@@ -13,58 +17,147 @@ interface HeroStats {
   feedbackSubmitted: number;
 }
 
-export function Hero({ stats }: { stats: HeroStats }) {
-  const figures = [
-    { label: "Games in testing", value: stats.games },
-    { label: "Active playtests", value: stats.activePlaytests },
-    { label: "Verified testers", value: stats.testers },
-    { label: "Feedback reports", value: stats.feedbackSubmitted },
-  ];
+/**
+ * Landing hero.
+ *
+ * The right-hand stack is built from real playtests in the catalogue rather
+ * than a stock illustration — the first thing a visitor sees is the actual
+ * product surface, with live-looking test metadata on it.
+ */
+export function Hero({
+  stats,
+  showcase,
+}: {
+  stats: HeroStats;
+  /** Playtests rendered into the art stack. Up to three are used. */
+  showcase: PlaytestWithRelations[];
+}) {
+  const featured = showcase.slice(0, 3);
+  const [lead, ...rest] = featured;
 
   return (
-    <section className="surface-grid border-b border-border">
-      <Container className="flex flex-col items-start gap-8 py-20 md:py-28">
-        <Badge tone="primary">Playtesting, minus the chaos</Badge>
+    <section className="relative overflow-hidden border-b border-border">
+      {/* Ambient wash pulled from the lead game's art. Heavily blurred so it
+          reads as atmosphere, never as an image. */}
+      {lead && (
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25">
+          <GameCover game={lead.game} className="scale-125 blur-3xl" />
+        </div>
+      )}
+      <div aria-hidden className="absolute inset-0 bg-linear-to-b from-background/40 via-background/85 to-background" />
+      <div aria-hidden className="surface-grid absolute inset-0" />
 
-        <h1 className="max-w-3xl text-4xl font-semibold leading-[1.08] sm:text-5xl md:text-6xl">
-          Get your game in front of testers who actually finish the build.
-        </h1>
+      <Container className="relative grid items-center gap-14 py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-28">
+        <div className="animate-rise flex flex-col items-start gap-7">
+          <Badge tone="primary" size="md" dot>
+            {stats.activePlaytests} playtests recruiting now
+          </Badge>
 
-        <p className="max-w-xl text-lg text-muted-foreground">
-          Grogu matches indie developers with dedicated playtesters, then keeps
-          everyone on track — clear tasks, structured feedback, and a reputation
-          system that rewards good testing.
-        </p>
+          <h1 className="text-display max-w-2xl">
+            Play. Test.{" "}
+            <span className="text-secondary">Make games better.</span>
+          </h1>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/discover"
-            className={buttonVariants({ variant: "primary", size: "lg" })}
-          >
-            Find a playtest
-            <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            href="/developers"
-            className={buttonVariants({ variant: "secondary", size: "lg" })}
-          >
-            I&apos;m a developer
-          </Link>
+          <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
+            Grogu connects game developers with real players for structured
+            playtesting — clear tasks, honest feedback, and a reputation system
+            that rewards testers who actually finish the build.
+          </p>
+
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Link
+              href="/discover"
+              className={buttonVariants({ variant: "primary", size: "xl" })}
+            >
+              Find games to test
+              <ArrowRight />
+            </Link>
+            <Link
+              href="/developers"
+              className={buttonVariants({ variant: "secondary", size: "xl" })}
+            >
+              I&apos;m a developer
+            </Link>
+          </div>
+
+          <p className="text-sm text-subtle-foreground">
+            <span className="font-medium text-foreground">
+              {formatCompactNumber(stats.testers)} testers
+            </span>{" "}
+            across {stats.games} games · no fees, no spreadsheets
+          </p>
         </div>
 
-        <dl className="mt-8 grid w-full grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-4">
-          {figures.map((figure) => (
-            <div key={figure.label} className="bg-surface p-5">
-              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-                {figure.label}
-              </dt>
-              <dd className="mt-1 font-display text-2xl font-semibold tabular-nums">
-                {formatCompactNumber(figure.value)}
-              </dd>
+        {/* Art stack — decorative composition of live playtests. */}
+        {lead && (
+          <div className="animate-rise relative hidden lg:block">
+            <div className="relative mx-auto max-w-lg">
+              <ShowcaseTile playtest={lead} size="lg" />
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                {rest.map((playtest) => (
+                  <ShowcaseTile key={playtest.id} playtest={playtest} size="sm" />
+                ))}
+              </div>
             </div>
-          ))}
-        </dl>
+          </div>
+        )}
       </Container>
     </section>
+  );
+}
+
+function ShowcaseTile({
+  playtest,
+  size,
+}: {
+  playtest: PlaytestWithRelations;
+  size: "lg" | "sm";
+}) {
+  const { spotsLeft, isFull } = playtestCapacity(playtest);
+
+  return (
+    <Link
+      href={`/playtests/${playtest.id}`}
+      className="lift block overflow-hidden rounded-xl border border-border bg-surface shadow-md hover:border-border-strong"
+    >
+      <GameArt
+        game={playtest.game}
+        ratio={size === "lg" ? "16/9" : "3/2"}
+        scrim
+      >
+        <div className="absolute inset-x-3 bottom-3">
+          <p
+            className={
+              size === "lg"
+                ? "font-display text-xl font-semibold text-white"
+                : "truncate font-display text-sm font-semibold text-white"
+            }
+          >
+            {playtest.game.title}
+          </p>
+          {size === "lg" && (
+            <p className="mt-0.5 text-xs text-white/70">
+              {playtest.game.genres.map((g) => GENRE_LABELS[g]).join(" • ")}
+            </p>
+          )}
+        </div>
+      </GameArt>
+
+      {size === "lg" && (
+        <div className="flex items-center justify-between gap-3 px-4 py-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <Users className="size-3.5 text-subtle-foreground" aria-hidden />
+            {isFull ? "Full" : `${spotsLeft} slots left`}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Clock className="size-3.5 text-subtle-foreground" aria-hidden />~
+            {playtest.requirements.estimatedHours}h
+          </span>
+          <span className="truncate font-medium text-foreground">
+            {playtest.reward.split(/[+·]/)[0].trim()}
+          </span>
+        </div>
+      )}
+    </Link>
   );
 }

@@ -45,7 +45,7 @@ export function ApplicationsView() {
   }, {});
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <PageHeader
         title="Your applications"
         description="Every playtest you've applied to and where it stands."

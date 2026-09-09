@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -14,7 +14,6 @@ import { EMPTY_DISCOVER_FILTERS } from "@/lib/domain";
 import type { GameGenre, GamePlatform } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function toggle<T>(list: T[], value: T): T[] {
@@ -25,160 +24,158 @@ function toggle<T>(list: T[], value: T): T[] {
 
 const HOUR_OPTIONS = [2, 5, 10] as const;
 
-export function DiscoverFilterPanel({
-  filters,
-  onChange,
-  resultCount,
-}: {
-  filters: DiscoverFilters;
-  onChange: (next: DiscoverFilters) => void;
-  resultCount: number;
-}) {
-  const hasFilters =
+/** True when anything is narrowing the result set. */
+export function hasActiveFilters(filters: DiscoverFilters) {
+  return (
     filters.search !== "" ||
     filters.genres.length > 0 ||
     filters.platforms.length > 0 ||
     filters.ndaOnly ||
-    filters.maxHours != null;
+    filters.maxHours != null
+  );
+}
 
+/** Number of active filters, for the mobile "Filters (n)" trigger. */
+export function activeFilterCount(filters: DiscoverFilters) {
   return (
-    <div className="space-y-6">
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden
-        />
-        <Input
-          type="search"
-          placeholder="Search games, studios, playtests…"
-          aria-label="Search playtests"
-          value={filters.search}
-          onChange={(e) => onChange({ ...filters, search: e.target.value })}
-          className="pl-9"
-        />
-      </div>
+    filters.genres.length +
+    filters.platforms.length +
+    (filters.ndaOnly ? 1 : 0) +
+    (filters.maxHours != null ? 1 : 0)
+  );
+}
 
-      <fieldset className="space-y-2">
-        <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Genre
-        </legend>
-        <div className="flex flex-wrap gap-1.5">
-          {GENRE_OPTIONS.map((genre: GameGenre) => {
-            const active = filters.genres.includes(genre);
-            return (
-              <button
-                key={genre}
-                type="button"
-                aria-pressed={active}
-                onClick={() =>
-                  onChange({ ...filters, genres: toggle(filters.genres, genre) })
-                }
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  active
-                    ? "border-primary bg-primary/15 text-secondary"
-                    : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
-                )}
-              >
-                {GENRE_LABELS[genre]}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
+/** Pill toggle. One style for every filter chip on the page. */
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-[120ms] focus-visible:outline-none",
+        active
+          ? "border-primary-line bg-primary-soft text-secondary"
+          : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
 
-      <fieldset className="space-y-2">
-        <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Platform
-        </legend>
-        <div className="flex flex-wrap gap-1.5">
-          {PLATFORM_OPTIONS.map((platform: GamePlatform) => {
-            const active = filters.platforms.includes(platform);
-            return (
-              <button
-                key={platform}
-                type="button"
-                aria-pressed={active}
-                onClick={() =>
-                  onChange({
-                    ...filters,
-                    platforms: toggle(filters.platforms, platform),
-                  })
-                }
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  active
-                    ? "border-primary bg-primary/15 text-secondary"
-                    : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
-                )}
-              >
-                {PLATFORM_LABELS[platform]}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
+function FilterGroup({
+  legend,
+  children,
+}: {
+  legend: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <fieldset className="space-y-3 border-t border-border pt-5 first:border-0 first:pt-0">
+      <legend className="text-label text-subtle-foreground">{legend}</legend>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
+    </fieldset>
+  );
+}
 
-      <fieldset className="space-y-2">
-        <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Max time commitment
-        </legend>
-        <div className="flex flex-wrap gap-1.5">
-          {HOUR_OPTIONS.map((hours) => {
-            const active = filters.maxHours === hours;
-            return (
-              <button
-                key={hours}
-                type="button"
-                aria-pressed={active}
-                onClick={() =>
-                  onChange({
-                    ...filters,
-                    maxHours: active ? null : hours,
-                  })
-                }
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  active
-                    ? "border-primary bg-primary/15 text-secondary"
-                    : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
-                )}
-              >
-                ≤ {hours}h
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="nda-only"
-          checked={filters.ndaOnly}
-          onCheckedChange={(checked) =>
-            onChange({ ...filters, ndaOnly: checked === true })
-          }
-        />
-        <Label htmlFor="nda-only" className="font-normal text-muted-foreground">
-          Only show playtests that require an NDA
-        </Label>
-      </div>
-
-      <div className="flex items-center justify-between border-t border-border pt-4">
-        <p className="text-sm text-muted-foreground" aria-live="polite">
-          {resultCount} {resultCount === 1 ? "playtest" : "playtests"}
-        </p>
-        {hasFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onChange(EMPTY_DISCOVER_FILTERS)}
+/**
+ * Discover filter rail. No card wrapper — it sits in the page margin and is
+ * separated by hairlines, so the results grid stays the only framed thing.
+ */
+export function DiscoverFilterPanel({
+  filters,
+  onChange,
+}: {
+  filters: DiscoverFilters;
+  onChange: (next: DiscoverFilters) => void;
+}) {
+  return (
+    <div className="space-y-5">
+      <FilterGroup legend="Genre">
+        {GENRE_OPTIONS.map((genre: GameGenre) => (
+          <FilterChip
+            key={genre}
+            active={filters.genres.includes(genre)}
+            onClick={() =>
+              onChange({ ...filters, genres: toggle(filters.genres, genre) })
+            }
           >
-            <X className="size-3.5" />
-            Clear filters
-          </Button>
-        )}
+            {GENRE_LABELS[genre]}
+          </FilterChip>
+        ))}
+      </FilterGroup>
+
+      <FilterGroup legend="Platform">
+        {PLATFORM_OPTIONS.map((platform: GamePlatform) => (
+          <FilterChip
+            key={platform}
+            active={filters.platforms.includes(platform)}
+            onClick={() =>
+              onChange({
+                ...filters,
+                platforms: toggle(filters.platforms, platform),
+              })
+            }
+          >
+            {PLATFORM_LABELS[platform]}
+          </FilterChip>
+        ))}
+      </FilterGroup>
+
+      <FilterGroup legend="Time commitment">
+        {HOUR_OPTIONS.map((hours) => {
+          const active = filters.maxHours === hours;
+          return (
+            <FilterChip
+              key={hours}
+              active={active}
+              onClick={() =>
+                onChange({ ...filters, maxHours: active ? null : hours })
+              }
+            >
+              Up to {hours}h
+            </FilterChip>
+          );
+        })}
+      </FilterGroup>
+
+      <div className="border-t border-border pt-5">
+        <div className="flex items-center gap-2.5">
+          <Checkbox
+            id="nda-only"
+            checked={filters.ndaOnly}
+            onCheckedChange={(checked) =>
+              onChange({ ...filters, ndaOnly: checked === true })
+            }
+          />
+          <Label
+            htmlFor="nda-only"
+            className="cursor-pointer text-sm font-normal text-muted-foreground"
+          >
+            Only playtests requiring an NDA
+          </Label>
+        </div>
       </div>
+
+      {hasActiveFilters(filters) && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full"
+          onClick={() => onChange(EMPTY_DISCOVER_FILTERS)}
+        >
+          <X /> Clear all filters
+        </Button>
+      )}
     </div>
   );
 }

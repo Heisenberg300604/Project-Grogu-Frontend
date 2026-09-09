@@ -2,38 +2,40 @@
 
 import Link from "next/link";
 import {
+  ArrowRight,
   Gamepad2,
   ListChecks,
   MessageSquareText,
   Plus,
-  UserCheck,
   Users,
 } from "lucide-react";
 
-import { formatRelativeTime } from "@/lib/utils";
+import { formatRelativeTime, greeting } from "@/lib/utils";
 import {
   useDeveloperFeedback,
   useDeveloperPlaytests,
+  useDeveloperProfile,
   useDeveloperStats,
 } from "@/lib/hooks/use-grogu";
-import { useGroguStore } from "@/lib/store/grogu-store";
 import { useSession } from "@/lib/hooks/use-session";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/states";
-import { Progress } from "@/components/ui/progress";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { PageHeader } from "@/components/layout/page-header";
+import { UserAvatar } from "@/components/ui/avatar";
+import { PageHeader, SectionTitle } from "@/components/layout/page-header";
 import { StatCard, StatCardGrid } from "@/components/dashboard/stat-card";
+import { DeveloperPlaytestRow } from "@/components/developer/playtest-row";
 import { RatingStars } from "@/components/feedback/rating";
 
+/**
+ * The studio's command centre. Ordered by what's blocking: anything waiting on
+ * the developer's decision first, then what testers are saying.
+ */
 export function DeveloperDashboard() {
   const { user } = useSession();
+  const profile = useDeveloperProfile(user?.id);
   const stats = useDeveloperStats(user?.id);
   const playtests = useDeveloperPlaytests(user?.id);
   const feedback = useDeveloperFeedback(user?.id);
-  const applications = useGroguStore((s) => s.applications);
-  const testProgress = useGroguStore((s) => s.testProgress);
 
   if (!user) return null;
 
@@ -42,20 +44,21 @@ export function DeveloperDashboard() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <PageHeader
-        title={`${user.name.split(" ")[0]}'s studio`}
+        eyebrow={greeting()}
+        title={profile?.profile.studioName ?? `${user.name.split(" ")[0]}'s studio`}
         description="Your games, active playtests, and the feedback coming in."
         actions={
           <>
             <Button asChild variant="secondary">
               <Link href="/developer/games/new">
-                <Gamepad2 className="size-4" /> Add game
+                <Gamepad2 /> Add game
               </Link>
             </Button>
             <Button asChild>
               <Link href="/developer/playtests/new">
-                <Plus className="size-4" /> New playtest
+                <Plus /> New playtest
               </Link>
             </Button>
           </>
@@ -64,28 +67,49 @@ export function DeveloperDashboard() {
 
       <StatCardGrid>
         <StatCard label="Games" value={stats.games} icon={Gamepad2} />
-        <StatCard label="Active playtests" value={stats.activePlaytests} icon={ListChecks} />
         <StatCard
-          label="Pending applicants"
-          value={stats.pendingApplicants}
-          icon={Users}
-          hint={stats.pendingApplicants > 0 ? "Waiting on your review" : undefined}
+          label="Active playtests"
+          value={stats.activePlaytests}
+          icon={ListChecks}
         />
-        <StatCard label="Feedback reports" value={stats.feedbackCount} icon={MessageSquareText} />
+        <StatCard
+          label="Testers"
+          value={stats.acceptedTesters}
+          icon={Users}
+          hint={
+            stats.pendingApplicants > 0
+              ? `${stats.pendingApplicants} awaiting review`
+              : "No applicants pending"
+          }
+          emphasis={stats.pendingApplicants > 0}
+        />
+        <StatCard
+          label="Feedback received"
+          value={stats.feedbackCount}
+          icon={MessageSquareText}
+        />
       </StatCardGrid>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Active playtests</h2>
-          <Button asChild variant="link" size="sm">
-            <Link href="/developer/playtests">All playtests</Link>
-          </Button>
-        </div>
+      {/* ---- Active playtests ------------------------------------------ */}
+      <section className="space-y-5">
+        <SectionTitle
+          title="Active playtests"
+          description="Recruiting or in progress right now."
+          action={
+            playtests.length > 0 && (
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/developer/playtests">
+                  All playtests <ArrowRight />
+                </Link>
+              </Button>
+            )
+          }
+        />
 
         {active.length === 0 ? (
           <EmptyState
             icon={ListChecks}
-            title="No active playtests"
+            title="Nothing here yet."
             description="Create a playtest to start recruiting testers for one of your games."
             action={
               <Button asChild size="sm">
@@ -95,104 +119,56 @@ export function DeveloperDashboard() {
           />
         ) : (
           <div className="space-y-3">
-            {active.map((playtest) => {
-              const pending = applications.filter(
-                (a) => a.playtestId === playtest.id && a.status === "pending",
-              ).length;
-              const accepted = applications.filter(
-                (a) => a.playtestId === playtest.id && a.status === "accepted",
-              );
-              const done = accepted.filter((a) => {
-                const progress = testProgress.find(
-                  (p) => p.playtestId === playtest.id && p.testerId === a.testerId,
-                );
-                return progress?.stage === "completed";
-              }).length;
-              const completionPct = accepted.length
-                ? Math.round((done / accepted.length) * 100)
-                : 0;
-              return (
-                <Card key={playtest.id} className="p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <StatusBadge kind="playtest" status={playtest.status} />
-                        <span className="text-xs text-muted-foreground">
-                          {playtest.game.title}
-                        </span>
-                      </div>
-                      <p className="mt-1 font-display text-sm font-semibold">
-                        <Link
-                          href={`/developer/playtests/${playtest.id}`}
-                          className="hover:text-secondary"
-                        >
-                          {playtest.title}
-                        </Link>
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {pending > 0 && (
-                        <Button asChild size="sm" variant="secondary">
-                          <Link href={`/developer/playtests/${playtest.id}?tab=applicants`}>
-                            <UserCheck className="size-4" /> {pending} to review
-                          </Link>
-                        </Button>
-                      )}
-                      <Button asChild size="sm" variant="ghost">
-                        <Link href={`/developer/playtests/${playtest.id}`}>Manage</Link>
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">
-                        Testers: {accepted.length}/{playtest.maxTesters}
-                      </p>
-                      <Progress
-                        value={
-                          (accepted.length / Math.max(1, playtest.maxTesters)) * 100
-                        }
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">
-                        Feedback completion: {completionPct}%
-                      </p>
-                      <Progress value={completionPct} indicatorClassName="bg-success" />
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
+            {active.map((playtest) => (
+              <DeveloperPlaytestRow key={playtest.id} playtest={playtest} />
+            ))}
           </div>
         )}
       </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Recent feedback</h2>
-          <Button asChild variant="link" size="sm">
-            <Link href="/developer/analytics">View analytics</Link>
-          </Button>
-        </div>
+      {/* ---- Recent feedback ------------------------------------------- */}
+      <section className="space-y-5">
+        <SectionTitle
+          title="Recent feedback"
+          description="The latest reports from your testers."
+          action={
+            feedback.length > 0 && (
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/developer/analytics">
+                  View analytics <ArrowRight />
+                </Link>
+              </Button>
+            )
+          }
+        />
+
         {feedback.length === 0 ? (
           <EmptyState
             icon={MessageSquareText}
             title="No feedback yet"
-            description="Feedback from your testers will appear here as they submit it."
+            description="Reports from your testers will appear here as they submit them."
           />
         ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Latest reports</CardTitle>
-            </CardHeader>
-            <CardContent className="divide-y divide-border pt-0">
-              {feedback.slice(0, 5).map(({ feedback: f, playtest, tester }) => (
-                <div key={f.id} className="flex items-center justify-between gap-3 py-3">
+          <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
+            {feedback.slice(0, 5).map(({ feedback: f, playtest, tester }) => (
+              <li
+                key={f.id}
+                className="flex flex-wrap items-center justify-between gap-3 p-4"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  {tester && (
+                    <UserAvatar
+                      name={tester.name}
+                      src={tester.avatarUrl}
+                      className="size-8 shrink-0"
+                    />
+                  )}
                   <div className="min-w-0">
                     <p className="truncate text-sm">
-                      <span className="font-medium">{tester?.name ?? "A tester"}</span>{" "}
-                      on{" "}
+                      <span className="font-medium">
+                        {tester?.name ?? "A tester"}
+                      </span>{" "}
+                      <span className="text-muted-foreground">on</span>{" "}
                       <Link
                         href={`/developer/playtests/${playtest.id}?tab=feedback`}
                         className="text-secondary hover:underline"
@@ -204,16 +180,17 @@ export function DeveloperDashboard() {
                       {f.summary}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <RatingStars value={f.ratings.fun} />
-                    <span className="text-xs text-muted-foreground">
-                      {formatRelativeTime(f.submittedAt)}
-                    </span>
-                  </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+
+                <div className="flex shrink-0 items-center gap-3">
+                  <RatingStars value={f.ratings.fun} />
+                  <span className="text-xs text-subtle-foreground">
+                    {formatRelativeTime(f.submittedAt)}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </div>

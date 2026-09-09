@@ -80,6 +80,25 @@ admin tools · email. See `AGENTS.md` §5.
 | `GameCover` / `UserAvatar` fallbacks | Real uploaded images via `coverImageUrl` / `avatarUrl` (already optional fields). |
 | Simulated `delay()` in `lib/services/http.ts` | Remove. |
 
+## Visual system (redesign pass)
+
+The whole frontend was re-skinned against a single design system; no routes,
+services, hooks, store, or mock-data shapes changed.
+
+- **Navigation** moved from a sidebar to a role-aware top nav (`AppNavBar`),
+  with a mobile drawer. Sidebars read as an admin console; this product should
+  read as a gaming platform.
+- **Game art** is now genre-driven and deterministic (`GameCover`), framed by
+  `GameArt` so every game image in the product crops identically.
+- **Cards are rationed.** Page structure uses headings, hairlines and
+  whitespace; cards are reserved for repeated units and side rails. See
+  `docs/design-system.md` § Cards vs. sections.
+- **New primitives:** `meta.tsx`, `toast.tsx`, `tooltip.tsx`, `pagination.tsx`,
+  plus `SuccessState` and four skeleton shapes in `states.tsx`.
+- **Multi-step flows:** playtest creation is 5 steps, feedback is 3, both with a
+  progress bar.
+- **Motion** is token-driven and fully disabled under `prefers-reduced-motion`.
+
 ## Next tasks (suggested)
 
 1. Tester ↔ developer messaging on a playtest.

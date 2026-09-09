@@ -8,7 +8,7 @@ Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
 
 | Route | User | Purpose |
 | --- | --- | --- |
-| `/` | Everyone | Landing: hero, how-it-works, featured games, developer CTA, footer |
+| `/` | Everyone | Landing: hero, featured playtests, how-it-works, why-testers, why-developers, platform stats, featured games, developer CTA, footer |
 | `/how-it-works` | Everyone | The playtest loop, tester journey |
 | `/developers` | Developers | Developer-focused pitch + feature breakdown |
 | `/discover` | Everyone | Browse open playtests. Working search + genre/platform/time/NDA filters |
@@ -23,7 +23,7 @@ Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
 
 ## Tester area — `app/(tester)/`
 
-`AppShell` role `tester`. Nav: Dashboard · Discover · Applications · My tests · Profile.
+`AppShell` role `tester`. Top nav: Dashboard · Discover · Applications · My tests · Profile.
 
 | Route | Purpose |
 | --- | --- |
@@ -36,7 +36,9 @@ Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
 
 ## Developer area — `app/(developer)/`
 
-`AppShell` role `developer`. Nav: Dashboard · Games · Playtests · Analytics · Profile.
+`AppShell` role `developer`. Top nav: Dashboard · My games · Playtests · Analytics.
+Studio profile is `menuOnly` — reachable from the account menu and the mobile
+drawer, but kept out of the top nav so the four primary destinations stay clear.
 
 | Route | Purpose |
 | --- | --- |
