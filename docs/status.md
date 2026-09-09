@@ -1,6 +1,6 @@
 # App Status
 
-Last updated: 2026-09-08 · Phase: **frontend-first MVP — complete**
+Last updated: 2026-09-09 · Phase: **frontend-first MVP — complete**
 
 This is a **frontend prototype**. There is no backend, database, or auth
 provider. Data is seeded mock data; auth and every mutation are simulated on the
@@ -10,9 +10,9 @@ client with a persisted Zustand store (`docs/state-management.md`).
 
 | Check | Result |
 | --- | --- |
-| `pnpm lint` | ✅ clean |
-| `pnpm typecheck` | ✅ clean |
-| `pnpm build` | ✅ 26 routes, static where possible |
+| `pnpm lint` | ✅ clean (2026-09-09) |
+| `pnpm typecheck` | ✅ clean (2026-09-09) |
+| `pnpm build` | ✅ 26 routes, static where possible (2026-09-09) |
 | Headless-browser flow test (scratchpad, not committed) | ✅ 23/23 — apply → accept → test → feedback → analytics |
 
 ## Screens — all implemented
