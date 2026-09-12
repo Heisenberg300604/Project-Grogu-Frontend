@@ -1,36 +1,30 @@
 import {
   getDiscoverablePlaytests,
-  getFeaturedGames,
   getPlatformStats,
 } from "@/data";
 import { Hero } from "@/components/marketing/hero";
-import { HowItWorks } from "@/components/marketing/how-it-works";
+import { PlatformWorkflowShowcase } from "@/components/marketing/platform-workflow-showcase";
 import { FeaturedPlaytests } from "@/components/marketing/featured-playtests";
-import { FeaturedGames } from "@/components/marketing/featured-games";
-import {
-  DeveloperCta,
-  PlatformStats,
-  WhyDevelopers,
-  WhyTesters,
-} from "@/components/marketing/audience-sections";
+import { PlatformStats } from "@/components/marketing/audience-sections";
+import { ClosingCta } from "@/components/marketing/closing-cta";
 
 export default async function LandingPage() {
-  const [stats, featuredGames, openPlaytests] = await Promise.all([
+  const [stats, openPlaytests] = await Promise.all([
     getPlatformStats(),
-    getFeaturedGames(3),
     getDiscoverablePlaytests(),
   ]);
 
   return (
     <>
-      <Hero stats={stats} showcase={openPlaytests} />
+      <Hero stats={stats} />
+
+      <PlatformWorkflowShowcase />
+
       <FeaturedPlaytests playtests={openPlaytests.slice(0, 3)} />
-      <HowItWorks />
-      <WhyTesters />
-      <WhyDevelopers />
+
       <PlatformStats stats={stats} />
-      <FeaturedGames games={featuredGames} />
-      <DeveloperCta />
+
+      <ClosingCta />
     </>
   );
 }

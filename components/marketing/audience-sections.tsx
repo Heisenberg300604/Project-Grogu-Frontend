@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { CountUp } from "@/components/marketing/count-up";
 
 interface Reason {
   icon: LucideIcon;
@@ -175,7 +176,7 @@ export function PlatformStats({
           {figures.map((figure) => (
             <div key={figure.label}>
               <dd className="font-display text-4xl font-semibold tabular-nums sm:text-5xl">
-                {figure.value}
+                <CountUp value={figure.value} />
               </dd>
               <dt className="mt-2 text-sm text-muted-foreground">
                 {figure.label}

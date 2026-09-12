@@ -39,7 +39,7 @@ export function FeaturedPlaytests({
             description="New playtests go live as studios publish them — check back shortly."
           />
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {playtests.map((playtest) => (
               <PlaytestCard key={playtest.id} playtest={playtest} />
             ))}

@@ -71,21 +71,15 @@ export function PlaytestCard({
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="space-y-1.5">
-          <p className="text-xs text-subtle-foreground">
-            {playtest.developer.name}
-          </p>
+          <p className="text-label text-subtle-foreground">PLAYTEST FOCUS</p>
           <h4 className="font-medium leading-snug">
             <Link href={link} className="transition-colors hover:text-secondary">
               {/* Stretched link makes the whole card clickable without a div-button. */}
               <span className="absolute inset-0" aria-hidden />
-              <span className="line-clamp-2">{playtest.title}</span>
+              <span className="line-clamp-1">{playtest.title.split(" — ")[1] ?? playtest.title}</span>
             </Link>
           </h4>
         </div>
-
-        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-          {playtest.summary}
-        </p>
 
         <MetaRow className="mt-auto border-t border-border pt-3">
           <MetaItem
@@ -97,12 +91,12 @@ export function PlaytestCard({
           />
           <MetaItem
             icon={Clock}
-            label="Time commitment"
+            label="Time"
             value={`~${playtest.requirements.estimatedHours}h`}
           />
           <MetaItem
             icon={Users}
-            label="Slots"
+            label="Open spots"
             value={isFull ? "Full" : `${spotsLeft} slots left`}
             tone={isFull ? "warning" : isNearlyFull ? "warning" : "default"}
           />

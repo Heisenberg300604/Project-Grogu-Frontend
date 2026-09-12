@@ -31,8 +31,9 @@ export function SiteHeader() {
           <nav aria-label="Primary" className="hidden md:block">
             <ul className="flex items-center gap-0.5">
               {MARKETING_NAV.map((item) => {
+                const itemPath = item.href.split("#")[0];
                 const active =
-                  pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  pathname === itemPath || pathname.startsWith(`${itemPath}/`);
                 return (
                   <li key={item.href}>
                     <Link

@@ -25,7 +25,7 @@ const FOOTER_SECTIONS: { title: string; links: { label: string; href: string }[]
     {
       title: "Platform",
       links: [
-        { label: "How it works", href: "/how-it-works" },
+        { label: "How it works", href: "/how-it-works#top" },
         { label: "Log in", href: "/login" },
         { label: "Sign up", href: "/signup" },
       ],

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+
 import { getPlatformStats } from "@/data";
 import { AudienceLanding } from "@/components/marketing/audience-landing";
 
 export const metadata: Metadata = {
-  title: "For developers",
+  title: "For gamers",
   description:
-    "Run structured playtests, review applicants, and get feedback you can act on.",
+    "Find meaningful game playtests, play unreleased builds, and build a reputation for useful feedback.",
 };
 
-export default async function DevelopersPage() {
+export default async function GameTestersPage() {
   const stats = await getPlatformStats();
 
-  return <AudienceLanding kind="developers" stats={stats} />;
+  return <AudienceLanding kind="gametesters" stats={stats} />;
 }

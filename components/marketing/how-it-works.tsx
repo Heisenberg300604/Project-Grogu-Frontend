@@ -48,22 +48,24 @@ const STEPS: Step[] = [
  */
 export function HowItWorks() {
   return (
-    <section className="border-b border-border py-20">
+    <section className="border-b border-border bg-surface/35 py-24 lg:py-32">
       <Container className="flex flex-col gap-12">
-        <SectionHeading
-          eyebrow="How Grogu works"
-          title="A playtest loop that respects everyone's time"
-          lead="Four steps from “looking for testers” to feedback you can act on. No spreadsheets, no chasing people in Discord."
-        />
+        <div className="max-w-2xl">
+          <SectionHeading
+            eyebrow="The shared loop"
+            title="From first brief to feedback you can act on"
+            lead="Four steps keep the session focused for players and useful for the people building the game."
+          />
+        </div>
 
-        <ol className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, index) => (
-            <li key={step.title} className="relative flex flex-col gap-4">
+            <li key={step.title} className="relative flex flex-col gap-5 border-t border-border-strong/70 pt-5">
               {/* Connector rail — desktop only, and not after the last step. */}
               {index < STEPS.length - 1 && (
                 <span
                   aria-hidden
-                  className="absolute left-11 top-5 hidden h-px w-[calc(100%-1rem)] bg-linear-to-r from-border to-transparent lg:block"
+                  className="absolute left-11 top-5 hidden h-px w-[calc(100%-1rem)] bg-linear-to-r from-border-strong to-transparent lg:block"
                 />
               )}
 
@@ -71,7 +73,7 @@ export function HowItWorks() {
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-primary-line bg-primary-soft text-secondary">
                   <step.icon className="size-4.5" aria-hidden />
                 </span>
-                <span className="font-display text-sm tabular-nums text-subtle-foreground">
+                <span className="font-display text-sm font-semibold tabular-nums text-secondary">
                   0{index + 1}
                 </span>
               </div>
@@ -83,7 +85,7 @@ export function HowItWorks() {
                 </p>
               </div>
 
-              <span className="text-label mt-auto text-subtle-foreground">
+              <span className="text-label mt-auto text-secondary-muted">
                 {step.audience}
               </span>
             </li>

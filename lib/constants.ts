@@ -57,8 +57,9 @@ export interface AppNavItem extends NavItem {
 
 export const MARKETING_NAV: NavItem[] = [
   { label: "Discover", href: "/discover" },
-  { label: "How it works", href: "/how-it-works" },
+  { label: "How it works", href: "/how-it-works#top" },
   { label: "For developers", href: "/developers" },
+  { label: "For gamers", href: "/gametesters" },
 ];
 
 export const TESTER_NAV: AppNavItem[] = [
