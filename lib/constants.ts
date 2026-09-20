@@ -10,6 +10,7 @@ import {
   Compass,
   FileText,
   Gamepad2,
+  Gift,
   LayoutDashboard,
   LineChart,
   ListChecks,
@@ -72,6 +73,7 @@ export const TESTER_NAV: AppNavItem[] = [
   },
   { label: "Applications", href: "/applications", icon: FileText },
   { label: "My tests", href: "/tests", icon: ClipboardList },
+  { label: "Rewards", href: "/rewards", icon: Gift },
   { label: "Profile", href: "/profile", icon: UserRound },
 ];
 

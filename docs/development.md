@@ -3,29 +3,29 @@
 ## Prerequisites
 
 - **Node.js** ≥ 20 (developed on Node 24)
-- **pnpm** ≥ 11 (`corepack enable` or `npm i -g pnpm`)
+- **npm** (bundled with Node.js)
 
 ## Install & run
 
 ```bash
-pnpm install
-pnpm dev            # http://localhost:3000 (next free port if taken)
+npm install
+npm run dev         # http://localhost:3000 (next free port if taken)
 ```
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Dev server (Turbopack, Fast Refresh) |
-| `pnpm build` | Production build — also runs full type checking |
-| `pnpm start` | Serve the production build |
-| `pnpm lint` | ESLint (`eslint-config-next`) |
-| `pnpm typecheck` | `tsc --noEmit` |
+| `npm run dev` | Dev server (Turbopack, Fast Refresh) |
+| `npm run build` | Production build — also runs full type checking |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint (`eslint-config-next`) |
+| `npm run typecheck` | `tsc --noEmit` |
 
 Run before committing:
 
 ```bash
-pnpm lint && pnpm typecheck && pnpm build
+npm run lint && npm run typecheck && npm run build
 ```
 
 ## Trying the prototype

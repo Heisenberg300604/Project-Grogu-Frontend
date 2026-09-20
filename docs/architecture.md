@@ -19,7 +19,7 @@ layer can be swapped for a real API without touching pages or components.
 | Forms           | React Hook Form + Zod (`@hookform/resolvers`)     |
 | Client state    | Zustand (persisted) — the mock "database"         |
 | Charts          | Recharts                                          |
-| Package manager | pnpm                                              |
+| Package manager | npm                                               |
 
 ## Layers
 

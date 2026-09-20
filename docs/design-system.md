@@ -182,7 +182,7 @@ are real `<button>` / `<a>` so they are keyboard-reachable by default.
 The primitives in `components/ui/` are hand-written but shadcn-compatible and
 built on Radix where accessibility demands it (dialog, dropdown-menu, tabs,
 select, checkbox, radio-group, label, avatar, progress, separator). New
-primitives can be added with `pnpm dlx shadcn@latest add <component>` — retheme
+primitives can be added with `npx shadcn@latest add <component>` — retheme
 the generated CSS variables to the tokens above.
 
 ### States

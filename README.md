@@ -8,8 +8,8 @@ persisted store, structured so a real API drops in cleanly.
 ## Quick start
 
 ```bash
-pnpm install
-pnpm dev            # http://localhost:3000
+npm install
+npm run dev         # http://localhost:3000
 ```
 
 Then: **Log in** → "Continue as Priya Nair · Tester" (or Mara Okafor · Developer).
@@ -19,7 +19,7 @@ Then: **Log in** → "Continue as Priya Nair · Tester" (or Mara Okafor · Devel
 
 Next.js 16 (App Router, Turbopack) · TypeScript (strict) · Tailwind CSS v4 ·
 Radix UI + shadcn-compatible primitives · lucide-react · React Hook Form + Zod ·
-Zustand (persisted mock DB) · Recharts · pnpm.
+Zustand (persisted mock DB) · Recharts · npm.
 
 ## What's built
 
@@ -40,11 +40,11 @@ The full MVP for both roles:
 
 | Command | |
 | --- | --- |
-| `pnpm dev` | Dev server |
-| `pnpm build` | Production build (+ type check) |
-| `pnpm start` | Serve production build |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | `tsc --noEmit` |
+| `npm run dev` | Dev server |
+| `npm run build` | Production build (+ type check) |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
 
 ## Documentation
 

@@ -168,6 +168,8 @@ export interface Playtest {
   tasks: PlaytestTask[];
   /** What testers get. Free-text for the prototype (e.g. "Steam key + credit"). */
   reward: string;
+  /** Cash portion of the reward, in whole Indian rupees, when applicable. */
+  cashReward?: number;
   maxTesters: number;
   acceptedTesters: number;
   applicantCount: number;

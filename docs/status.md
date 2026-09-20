@@ -10,9 +10,9 @@ client with a persisted Zustand store (`docs/state-management.md`).
 
 | Check | Result |
 | --- | --- |
-| `pnpm lint` | ✅ clean (2026-09-09) |
-| `pnpm typecheck` | ✅ clean (2026-09-09) |
-| `pnpm build` | ✅ 26 routes, static where possible (2026-09-09) |
+| `npm run lint` | ✅ clean (2026-09-09) |
+| `npm run typecheck` | ✅ clean (2026-09-09) |
+| `npm run build` | ✅ 26 routes, static where possible (2026-09-09) |
 | Headless-browser flow test (scratchpad, not committed) | ✅ 23/23 — apply → accept → test → feedback → analytics |
 
 ## Screens — all implemented

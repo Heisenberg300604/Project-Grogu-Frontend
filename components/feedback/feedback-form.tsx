@@ -14,6 +14,7 @@ import { RATING_DIMENSIONS } from "@/lib/constants";
 import type { FeedbackRatings, FeedbackSentiment } from "@/lib/types";
 import {
   usePlaytest,
+  useFeedbackForPlaytest,
   useTestProgress,
   useTesterApplication,
 } from "@/lib/hooks/use-grogu";
@@ -133,6 +134,7 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
   const playtest = usePlaytest(playtestId);
   const application = useTesterApplication(user?.id, playtestId);
   const progress = useTestProgress(user?.id, playtestId);
+  const feedbackEntries = useFeedbackForPlaytest(playtestId);
   const [formError, setFormError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [step, setStep] = useState(0);
@@ -176,8 +178,9 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
 
   const completion = testCompletion(progress, playtest);
   const ready = completion.total === 0 || completion.done === completion.total;
-  const alreadySubmitted =
-    progress?.stage === "completed" || progress?.stage === "feedback-submitted";
+  const alreadySubmitted = feedbackEntries.some(
+    (entry) => entry.testerId === user.id,
+  );
 
   if (!ready && !alreadySubmitted) {
     return (
@@ -315,7 +318,7 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
         <Progress value={stepPct} aria-label={`Step ${step + 1} of ${STEPS.length}`} />
       </div>
 
-      <form onSubmit={onSubmit} noValidate>
+      <form noValidate>
         {/* ---- Step 1 · Ratings ---------------------------------------- */}
         {step === 0 && (
           <div className="space-y-6">
@@ -552,7 +555,12 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
               Continue <ArrowRight />
             </Button>
           ) : (
-            <Button type="submit" size="lg" loading={isSubmitting}>
+            <Button
+              type="button"
+              size="lg"
+              loading={isSubmitting}
+              onClick={() => void onSubmit()}
+            >
               {isSubmitting ? "Submitting…" : "Submit feedback"}
             </Button>
           )}

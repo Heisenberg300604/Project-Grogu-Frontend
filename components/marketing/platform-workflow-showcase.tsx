@@ -113,7 +113,7 @@ const TESTER_STEPS = [
       progress: 76,
       footer: "Your profile does the filtering before you start browsing.",
       items: [
-        { label: "Aetheria: Eclipse", val: "PC · Sci-Fi RPG · 2h Test", active: true, detail: "$30 reward" },
+        { label: "Aetheria: Eclipse", val: "PC · Sci-Fi RPG · 2h Test", active: true, detail: "₹3,000 reward" },
         { label: "Neon Drift 2088", val: "Console · Racing · 1h Test", active: true, detail: "New today" },
         { label: "Rogue Dungeon", val: "PC · Action · 30m Test", active: true, detail: "92% match" },
       ],

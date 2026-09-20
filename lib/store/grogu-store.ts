@@ -513,7 +513,30 @@ export const useGroguStore = create<GroguState>()(
     {
       name: "grogu-store-v1",
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
+      migrate: (persistedState, version) => {
+        if (version >= 2) return persistedState;
+
+        const state = persistedState as Partial<GroguState>;
+        const seedById = new Map(seedPlaytests.map((playtest) => [playtest.id, playtest]));
+
+        return {
+          ...state,
+          playtests: state.playtests?.map((playtest) => {
+            const seed = seedById.get(playtest.id);
+            const legacyReward = playtest.reward.includes("$");
+            const missingCashAmount = playtest.cashReward == null && seed?.cashReward != null;
+
+            return legacyReward || missingCashAmount
+              ? {
+                  ...playtest,
+                  reward: seed?.reward ?? playtest.reward,
+                  cashReward: seed?.cashReward ?? playtest.cashReward,
+                }
+              : playtest;
+          }),
+        };
+      },
       partialize: (state) => ({
         session: state.session,
         users: state.users,
