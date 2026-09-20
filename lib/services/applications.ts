@@ -1,34 +1,34 @@
-/** Mock applications service — see `lib/services/http.ts` for the pattern. */
+/** Applications service. Backed by `/api/v1/playtests/{id}/applications` and `/api/v1/applications`. */
 
 import type { Application, ApplicationInput } from "@/lib/types";
 import { useGroguStore } from "@/lib/store/grogu-store";
 
-import { delay, ServiceError } from "./http";
+import { apiFetch } from "./http";
 
 export async function applyToPlaytest(
   playtestId: string,
   input: ApplicationInput,
 ): Promise<Application> {
-  await delay(700);
-  const store = useGroguStore.getState();
-  if (!store.session || store.session.role !== "tester") {
-    throw new ServiceError("Sign in as a tester to apply.", "forbidden");
-  }
-  const existing = store.applications.find(
-    (a) =>
-      a.playtestId === playtestId &&
-      a.testerId === store.session!.user.id &&
-      a.status !== "withdrawn",
+  const application = await apiFetch<Application>(
+    `/api/v1/playtests/${playtestId}/applications`,
+    { method: "POST", body: input },
   );
-  if (existing) {
-    throw new ServiceError("You've already applied to this playtest.", "conflict");
-  }
-  return store.applyToPlaytest(playtestId, input);
+
+  useGroguStore.getState().applyEntity("applications", application);
+  // The playtest's applicant counter changes too, so re-read.
+  void useGroguStore.getState().refresh();
+
+  return application;
 }
 
 export async function withdrawApplication(applicationId: string): Promise<void> {
-  await delay();
-  useGroguStore.getState().withdrawApplication(applicationId);
+  const application = await apiFetch<Application>(
+    `/api/v1/applications/${applicationId}/withdraw`,
+    { method: "POST" },
+  );
+
+  useGroguStore.getState().applyEntity("applications", application);
+  void useGroguStore.getState().refresh();
 }
 
 export async function decideApplication(
@@ -36,6 +36,12 @@ export async function decideApplication(
   decision: "accepted" | "rejected",
   note?: string,
 ): Promise<void> {
-  await delay(500);
-  useGroguStore.getState().decideApplication(applicationId, decision, note);
+  const application = await apiFetch<Application>(
+    `/api/v1/applications/${applicationId}/decision`,
+    { method: "POST", body: { decision, note: note ?? null } },
+  );
+
+  useGroguStore.getState().applyEntity("applications", application);
+  // Accepting also creates the tester's progress row and notifies them.
+  void useGroguStore.getState().refresh();
 }

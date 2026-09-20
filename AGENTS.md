@@ -9,11 +9,14 @@ Grogu connects:
 1. Game developers who need players to test their games.
 2. Playtesters who discover games, participate in playtests, and submit structured feedback.
 
-The current phase is FRONTEND-FIRST.
+The current phase is API-INTEGRATED.
 
-The application currently uses dummy/mock data.
+The frontend is backed by `grogu-backend` (.NET 5 + PostgreSQL on Neon). All
+data comes from `/api/v1`; there is no mock data in the shipped app.
 
-Do not implement real backend infrastructure unless explicitly requested.
+`lib/types.ts` is the contract. When a screen needs data the API does not
+return, change the backend to provide it — the frontend defines what the
+product needs. Do not reintroduce local mock data to paper over a gap.
 
 ---
 
@@ -27,7 +30,7 @@ The immediate goal is to build a polished, responsive frontend using:
 * shadcn/ui
 * Lucide React
 
-The UI should feel like a real production product even though the underlying data is currently mocked.
+The UI should feel like a real production product, and is now backed by one.
 
 Prioritize:
 
@@ -110,11 +113,10 @@ Do not implement these unless explicitly requested:
 * Real-time chat
 * AI feedback analysis
 * Advanced recommendation engine
-* Production notification infrastructure
+* Notification *delivery* (email/push — in-app rows exist and are persisted)
 * Admin dashboard
-* Complex backend APIs
-
-Frontend flows may simulate these behaviors using mock data.
+* Payments and rewards fulfilment
+* File upload / build hosting
 
 ---
 
@@ -202,42 +204,32 @@ Only extract a component when:
 
 ---
 
-## 9. Mock Data
+## 9. Data
 
-Mock data belongs in:
-
-```text
-data/
-```
-
-Example:
+All data comes from the API. Nothing hardcodes business data.
 
 ```text
-data/
-├── games.ts
-├── playtests.ts
-├── users.ts
-├── applications.ts
-└── feedback.ts
+lib/types.ts        Domain entities — the contract the API satisfies
+lib/services/       The only place that calls the API
+lib/store/          Cache of GET /api/v1/bootstrap
+lib/hooks/          Selector hooks over the cache (reads)
+data/index.ts       Server Component accessors (public slice)
 ```
 
-Do not scatter hardcoded business data throughout JSX.
+Rules:
 
-Components should consume typed data.
+* Components read through `lib/hooks/*` and write through `lib/services/*`.
+  Nothing else fetches; nothing else mutates the store.
+* Do not scatter hardcoded business data through JSX.
+* Every entity has a type in `lib/types.ts`. Never redeclare one inline.
+* If the API is missing a field or an endpoint, add it to the backend rather
+  than faking it client-side.
 
-Create TypeScript types/interfaces for important domain entities.
+Domain entities: `User`, `Game`, `Playtest`, `Application`, `Feedback`,
+`TestProgress`, `Notification`, `TesterProfile`, `DeveloperProfile`.
 
-Example entities:
-
-* User
-* Game
-* Playtest
-* Application
-* Feedback
-* TesterProfile
-* DeveloperProfile
-
-Mock data should be realistic enough to demonstrate the product.
+See `docs/data.md` for the payload and `docs/state-management.md` for the
+read/write cycle.
 
 ---
 
@@ -413,7 +405,7 @@ docs/
 ├── design-system.md
 ├── routes.md
 ├── components.md
-├── mock-data.md
+├── data.md
 └── development.md
 ```
 

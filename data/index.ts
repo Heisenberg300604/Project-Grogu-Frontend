@@ -1,12 +1,15 @@
 /**
- * Server-side seed accessors.
+ * Server-side data accessors.
  *
- * Used by Server Components (landing, /discover, /playtests/[id]) for the
- * initial render. Client Components read live state through `lib/hooks/*` over
- * the persisted store instead; mutations go through `lib/services/*`.
+ * Used by Server Components (landing, /discover, /playtests/[id], the auth
+ * layout) for the initial render. Client Components read live state through
+ * `lib/hooks/*` over the client cache instead; mutations go through
+ * `lib/services/*`.
  *
- * These are `async` on purpose: the signatures already match a network layer,
- * so swapping the bodies for `fetch(...)` later needs no call-site changes.
+ * These read the public slice of `GET /api/v1/bootstrap` — no bearer token, so
+ * the API returns only what an anonymous visitor may see. Every signature is
+ * unchanged from when this file returned hardcoded seed data; only the source
+ * moved.
  */
 
 import type {
@@ -18,30 +21,56 @@ import type {
   PlaytestWithRelations,
   User,
 } from "@/lib/types";
+import { computeAnalytics, joinPlaytest, joinPlaytests } from "@/lib/domain";
+import {
+  type BootstrapSnapshot,
+  EMPTY_SNAPSHOT,
+  fetchBootstrap,
+} from "@/lib/services/bootstrap";
 
-import { applications } from "./applications";
-import { feedback } from "./feedback";
-import { games } from "./games";
-import { playtests } from "./playtests";
-import { developerProfiles, testerProfiles, users } from "./users";
+/**
+ * One fetch per render pass. Next.js dedupes identical `fetch` calls within a
+ * request, and a short revalidate window keeps the marketing pages from hitting
+ * the API on every visit while still reflecting new playtests promptly.
+ *
+ * A failed load degrades to empty collections rather than throwing: a marketing
+ * page with no featured games still renders, an error page helps nobody.
+ */
+async function snapshot(): Promise<BootstrapSnapshot> {
+  try {
+    return await fetchBootstrap({ cache: "no-store" });
+  } catch (error) {
+    // Server-rendered marketing pages must still render when the API is down or
+    // misconfigured, so this degrades to empty rather than throwing. One line,
+    // because Next surfaces console output in the dev overlay.
+    console.error(
+      "[grogu] bootstrap unavailable, rendering empty:",
+      error instanceof Error ? error.message : error,
+    );
+    return EMPTY_SNAPSHOT;
+  }
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Games                                                                      */
 /* -------------------------------------------------------------------------- */
 
 export async function getGames(): Promise<Game[]> {
-  return games;
+  return (await snapshot()).games;
 }
 
 export async function getGameById(id: string): Promise<Game | undefined> {
-  return games.find((g) => g.id === id);
+  return (await snapshot()).games.find((g) => g.id === id);
 }
 
 /** Games surfaced on the marketing landing page. */
 export async function getFeaturedGames(limit = 3): Promise<Game[]> {
+  const { games, playtests } = await snapshot();
+
   const recruitingGameIds = new Set(
     playtests.filter((p) => p.status === "recruiting").map((p) => p.gameId),
   );
+
   return [...games]
     .sort((a, b) => {
       const aHot = recruitingGameIds.has(a.id) ? 1 : 0;
@@ -53,7 +82,7 @@ export async function getFeaturedGames(limit = 3): Promise<Game[]> {
 }
 
 export async function getGamesByDeveloper(developerId: string): Promise<Game[]> {
-  return games.filter((g) => g.developerId === developerId);
+  return (await snapshot()).games.filter((g) => g.developerId === developerId);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -61,10 +90,11 @@ export async function getGamesByDeveloper(developerId: string): Promise<Game[]> 
 /* -------------------------------------------------------------------------- */
 
 export async function getUserById(id: string): Promise<User | undefined> {
-  return users.find((u) => u.id === id);
+  return (await snapshot()).users.find((u) => u.id === id);
 }
 
 export async function getTesterProfile(userId: string) {
+  const { users, testerProfiles } = await snapshot();
   const user = users.find((u) => u.id === userId && u.role === "tester");
   const profile = testerProfiles.find((p) => p.userId === userId);
   if (!user || !profile) return undefined;
@@ -72,6 +102,7 @@ export async function getTesterProfile(userId: string) {
 }
 
 export async function getDeveloperProfile(userId: string) {
+  const { users, developerProfiles } = await snapshot();
   const user = users.find((u) => u.id === userId && u.role === "developer");
   const profile = developerProfiles.find((p) => p.userId === userId);
   if (!user || !profile) return undefined;
@@ -82,20 +113,16 @@ export async function getDeveloperProfile(userId: string) {
 /*  Playtests                                                                  */
 /* -------------------------------------------------------------------------- */
 
-function joinPlaytest(playtest: Playtest): PlaytestWithRelations | undefined {
-  const game = games.find((g) => g.id === playtest.gameId);
-  const developer = users.find((u) => u.id === playtest.developerId);
-  if (!game || !developer) return undefined;
-  return { ...playtest, game, developer };
-}
-
 export async function getPlaytests(options?: {
   status?: Playtest["status"];
 }): Promise<PlaytestWithRelations[]> {
-  return playtests
-    .filter((p) => (options?.status ? p.status === options.status : true))
-    .map(joinPlaytest)
-    .filter((p): p is PlaytestWithRelations => Boolean(p));
+  const { playtests, games, users } = await snapshot();
+
+  return joinPlaytests(
+    playtests.filter((p) => (options?.status ? p.status === options.status : true)),
+    games,
+    users,
+  );
 }
 
 /** Open playtests a tester can currently apply to. */
@@ -110,8 +137,9 @@ export async function getDiscoverablePlaytests(): Promise<
 export async function getPlaytestById(
   id: string,
 ): Promise<PlaytestWithRelations | undefined> {
+  const { playtests, games, users } = await snapshot();
   const match = playtests.find((p) => p.id === id);
-  return match ? joinPlaytest(match) : undefined;
+  return match ? joinPlaytest(match, games, users) : undefined;
 }
 
 export async function getPlaytestsByDeveloper(
@@ -123,11 +151,14 @@ export async function getPlaytestsByDeveloper(
 /* -------------------------------------------------------------------------- */
 /*  Applications                                                               */
 /* -------------------------------------------------------------------------- */
+// The public snapshot carries no applications, so these return empty on the
+// server. Both are read from the client cache in practice, where the signed-in
+// caller's own applications are present.
 
 export async function getApplicationsByTester(
   testerId: string,
 ): Promise<Application[]> {
-  return applications
+  return (await snapshot()).applications
     .filter((a) => a.testerId === testerId)
     .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
 }
@@ -135,7 +166,9 @@ export async function getApplicationsByTester(
 export async function getApplicationsForPlaytest(
   playtestId: string,
 ): Promise<Application[]> {
-  return applications.filter((a) => a.playtestId === playtestId);
+  return (await snapshot()).applications.filter(
+    (a) => a.playtestId === playtestId,
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -145,69 +178,30 @@ export async function getApplicationsForPlaytest(
 export async function getFeedbackForPlaytest(
   playtestId: string,
 ): Promise<Feedback[]> {
-  return feedback.filter((f) => f.playtestId === playtestId);
+  return (await snapshot()).feedback.filter((f) => f.playtestId === playtestId);
 }
 
 export async function getPlaytestAnalytics(
   playtestId: string,
 ): Promise<PlaytestAnalytics | undefined> {
+  const { playtests, feedback } = await snapshot();
   const playtest = playtests.find((p) => p.id === playtestId);
   if (!playtest) return undefined;
 
-  const responses = feedback.filter((f) => f.playtestId === playtestId);
-  const responseCount = responses.length || 1;
-
-  const sum = responses.reduce(
-    (acc, f) => ({
-      fun: acc.fun + f.ratings.fun,
-      difficulty: acc.difficulty + f.ratings.difficulty,
-      clarity: acc.clarity + f.ratings.clarity,
-      performance: acc.performance + f.ratings.performance,
-      polish: acc.polish + f.ratings.polish,
-    }),
-    { fun: 0, difficulty: 0, clarity: 0, performance: 0, polish: 0 },
+  // Shared with the client hook so both agree on how a rate is rounded.
+  return computeAnalytics(
+    playtest,
+    feedback.filter((f) => f.playtestId === playtestId),
   );
-
-  const round = (n: number) => Math.round((n / responseCount) * 10) / 10;
-
-  return {
-    playtestId,
-    responseRate:
-      playtest.acceptedTesters > 0
-        ? Math.round((responses.length / playtest.acceptedTesters) * 100)
-        : 0,
-    averageRatings: {
-      fun: round(sum.fun),
-      difficulty: round(sum.difficulty),
-      clarity: round(sum.clarity),
-      performance: round(sum.performance),
-      polish: round(sum.polish),
-    },
-    sentimentBreakdown: {
-      positive: responses.filter((f) => f.sentiment === "positive").length,
-      neutral: responses.filter((f) => f.sentiment === "neutral").length,
-      negative: responses.filter((f) => f.sentiment === "negative").length,
-    },
-    totalBugs: responses.reduce((acc, f) => acc + f.bugs.length, 0),
-    averageHoursPlayed:
-      Math.round(
-        (responses.reduce((acc, f) => acc + f.hoursPlayed, 0) / responseCount) *
-          10,
-      ) / 10,
-  };
 }
 
 /* -------------------------------------------------------------------------- */
 /*  Landing-page aggregate stats                                               */
 /* -------------------------------------------------------------------------- */
 
+// Served as counts by the API rather than derived from the arrays: an
+// anonymous caller receives no feedback rows, so counting locally would report
+// zero submissions on the public pages.
 export async function getPlatformStats() {
-  return {
-    games: games.length,
-    activePlaytests: playtests.filter(
-      (p) => p.status === "recruiting" || p.status === "in-progress",
-    ).length,
-    testers: users.filter((u) => u.role === "tester").length,
-    feedbackSubmitted: feedback.length,
-  };
+  return (await snapshot()).stats;
 }

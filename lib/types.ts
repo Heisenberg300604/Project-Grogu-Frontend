@@ -1,10 +1,10 @@
 /**
  * Project Grogu — domain models.
  *
- * These types are the single source of truth for the shape of Grogu data.
- * Mock data in `data/` implements them today; a real API layer will return
- * the same shapes later, so pages and components should only ever import
- * from here — never redeclare an entity inline.
+ * These types are the single source of truth for the shape of Grogu data, and
+ * the contract the API is built to satisfy: `/api/v1` returns these exact
+ * shapes. Pages and components should only ever import from here — never
+ * redeclare an entity inline.
  */
 
 export type ID = string;
@@ -310,12 +310,13 @@ export interface Notification {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Mock session                                                               */
+/*  Session                                                                    */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Frontend-only session. Produced by `lib/services/auth` and held in the
- * persisted client store. A real auth provider replaces the producer only.
+ * The signed-in user. Produced by `lib/services/auth` from the API's login
+ * response and held in the client store; the bearer token itself lives in
+ * `lib/services/http`, not here.
  */
 export interface Session {
   user: User;

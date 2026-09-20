@@ -66,8 +66,7 @@ export function SiteFooter() {
       <div className="border-t border-border">
         <Container className="flex flex-col items-center justify-between gap-2 py-6 text-xs text-subtle-foreground sm:flex-row">
           <p>
-            © {new Date().getFullYear()} {SITE.fullName}. Student project — mock
-            data only.
+            © {new Date().getFullYear()} {SITE.fullName}. Student project.
           </p>
           <p>Built with Next.js &amp; Tailwind CSS.</p>
         </Container>

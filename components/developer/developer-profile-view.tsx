@@ -7,6 +7,7 @@ import {
   Globe,
   MapPin,
   MessageSquareText,
+  Pencil,
   Users,
 } from "lucide-react";
 
@@ -56,6 +57,14 @@ export function DeveloperProfileView() {
       <PageHeader
         title="Studio profile"
         description="This is what testers see on your playtests."
+        actions={
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/developer/profile/edit">
+              <Pencil aria-hidden />
+              Edit profile
+            </Link>
+          </Button>
+        }
       />
 
       <section className="rounded-2xl border border-border bg-surface p-6 sm:p-8">

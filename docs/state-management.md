@@ -1,50 +1,67 @@
-# State Management & Mock Backend
+# State Management
 
-Frontend-first phase: **there is no backend.** A single persisted Zustand store
-is the mock database; a thin async service layer is the seam a real API will
-replace.
+The server owns the data. A single Zustand store caches it; a thin service layer
+is the only thing that talks to the API.
 
 ## The store — `lib/store/grogu-store.ts`
 
-One Zustand store, created with the `persist` middleware
-(`localStorage`, key `grogu-store-v1`). It holds the entire dataset plus the
-session:
+One Zustand store holding a snapshot of `GET /api/v1/bootstrap`, plus the
+session and a load status:
 
-| Slice | Seeded from |
+| Slice | Source |
 | --- | --- |
-| `session` | `null` (set by mock auth) |
-| `users`, `testerProfiles`, `developerProfiles` | `data/users.ts` |
-| `games` | `data/games.ts` |
-| `playtests` | `data/playtests.ts` (counters re-derived on load) |
-| `applications` | `data/applications.ts` |
-| `feedback` | `data/feedback.ts` |
-| `testProgress` | `data/test-progress.ts` |
-| `notifications` | `data/notifications.ts` |
+| `session` | The login response, re-confirmed by every snapshot |
+| `status` | `idle` → `loading` → `ready` \| `error` |
+| `users`, `testerProfiles`, `developerProfiles` | bootstrap |
+| `games`, `playtests`, `applications`, `feedback` | bootstrap |
+| `testProgress`, `notifications` | bootstrap |
 
-### Actions (mutations)
+### What persists
 
-`setSession`, `applyToPlaytest`, `withdrawApplication`, `setBuildDownloaded`,
-`toggleTask`, `submitFeedback`, `decideApplication`, `createGame`, `updateGame`,
-`createPlaytest`, `updatePlaytest`, `setPlaytestStatus`, `markNotificationRead`,
-`markAllNotificationsRead`, `resetDemo`.
+**Only `session`** (key `grogu-store-v2`). The collections are per-user and go
+stale, and writing them to `localStorage` would leave one account's data
+readable after someone else signs in on the same browser. The bearer token is
+kept separately by `lib/services/http.ts`.
 
-Every action is a pure immutable update. Cross-entity effects are handled inline
-(e.g. accepting an applicant also creates a notification for that tester and
-re-derives the playtest's counters).
+Earlier versions persisted everything; the `migrate` step drops those entries
+rather than converting them, because they hold mock ids that no longer resolve.
+
+### Actions
+
+`applySnapshot`, `refresh`, `setSession`, `applyEntity`.
+
+That is the whole surface. The store no longer contains business logic — the
+cross-entity effects that used to live here (accepting an applicant creates a
+progress row and notifies the tester; submitting feedback completes the test)
+are the server's job now, and arrive with the next snapshot.
 
 ### Hydration
 
-The store persists to `localStorage`, which rehydrates on the client after the
-server has already rendered. Any UI that reads persisted state is gated on
-`useHydrated()` (`lib/hooks/use-hydrated.ts`, built on
-`useSyncExternalStore` + `persist.onFinishHydration`) so the first client render
-matches the server HTML. Public pages pass server-seeded data as a prop and use
-it until `useHydrated()` is true.
+`useHydrated()` is true once the stored session has rehydrated **and** the first
+bootstrap has settled (`ready` or `error`). Widening it that way means every
+view already gated on it shows its existing skeleton while the API responds,
+instead of flashing an empty state. `useLoadError()` exposes the failure message.
 
-### Reset
+Public pages pass server-rendered data as a prop and use it until
+`useHydrated()` is true, as before.
 
-`resetDemo()` (User menu → "Reset demo data") reseeds every slice and clears the
-session — useful when a demo run has drifted.
+## Writing — `lib/services/*`
+
+Each mutation calls one endpoint, merges the returned entity into the cache with
+`applyEntity` so the UI updates immediately, then triggers `refresh()` because
+most writes change more than the entity returned (counters, notifications,
+progress rows).
+
+Failures throw `ServiceError` with a `code` the UI branches on:
+`not-found`, `invalid-credentials`, `conflict`, `forbidden`, `validation`,
+`network`, `server-error`. A 401 from any call clears the token and drops the
+session rather than leaving a broken signed-in shell.
+
+### Refresh
+
+`refresh()` (User menu → "Refresh data") re-reads the snapshot. It replaced
+"Reset demo data", which reseeded the local mock store — the data is the
+server's now and not the current user's to reset.
 
 ## Reads — `lib/hooks/*`
 
@@ -103,9 +120,17 @@ Developer
   → Manage playtest → Feedback / Analytics update
 ```
 
-All of it runs on mock state and survives refresh.
+Every step is a real API call, so the two sides of the flow can be driven from
+different browsers by different people.
 
-Playtest lifecycle rules are frontend-only and enforced by the domain/service
-boundary: drafts can be edited, `recruiting` is the published/open state,
-active or completed playtests are locked for editing, and `completed` or
-`closed` playtests may move to terminal `archived` status.
+Playtest lifecycle rules are enforced **on both sides**: `lib/domain.ts` keeps
+the UI honest, and the same transition table is checked in the database
+(`grogu_playtest_set_status`) so a crafted request cannot bypass it. Drafts can
+be edited, `recruiting` is the published/open state, active or completed
+playtests are locked for editing, and `completed` or `closed` playtests may move
+to terminal `archived` status.
+
+The server also enforces rules the client never could: a tester may only open a
+workspace for a playtest they were accepted to, a developer may only act on
+applications to their own playtests, one feedback submission per tester per
+playtest, and acceptances cannot exceed `maxTesters`.

@@ -6,7 +6,8 @@ Read `AGENTS.md` before making changes.
 
 ## Important
 
-Grogu is currently a frontend-first college project prototype.
+Grogu is a college project. This repo is the frontend; it is integrated with
+`grogu-backend` (.NET 5 + PostgreSQL on Neon) over `/api/v1`.
 
 Current stack:
 
@@ -17,10 +18,13 @@ Current stack:
 * Lucide React
 * React Hook Form
 * Zod
+* Zustand (cache of the API snapshot)
 
-Use dummy/mock data for now.
+All data comes from the API — there is no mock data left in the app. `lib/types.ts`
+is the contract the backend is built to satisfy. If a screen needs something the
+API does not return, extend the backend rather than faking it here.
 
-Do not introduce backend infrastructure, authentication providers, databases, payments, AI services, or real-time systems unless explicitly requested.
+Do not introduce payments, AI services, or real-time systems unless explicitly requested.
 
 Before changing code:
 

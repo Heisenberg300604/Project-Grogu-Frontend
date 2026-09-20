@@ -8,8 +8,9 @@ import { useGroguStore } from "@/lib/store/grogu-store";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
 
 /**
- * Current mock session + hydration state.
- * `loading` is true until the persisted store has rehydrated on the client.
+ * Current session + load state.
+ * `loading` is true until the stored session has rehydrated and the first
+ * `/api/v1/bootstrap` has settled.
  */
 export function useSession() {
   const session = useGroguStore((s) => s.session);

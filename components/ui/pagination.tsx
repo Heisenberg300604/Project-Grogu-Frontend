@@ -22,7 +22,7 @@ function pageRange(current: number, total: number): (number | "gap")[] {
 }
 
 /**
- * Client-side pagination for long result lists. Grogu's mock data rarely spills
+ * Client-side pagination for long result lists. Grogu's dataset rarely spills
  * past one page, so this stays hidden at `totalPages <= 1`.
  */
 export function Pagination({

@@ -53,10 +53,10 @@ lib/
   constants.ts  Labels, nav config
   domain.ts     Pure join/filter/aggregate helpers
   utils.ts      cn() + formatters
-  store/        Zustand persisted store (mock DB)
-  services/     Async mock service layer (writes + auth)
+  store/        Zustand store (cache of the API snapshot)
+  services/     API client (reads + writes + auth)
   hooks/        Reactive selector hooks (reads)
-  mock-auth.ts  Public mock-auth entry point
+  mock-auth.ts  Auth entry point (re-exports services/auth; legacy filename)
 docs/           This documentation
 public/images/  Placeholder dir — cover art + avatars are procedural
 ```

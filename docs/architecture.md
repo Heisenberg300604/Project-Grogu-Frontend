@@ -3,9 +3,11 @@
 Project Grogu frontend — a game playtesting platform prototype connecting indie
 **developers** with **playtesters**.
 
-**Phase: frontend-first.** There is no backend. Authentication, persistence, and
-every mutation are simulated on the client. The code is structured so the mock
-layer can be swapped for a real API without touching pages or components.
+**Phase: API-integrated.** The frontend talks to the Grogu API
+(`grogu-backend`, .NET 5 + PostgreSQL). Authentication is a real bearer token,
+and every read and mutation goes over HTTP. The seam the prototype was built
+around — `lib/services/*` — is where that happens; pages, components and
+selector hooks were not changed when the backend landed.
 
 ## Stack
 
@@ -17,7 +19,7 @@ layer can be swapped for a real API without touching pages or components.
 | UI primitives   | Radix UI + hand-rolled, shadcn/ui-compatible      |
 | Icons           | lucide-react                                      |
 | Forms           | React Hook Form + Zod (`@hookform/resolvers`)     |
-| Client state    | Zustand (persisted) — the mock "database"         |
+| Client state    | Zustand — a cache of server state                 |
 | Charts          | Recharts                                          |
 | Package manager | npm                                               |
 
@@ -26,18 +28,45 @@ layer can be swapped for a real API without touching pages or components.
 ```
 components/**            UI. Reads via hooks, writes via services. Never touches the store directly.
         │
-lib/hooks/**             Reactive selector hooks over the store (reads).
-lib/services/**          Async mock service layer (writes + auth). THE SEAM.
+lib/hooks/**             Reactive selector hooks over the cache (reads).
+lib/services/**          The API client (reads + writes + auth). THE SEAM.
+lib/services/http.ts     fetch wrapper: base URL, bearer token, ServiceError mapping.
         │
-lib/store/grogu-store    Zustand store — the single source of mutable truth, persisted to localStorage.
+lib/store/grogu-store    Zustand store — a cache of GET /api/v1/bootstrap. Only the session persists.
         │
-data/**                  Seed data (typed by lib/types). Also read directly by Server Components.
+data/index.ts            Server Component accessors; reads the public bootstrap slice.
 lib/domain.ts            Pure join / filter / aggregate helpers (no React, no store).
-lib/types.ts             Domain models — the single source of entity shapes.
+lib/types.ts             Domain models — and the contract the API is built to satisfy.
 ```
 
 Rule of thumb: **components call `lib/hooks/*` to read and `lib/services/*` to
-write.** Only the store and `data/index.ts` import raw seed arrays.
+write.** Nothing else fetches, and nothing outside the services mutates the store.
+
+## How data arrives
+
+`GET /api/v1/bootstrap` returns every collection in one document, scoped to the
+bearer token. `components/providers/grogu-provider.tsx` fetches it on mount (and
+when the tab regains focus) and drops it into the store. The selector hooks in
+`lib/hooks/use-grogu.ts` then join across collections locally, exactly as they
+did over seed data.
+
+One snapshot, rather than an endpoint per view, is deliberate: the UI's ~30
+selector hooks read several collections together (a playtest row needs its game,
+its developer, its applications and its feedback), so per-view endpoints would
+mean either N requests or reshaping every hook.
+
+Mutations `POST`/`PATCH` a single resource, merge the returned entity into the
+cache for immediate feedback, and then re-read the snapshot so server-derived
+values (`applicantCount`, notifications, progress rows) stay correct.
+
+`useHydrated()` is true once the stored session has rehydrated **and** the first
+snapshot has settled, so the loading states already present in the views cover
+the network fetch.
+
+## Configuration
+
+`NEXT_PUBLIC_API_BASE_URL` points at the API; see `.env.example`. It is public
+by nature (the browser calls the API directly) — no secret belongs in this app.
 
 ## App Router structure
 
@@ -110,7 +139,7 @@ body for `fetch` / an SDK call — the signatures and every call site stay the
 same. Reads would move to TanStack Query (already a documented dependency in
 `AGENTS.md`); the selector hooks in `lib/hooks/*` are the seam for that.
 
-See `docs/mock-data.md` and `docs/state-management.md` for specifics.
+See `docs/data.md` and `docs/state-management.md` for specifics.
 
 ## Conventions
 

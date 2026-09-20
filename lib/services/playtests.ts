@@ -1,4 +1,10 @@
-/** Mock playtests service (developer side). */
+/**
+ * Playtests service — developer side. Backed by `/api/v1/playtests`.
+ *
+ * The ownership, draft-only-editing and status-transition rules this file used
+ * to check locally are now enforced by the server as well, and it is the
+ * server's error that surfaces; the client can no longer be the only guard.
+ */
 
 import type {
   NewPlaytestInput,
@@ -6,82 +12,48 @@ import type {
   PlaytestStatus,
   UpdatePlaytestInput,
 } from "@/lib/types";
-import { canTransitionPlaytestStatus } from "@/lib/domain";
 import { useGroguStore } from "@/lib/store/grogu-store";
 
-import { delay, ServiceError } from "./http";
+import { apiFetch } from "./http";
 
 export async function createPlaytest(
   input: NewPlaytestInput,
 ): Promise<Playtest> {
-  await delay(900);
-  const store = useGroguStore.getState();
-  if (!store.session || store.session.role !== "developer") {
-    throw new ServiceError(
-      "Sign in as a developer to create a playtest.",
-      "forbidden",
-    );
-  }
-  if (
-    !store.games.some(
-      (game) =>
-        game.id === input.gameId && game.developerId === store.session?.user.id,
-    )
-  ) {
-    throw new ServiceError("Pick a game for this playtest.", "validation");
-  }
-  return store.createPlaytest(store.session.user.id, input);
-}
+  const playtest = await apiFetch<Playtest>("/api/v1/playtests", {
+    method: "POST",
+    body: input,
+  });
 
-export async function setPlaytestStatus(
-  playtestId: string,
-  status: PlaytestStatus,
-): Promise<void> {
-  await delay(400);
-  const store = useGroguStore.getState();
-  if (!store.session || store.session.role !== "developer") {
-    throw new ServiceError("Sign in as a developer to manage playtests.", "forbidden");
-  }
-  const playtest = store.playtests.find(
-    (candidate) => candidate.id === playtestId,
-  );
-  if (!playtest || playtest.developerId !== store.session.user.id) {
-    throw new ServiceError("Playtest not found.", "not-found");
-  }
-  if (!canTransitionPlaytestStatus(playtest.status, status)) {
-    throw new ServiceError(
-      `A ${playtest.status} playtest cannot move to ${status}.`,
-      "conflict",
-    );
-  }
-  store.setPlaytestStatus(playtestId, status);
+  useGroguStore.getState().applyEntity("playtests", playtest);
+  void useGroguStore.getState().refresh();
+
+  return playtest;
 }
 
 export async function updatePlaytest(
   playtestId: string,
   input: UpdatePlaytestInput,
 ): Promise<Playtest> {
-  await delay(900);
-  const store = useGroguStore.getState();
-  if (!store.session || store.session.role !== "developer") {
-    throw new ServiceError("Sign in as a developer to edit a playtest.", "forbidden");
-  }
-  const playtest = store.playtests.find(
-    (candidate) => candidate.id === playtestId,
+  const playtest = await apiFetch<Playtest>(`/api/v1/playtests/${playtestId}`, {
+    method: "PATCH",
+    body: input,
+  });
+
+  useGroguStore.getState().applyEntity("playtests", playtest);
+  void useGroguStore.getState().refresh();
+
+  return playtest;
+}
+
+export async function setPlaytestStatus(
+  playtestId: string,
+  status: PlaytestStatus,
+): Promise<void> {
+  const playtest = await apiFetch<Playtest>(
+    `/api/v1/playtests/${playtestId}/status`,
+    { method: "POST", body: { status } },
   );
-  if (!playtest || playtest.developerId !== store.session.user.id) {
-    throw new ServiceError("Playtest not found.", "not-found");
-  }
-  if (playtest.status !== "draft") {
-    throw new ServiceError("Only draft playtests can be edited.", "conflict");
-  }
-  if (
-    !store.games.some(
-      (game) =>
-        game.id === input.gameId && game.developerId === store.session?.user.id,
-    )
-  ) {
-    throw new ServiceError("Pick one of your games.", "validation");
-  }
-  return store.updatePlaytest(store.session.user.id, playtestId, input);
+
+  useGroguStore.getState().applyEntity("playtests", playtest);
+  void useGroguStore.getState().refresh();
 }

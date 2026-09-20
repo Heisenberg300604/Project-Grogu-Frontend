@@ -1,6 +1,6 @@
 # Routes
 
-All app data is mock/persisted client state. "Auth" is simulated.
+All app data comes from the Grogu API. Auth is a real bearer token.
 
 ## Marketing / public — `app/(marketing)/`
 
@@ -18,8 +18,8 @@ Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
 
 | Route | Purpose |
 | --- | --- |
-| `/login` | Demo-account buttons + email/password (mock). Honours `?next=`. Redirects if already signed in |
-| `/signup` | Role selection (tester / developer) → role-specific form (RHF + Zod). Creates a mock account and signs in |
+| `/login` | Demo-account buttons + email/password. Honours `?next=`. Redirects if already signed in |
+| `/signup` | Role selection (tester / developer) → role-specific form (RHF + Zod). Creates the account and signs in |
 
 ## Tester area — `app/(tester)/`
 
@@ -33,6 +33,7 @@ Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
 | `/tests/[id]` | Workspace: download build → task checklist → unlock feedback. Workflow stepper |
 | `/tests/[id]/feedback` | Structured feedback form (ratings, summary, highlights, pain points, controls, bugs, recommend, hours) → marks the test complete |
 | `/profile` | Public tester profile: reputation, completion rate, badges, testing history, preferences |
+| `/profile/edit` | Edit tester profile — identity, experience, platforms, genres, languages, availability |
 
 ## Developer area — `app/(developer)/`
 
@@ -52,6 +53,7 @@ drawer, but kept out of the top nav so the four primary destinations stay clear.
 | `/developer/playtests/[id]/edit` | Edit an owned draft playtest; published and terminal states are locked |
 | `/developer/analytics` | Cross-playtest feedback: ratings chart, sentiment donut, common pain points & bugs, qualitative feed. Scope selector |
 | `/developer/profile` | Studio profile: details, stats, games |
+| `/developer/profile/edit` | Edit studio profile — studio name, size, founding year, website, and the owner's identity |
 
 ## System
 

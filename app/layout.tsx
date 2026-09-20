@@ -4,6 +4,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 
 import { SITE } from "@/lib/constants";
 import { ToastProvider } from "@/components/ui/toast";
+import { GroguProvider } from "@/components/providers/grogu-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -62,8 +63,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${inter.variable} ${spaceGrotesk.variable} h-full`}
       suppressHydrationWarning
     >
-      <body className="min-h-full antialiased">
-        <ToastProvider>{children}</ToastProvider>
+      {/* Extensions (ColorZilla, Grammarly, ...) inject attributes on <body>
+          before React hydrates, which React reports as a mismatch. */}
+      <body className="min-h-full antialiased" suppressHydrationWarning>
+        <GroguProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </GroguProvider>
       </body>
     </html>
   );

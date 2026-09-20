@@ -1,9 +1,10 @@
 /**
- * Mock authentication service. Frontend-only — there is no auth provider.
+ * Authentication against the Grogu API.
  *
- * `login` / `signup` accept demo credentials, build a {@link Session}, and hand
- * it to the client store. A real provider replaces exactly these three
- * functions; nothing else in the app knows auth is fake.
+ * Was a mock that matched an email against seed data and fabricated a session.
+ * Now `POST /api/v1/auth/{login,signup}` returns a bearer token plus the user;
+ * the token is stored by `lib/services/http`, and the full dataset is loaded
+ * straight afterwards so the UI has data the moment it redirects.
  */
 
 import type {
@@ -12,15 +13,19 @@ import type {
   GameGenre,
   GamePlatform,
   Session,
-  TesterProfile,
   User,
   UserRole,
 } from "@/lib/types";
 import { useGroguStore } from "@/lib/store/grogu-store";
 
-import { delay, ServiceError } from "./http";
+import { apiFetch, setAuthToken } from "./http";
 
-/** Any password is accepted for the prototype; this is the demo hint shown in the UI. */
+/**
+ * Demo accounts shown as one-click buttons on the login form. They are seeded
+ * into the database by `db/migrations/004_demo_accounts.sql`; the password is
+ * deliberately public because these are shared demo logins, and they hold no
+ * data that is not already visible in the demo.
+ */
 export const DEMO_PASSWORD = "playtest";
 
 export const DEMO_ACCOUNTS: Record<UserRole, { email: string; label: string }> = {
@@ -28,8 +33,11 @@ export const DEMO_ACCOUNTS: Record<UserRole, { email: string; label: string }> =
   developer: { email: "mara@driftwoodgames.dev", label: "Mara Okafor · Developer" },
 };
 
-function makeSession(user: User): Session {
-  return { user, role: user.role, issuedAt: Date.now() };
+interface AuthResponse {
+  token: string;
+  expiresAt: string;
+  user: User;
+  role: UserRole;
 }
 
 export interface LoginInput {
@@ -37,26 +45,30 @@ export interface LoginInput {
   password: string;
 }
 
-export async function login({ email, password }: LoginInput): Promise<Session> {
-  await delay();
-  if (password.trim().length < 6) {
-    throw new ServiceError("Password must be at least 6 characters.", "invalid-credentials");
-  }
-  const normalized = email.trim().toLowerCase();
-  const user = useGroguStore
-    .getState()
-    .users.find((u) => u.email.toLowerCase() === normalized);
+/** Stores the token, then loads the caller's data before returning. */
+async function establishSession(response: AuthResponse): Promise<Session> {
+  setAuthToken(response.token);
 
-  if (!user) {
-    throw new ServiceError(
-      "No account matches that email. Try a demo account below.",
-      "invalid-credentials",
-    );
-  }
+  const session: Session = {
+    user: response.user,
+    role: response.role,
+    issuedAt: Date.now(),
+  };
 
-  const session = makeSession(user);
-  useGroguStore.getState().setSession(session);
-  return session;
+  useGroguStore.getState().setSession(session, response.token);
+  await useGroguStore.getState().refresh();
+
+  return useGroguStore.getState().session ?? session;
+}
+
+export async function login(input: LoginInput): Promise<Session> {
+  const response = await apiFetch<AuthResponse>("/api/v1/auth/login", {
+    method: "POST",
+    auth: false,
+    body: { email: input.email.trim(), password: input.password },
+  });
+
+  return establishSession(response);
 }
 
 export async function loginAsDemo(role: UserRole): Promise<Session> {
@@ -89,78 +101,27 @@ export interface DeveloperSignupInput {
 export type SignupInput = TesterSignupInput | DeveloperSignupInput;
 
 export async function signup(input: SignupInput): Promise<Session> {
-  await delay(700);
-  const store = useGroguStore.getState();
-  const normalized = input.email.trim().toLowerCase();
+  const response = await apiFetch<AuthResponse>("/api/v1/auth/signup", {
+    method: "POST",
+    auth: false,
+    body: { ...input, email: input.email.trim(), name: input.name.trim() },
+  });
 
-  if (store.users.some((u) => u.email.toLowerCase() === normalized)) {
-    throw new ServiceError("An account with that email already exists.", "conflict");
-  }
-
-  const handle = input.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "")
-    .slice(0, 16) || "grogu";
-  const id = `${input.role}-${handle}-${Math.random().toString(36).slice(2, 6)}`;
-
-  const user: User = {
-    id,
-    role: input.role,
-    name: input.name.trim(),
-    handle,
-    email: input.email.trim(),
-    location: input.location.trim(),
-    bio:
-      input.role === "tester"
-        ? "New Grogu playtester."
-        : `${(input as DeveloperSignupInput).studioName} on Grogu.`,
-    joinedAt: new Date().toISOString(),
-  };
-
-  if (input.role === "tester") {
-    const profile: TesterProfile = {
-      userId: id,
-      experienceLevel: input.experienceLevel,
-      preferredGenres: input.preferredGenres,
-      platforms: input.platforms,
-      languages: ["English"],
-      weeklyAvailabilityHours: input.weeklyAvailabilityHours,
-      reputation: 50,
-      completedPlaytests: 0,
-      averageFeedbackRating: 0,
-      badges: ["New tester"],
-    };
-    useGroguStore.setState((s) => ({
-      users: [user, ...s.users],
-      testerProfiles: [profile, ...s.testerProfiles],
-    }));
-  } else {
-    const profile: DeveloperProfile = {
-      userId: id,
-      studioName: input.studioName.trim(),
-      studioSize: input.studioSize,
-      website: input.website.trim(),
-      foundedYear: new Date().getFullYear(),
-      gamesPublished: 0,
-      activePlaytests: 0,
-    };
-    useGroguStore.setState((s) => ({
-      users: [user, ...s.users],
-      developerProfiles: [profile, ...s.developerProfiles],
-    }));
-  }
-
-  const session = makeSession(user);
-  useGroguStore.getState().setSession(session);
-  return session;
+  return establishSession(response);
 }
 
 export async function logout(): Promise<void> {
-  await delay(150);
+  try {
+    await apiFetch<unknown>("/api/v1/auth/logout", { method: "POST" });
+  } catch {
+    // Tokens are stateless, so the local session is cleared either way; a
+    // failed call must not strand someone in a signed-in shell.
+  }
+
   useGroguStore.getState().setSession(null);
 }
 
-/** Synchronous read of the current session (store is the source of truth). */
+/** Synchronous read of the current session (the store holds it). */
 export function getSession(): Session | null {
   return useGroguStore.getState().session;
 }

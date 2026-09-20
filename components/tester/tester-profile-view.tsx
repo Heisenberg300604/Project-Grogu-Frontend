@@ -1,6 +1,7 @@
 "use client";
 
-import { Award, CheckCircle2, Gamepad2, Star, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { Award, CheckCircle2, Gamepad2, Pencil, Star, TrendingUp } from "lucide-react";
 
 import { formatDate } from "@/lib/utils";
 import { overallRating } from "@/lib/domain";
@@ -13,6 +14,7 @@ import { useGroguStore } from "@/lib/store/grogu-store";
 import { useTesterProfile, useTesterTests } from "@/lib/hooks/use-grogu";
 import { useSession } from "@/lib/hooks/use-session";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/states";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/ui/avatar";
@@ -75,6 +77,14 @@ export function TesterProfileView() {
       <PageHeader
         title="Tester profile"
         description="This is what developers see when they review your application."
+        actions={
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/profile/edit">
+              <Pencil aria-hidden />
+              Edit profile
+            </Link>
+          </Button>
+        }
       />
 
       {/* ---- Identity ------------------------------------------------- */}

@@ -1,10 +1,9 @@
 /**
- * Mock authentication — public entry point.
+ * Authentication — public entry point.
  *
- * Frontend-only: there is NO auth provider, database, or token. A "session" is
- * a {@link Session} object held in the persisted client store. This file just
- * re-exports the mock auth service so the swap-in point is obvious: replace
- * `lib/services/auth.ts` with a real provider and keep this surface.
+ * Kept at this path because the components import from it; the name is a
+ * leftover from when auth was faked. It now re-exports `lib/services/auth`,
+ * which signs in against the Grogu API and holds a real bearer token.
  */
 
 export {

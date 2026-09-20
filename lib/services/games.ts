@@ -1,34 +1,35 @@
-/** Mock games service (developer side). */
+/** Games service — developer side. Backed by `/api/v1/games`. */
 
 import type { Game, NewGameInput, UpdateGameInput } from "@/lib/types";
 import { useGroguStore } from "@/lib/store/grogu-store";
 
-import { delay, ServiceError } from "./http";
+import { apiFetch } from "./http";
 
 export async function createGame(input: NewGameInput): Promise<Game> {
-  await delay(800);
-  const store = useGroguStore.getState();
-  if (!store.session || store.session.role !== "developer") {
-    throw new ServiceError("Sign in as a developer to add a game.", "forbidden");
-  }
-  return store.createGame(store.session.user.id, input);
+  const game = await apiFetch<Game>("/api/v1/games", {
+    method: "POST",
+    body: input,
+  });
+
+  // Show the new row immediately, then re-read so server-derived values
+  // (the developer's `gamesPublished` count, for one) stay correct.
+  useGroguStore.getState().applyEntity("games", game);
+  void useGroguStore.getState().refresh();
+
+  return game;
 }
 
 export async function updateGame(
   gameId: string,
   input: UpdateGameInput,
 ): Promise<Game> {
-  await delay(800);
-  const store = useGroguStore.getState();
-  if (!store.session || store.session.role !== "developer") {
-    throw new ServiceError("Sign in as a developer to edit a game.", "forbidden");
-  }
-  if (
-    !store.games.some(
-      (game) => game.id === gameId && game.developerId === store.session?.user.id,
-    )
-  ) {
-    throw new ServiceError("Game not found.", "not-found");
-  }
-  return store.updateGame(store.session.user.id, gameId, input);
+  const game = await apiFetch<Game>(`/api/v1/games/${gameId}`, {
+    method: "PATCH",
+    body: input,
+  });
+
+  useGroguStore.getState().applyEntity("games", game);
+  void useGroguStore.getState().refresh();
+
+  return game;
 }

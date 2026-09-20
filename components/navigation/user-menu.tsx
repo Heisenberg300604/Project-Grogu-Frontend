@@ -20,7 +20,7 @@ import {
 
 export function UserMenu({ session }: { session: Session }) {
   const router = useRouter();
-  const resetDemo = useGroguStore((s) => s.resetDemo);
+  const refresh = useGroguStore((s) => s.refresh);
   const [busy, setBusy] = useState(false);
 
   const profileHref = session.role === "tester" ? "/profile" : "/developer/profile";
@@ -31,9 +31,13 @@ export function UserMenu({ session }: { session: Session }) {
     router.push("/");
   }
 
-  function handleReset() {
-    resetDemo();
-    router.push("/");
+  // "Reset demo data" used to wipe the local mock store back to its seed. The
+  // data lives on the server now and is not the current user's to reset, so
+  // this re-reads it instead.
+  async function handleRefresh() {
+    setBusy(true);
+    await refresh();
+    setBusy(false);
   }
 
   return (
@@ -60,9 +64,9 @@ export function UserMenu({ session }: { session: Session }) {
             Profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={handleReset}>
+        <DropdownMenuItem onSelect={handleRefresh} disabled={busy}>
           <RefreshCw aria-hidden />
-          Reset demo data
+          Refresh data
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handleLogout} disabled={busy}>
