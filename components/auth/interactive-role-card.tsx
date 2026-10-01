@@ -22,7 +22,7 @@ const ROLE_DATA = {
       "Submit structured bugs & surveys",
       "Build your gaming profile & badges",
     ],
-    accentColor: "from-purple-600/20 to-indigo-600/10 border-primary/50 text-secondary",
+    accentColor: "from-primary/20 to-transparent border-primary/50 text-secondary",
   },
   developer: {
     icon: Gamepad2,
@@ -34,7 +34,7 @@ const ROLE_DATA = {
       "Manage playtest applications & access",
       "Analyze survey & quantitative reports",
     ],
-    accentColor: "from-emerald-600/20 to-teal-600/10 border-emerald-500/50 text-emerald-300",
+    accentColor: "from-secondary/20 to-transparent border-secondary/50 text-secondary",
   },
 };
 

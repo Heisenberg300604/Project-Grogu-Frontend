@@ -33,8 +33,6 @@ const CONTENT = {
       "Grogu gives small teams a focused way to recruit players, run structured sessions, and turn messy reactions into decisions.",
     primary: { href: "/signup", label: "Create a studio account" },
     secondary: { href: "/discover", label: "See live playtests" },
-    metric: "42 reports",
-    metricLabel: "ready to turn into your next build",
     accent: "Recruit the signal you need",
     steps: [
       { icon: Users, title: "Define the audience", body: "Set the genre, platform, experience, and time commitment that make a tester useful for this build." },
@@ -50,8 +48,6 @@ const CONTENT = {
       "Grogu helps thoughtful players find the right builds, understand the assignment, and get credit for feedback that makes a difference.",
     primary: { href: "/discover", label: "Find a playtest" },
     secondary: { href: "/signup", label: "Create a tester profile" },
-    metric: "14 verified",
-    metricLabel: "tests completed by a top tester",
     accent: "Make your playtime count",
     steps: [
       { icon: Search, title: "Find your match", body: "Browse by genre, platform, reward, and time so every application starts with a good fit." },
@@ -64,12 +60,14 @@ const CONTENT = {
 
 export function AudienceLanding({ kind, stats }: AudienceLandingProps) {
   const content = CONTENT[kind];
+  const signalMetric = kind === "developers" ? stats.feedbackSubmitted : stats.activePlaytests;
+  const signalLabel = kind === "developers" ? "feedback reports in the network" : "playtests open to discover";
 
   return (
     <>
       <section className="relative overflow-hidden border-b border-border/60 bg-dark py-20 sm:py-24 lg:py-32">
         <div aria-hidden className="surface-grid pointer-events-none absolute inset-0 opacity-35" />
-        <div aria-hidden className="pointer-events-none absolute -right-32 top-10 size-[32rem] rounded-full bg-primary/15 blur-[120px]" />
+        <div aria-hidden className="pointer-events-none absolute right-0 top-0 h-px w-2/5 bg-secondary/50" />
         <Container className="relative z-10 grid items-end gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.62fr)] lg:gap-20">
           <div className="max-w-3xl">
             <p className="text-label text-secondary">{content.eyebrow}</p>
@@ -90,7 +88,7 @@ export function AudienceLanding({ kind, stats }: AudienceLandingProps) {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-surface/80 p-6 shadow-2xl shadow-black/25 sm:p-7">
+          <div className="relative overflow-hidden border border-border/80 bg-surface/90 p-6 shadow-md sm:p-7">
             <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-5">
               <div className="flex items-center gap-2.5">
                 <span className="grid size-9 place-items-center rounded-lg bg-primary-soft text-secondary">
@@ -101,8 +99,8 @@ export function AudienceLanding({ kind, stats }: AudienceLandingProps) {
               <span className="text-label text-success">LIVE</span>
             </div>
             <p className="mt-8 text-label text-secondary-muted">{content.accent}</p>
-            <p className="mt-2 font-display text-4xl font-semibold tracking-tight text-foreground">{content.metric}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{content.metricLabel}</p>
+            <p className="mt-2 font-display text-4xl font-semibold tracking-tight text-foreground">{signalMetric}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{signalLabel}</p>
             <div className="mt-8 space-y-3">
               {content.proof.map((point) => (
                 <div key={point} className="flex items-start gap-3 border-t border-border/50 pt-3 text-sm text-foreground">

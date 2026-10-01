@@ -34,7 +34,7 @@ export const SITE = {
   name: "Grogu",
   fullName: "Project Grogu",
   description:
-    "Grogu connects indie game developers with dedicated playtesters — structured playtests, actionable feedback, and a reputation system that rewards good testing.",
+    "Grogu is the playtest network for studios and players: run structured game playtests, discover unreleased builds, and turn gameplay feedback into useful signals.",
   url: "https://grogu.example.com",
 } as const;
 

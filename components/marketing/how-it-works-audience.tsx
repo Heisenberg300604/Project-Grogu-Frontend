@@ -40,7 +40,7 @@ export function HowItWorksAudience() {
   return (
     <section id="top" className="relative overflow-hidden border-b border-border/60 bg-dark py-20 sm:py-24 lg:py-32">
       <div aria-hidden className="surface-grid pointer-events-none absolute inset-0 opacity-35" />
-      <div aria-hidden className="pointer-events-none absolute -left-40 top-20 size-[28rem] rounded-full bg-primary/12 blur-[110px]" />
+      <div aria-hidden className="pointer-events-none absolute left-0 top-16 h-px w-1/3 bg-secondary/45" />
       <Container className="relative z-10">
         <div className="max-w-3xl">
           <p className="text-label text-secondary">THE PLAYTEST LOOP</p>
@@ -56,13 +56,13 @@ export function HowItWorksAudience() {
           {AUDIENCES.map((audience) => (
             <article
               key={audience.label}
-              className="group relative overflow-hidden rounded-2xl border border-border/80 bg-surface/80 p-6 shadow-2xl shadow-black/20 sm:p-8"
+              className="group relative overflow-hidden border border-border/80 bg-surface/90 p-6 shadow-md sm:p-8"
             >
               <div
                 aria-hidden
                 className={cn(
-                  "absolute -right-20 -top-20 size-56 rounded-full blur-3xl",
-                  audience.tone === "primary" ? "bg-primary/20" : "bg-secondary/10",
+                  "absolute right-0 top-0 h-px w-1/2",
+                  audience.tone === "primary" ? "bg-primary/70" : "bg-secondary/60",
                 )}
               />
               <div className="relative flex h-full flex-col">

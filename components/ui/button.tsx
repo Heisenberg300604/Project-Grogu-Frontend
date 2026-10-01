@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 export const buttonVariants = cva(
   [
     "relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap",
-    "rounded-md font-medium",
+    "rounded-md font-semibold",
     "transition-[background-color,border-color,color,transform,opacity] duration-[120ms] ease-[var(--ease-out-soft)]",
     "focus-visible:outline-none",
     "active:translate-y-px",
@@ -41,7 +41,7 @@ export const buttonVariants = cva(
         sm: "h-8 px-3 text-xs",
         md: "h-10 px-4 text-sm",
         lg: "h-11 px-5 text-sm",
-        xl: "h-13 px-7 text-base",
+        xl: "h-12 px-7 text-base",
         icon: "size-10",
         "icon-sm": "size-8",
       },

@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
 
 /**
- * Grogu wordmark. The mark is a radar sweep inside a rounded square — "find the
- * players who'll actually finish your build".
+ * Grogu wordmark. The mark is a signal waypoint: the connection between an
+ * unreleased build and the people who can make it better.
  */
 export function Logo({
   className,
@@ -28,7 +28,7 @@ export function Logo({
     >
       <span
         aria-hidden
-        className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-colors duration-[120ms] group-hover:bg-primary-hover"
+        className="grid size-8 place-items-center rounded-md border border-primary/70 bg-primary text-primary-foreground shadow-sm transition-colors duration-[120ms] group-hover:bg-primary-hover"
       >
         <svg viewBox="0 0 24 24" className="size-4.5" fill="none">
           <circle

@@ -4,12 +4,12 @@
 /* -------------------------------------------------------------------------- */
 /*  Grogu design system                                                        */
 /*                                                                            */
-/*  Dark-first, gaming-oriented. Raw colour values live ONLY in this file.     */
+/*  Dark-first, cinematic and operational. Raw colour values live ONLY here.   */
 /*  Components consume semantic Tailwind utilities (bg-surface, text-muted-    */
 /*  foreground, border-border, …) that map to the tokens below.               */
 /*                                                                            */
-/*  Reference palette                                                          */
-/*    primary #6C37C3 · secondary #B0B3D7 · background #0F0D19 · dark #080D0A  */
+/*  Warm ivory is action. Cyan is signal. Everything else stays deliberately   */
+/*  quiet, so the game worlds and product data have room to speak.             */
 /* -------------------------------------------------------------------------- */
 
 :root {
@@ -17,61 +17,61 @@
 
   /* ---- Surfaces -------------------------------------------------------- */
   /* Four steps only. Anything that needs a fifth is over-nested.           */
-  --background: #0f0d19;
-  --foreground: #f0eef7;
-  --surface: #15121f;
-  --surface-foreground: #f0eef7;
-  --elevated: #1c1829;
-  --elevated-foreground: #f7f5fc;
-  --dark: #080d0a;
+  --background: #0d1112;
+  --foreground: #f2eee5;
+  --surface: #151a1b;
+  --surface-foreground: #f2eee5;
+  --elevated: #1c2223;
+  --elevated-foreground: #f7f3ea;
+  --dark: #080c0d;
 
   /* Translucent overlay used for glass headers and art scrims. Kept subtle. */
-  --scrim: color-mix(in oklab, #0f0d19 72%, transparent);
+  --scrim: color-mix(in oklab, #0d1112 82%, transparent);
 
   /* ---- Lines & fields --------------------------------------------------- */
-  --border: #262138;
-  --border-strong: #3a3355;
-  --input: #1a1626;
-  --ring: #8b5cf0;
+  --border: #2a3332;
+  --border-strong: #495452;
+  --input: #121819;
+  --ring: #d9a96a;
 
   /* ---- Brand ------------------------------------------------------------ */
-  --primary: #6c37c3;
-  --primary-foreground: #f8f5ff;
-  --primary-hover: #7c46d6;
-  --primary-active: #5e2cad;
+  --primary: #d6a15d;
+  --primary-foreground: #17120c;
+  --primary-hover: #e2b779;
+  --primary-active: #bd8344;
   /* Tints used for washes, selected states and progress tracks. */
-  --primary-soft: color-mix(in oklab, #6c37c3 16%, transparent);
-  --primary-line: color-mix(in oklab, #6c37c3 38%, transparent);
+  --primary-soft: color-mix(in oklab, #d6a15d 14%, transparent);
+  --primary-line: color-mix(in oklab, #d6a15d 38%, transparent);
 
-  --secondary: #b0b3d7;
-  --secondary-foreground: #14111f;
-  --secondary-muted: #8b8fb8;
+  --secondary: #9ec8cb;
+  --secondary-foreground: #0d1718;
+  --secondary-muted: #748f91;
 
   /* ---- Neutral text / fills --------------------------------------------- */
-  --muted: #1e1a2b;
-  --muted-foreground: #9c96b3;
-  --subtle-foreground: #6f6987;
-  --accent: #272134;
-  --accent-foreground: #f7f5fc;
+  --muted: #202827;
+  --muted-foreground: #b2b5ad;
+  --subtle-foreground: #76817f;
+  --accent: #252e2d;
+  --accent-foreground: #f7f3ea;
 
   /* ---- Status ----------------------------------------------------------- */
-  --success: #3fb984;
-  --success-foreground: #04150d;
-  --warning: #e0a73b;
-  --warning-foreground: #1a1204;
-  --destructive: #e5555a;
+  --success: #78b092;
+  --success-foreground: #07130d;
+  --warning: #d9a96a;
+  --warning-foreground: #201608;
+  --destructive: #dd6d68;
   --destructive-foreground: #1c0507;
-  --info: #5b8dff;
-  --info-foreground: #050c1c;
+  --info: #8bbdc3;
+  --info-foreground: #071314;
 
   /* ---- Radius ----------------------------------------------------------- */
   /* One base; every component derives from it so corners never disagree.    */
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
   /* ---- Elevation — restrained, no glow ---------------------------------- */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
-  --shadow-md: 0 10px 30px -12px rgb(0 0 0 / 0.65);
-  --shadow-lg: 0 30px 70px -24px rgb(0 0 0 / 0.75);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.32);
+  --shadow-md: 0 14px 32px -18px rgb(0 0 0 / 0.7);
+  --shadow-lg: 0 30px 70px -32px rgb(0 0 0 / 0.8);
 
   /* ---- Motion ----------------------------------------------------------- */
   /* Fast and purposeful. Nothing here should ever exceed 240ms.             */
@@ -123,10 +123,9 @@
   --color-info-foreground: var(--info-foreground);
 
   /* Typography */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif,
-    system-ui, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: "Manrope", "Avenir Next", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", "Avenir Next", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
 
   /* Radius scale — 6 / 8 / 10 / 14 / 20 */
   --radius-sm: calc(var(--radius) - 4px);
@@ -144,7 +143,7 @@
   --ease-out-soft: var(--ease-out-soft);
 
   /* Content width used by the page container */
-  --spacing-container: 82rem;
+  --spacing-container: 86rem;
 }
 
 @layer base {
@@ -177,8 +176,8 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.022em;
+    font-weight: 700;
+    letter-spacing: -0.032em;
     text-wrap: balance;
   }
 
@@ -195,8 +194,8 @@
   }
 
   ::selection {
-    background-color: color-mix(in oklab, var(--color-primary) 45%, transparent);
-    color: var(--color-foreground);
+    background-color: color-mix(in oklab, var(--color-primary) 55%, transparent);
+    color: var(--color-dark);
   }
 
   /* Dark, unobtrusive scrollbars — the default light ones break the theme. */
@@ -259,7 +258,7 @@
       linear-gradient(to bottom, transparent 55%, var(--color-background)),
       radial-gradient(
         circle at 1px 1px,
-        color-mix(in oklab, var(--color-secondary) 10%, transparent) 1px,
+        color-mix(in oklab, var(--color-secondary) 9%, transparent) 1px,
         transparent 0
       );
     background-size:
@@ -269,8 +268,26 @@
 
   /* Sticky bars: translucent, blurred, with a hairline. Used sparingly. */
   .glass {
-    background-color: color-mix(in oklab, var(--color-background) 82%, transparent);
-    backdrop-filter: blur(12px) saturate(1.4);
+    background-color: color-mix(in oklab, var(--color-background) 88%, transparent);
+    backdrop-filter: blur(10px) saturate(1.15);
+  }
+
+  .hero-scrim {
+    background:
+      linear-gradient(90deg, rgb(5 8 8 / 0.93) 0%, rgb(7 11 11 / 0.78) 31%, rgb(7 11 11 / 0.32) 58%, transparent 78%),
+      linear-gradient(0deg, var(--color-background) 0%, transparent 23%);
+  }
+
+  .signal-rule {
+    background: linear-gradient(90deg, var(--color-secondary), color-mix(in oklab, var(--color-secondary) 8%, transparent));
+  }
+
+  .telemetry-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
   }
 
   /* Fades the right edge of a horizontally scrolling rail. */

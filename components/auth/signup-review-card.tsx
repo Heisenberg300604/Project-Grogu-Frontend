@@ -94,7 +94,7 @@ export function SignupReviewCard({ formData, onEditStep }: SignupReviewCardProps
             {isTester ? (
               <UserRound className="size-3.5 text-secondary shrink-0" />
             ) : (
-              <Gamepad2 className="size-3.5 text-emerald-400 shrink-0" />
+              <Gamepad2 className="size-3.5 text-secondary shrink-0" />
             )}
             <span className="truncate">{formData.name}</span>
           </div>
@@ -187,14 +187,14 @@ export function SignupReviewCard({ formData, onEditStep }: SignupReviewCardProps
           <div className="space-y-2 pt-1 text-foreground">
             <div className="flex items-center justify-between">
               <span className="text-subtle-foreground flex items-center gap-1.5">
-                <Building2 className="size-3.5 text-emerald-400" /> Studio Name:
+                <Building2 className="size-3.5 text-secondary" /> Studio Name:
               </span>
               <span className="font-medium">{formData.studioName || "N/A"}</span>
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-subtle-foreground flex items-center gap-1.5">
-                <Layers className="size-3.5 text-emerald-400" /> Studio Size:
+                <Layers className="size-3.5 text-secondary" /> Studio Size:
               </span>
               <span className="font-medium">
                 {
@@ -208,7 +208,7 @@ export function SignupReviewCard({ formData, onEditStep }: SignupReviewCardProps
             {formData.website && (
               <div className="flex items-center justify-between">
                 <span className="text-subtle-foreground flex items-center gap-1.5">
-                  <Globe2 className="size-3.5 text-emerald-400" /> Website:
+                  <Globe2 className="size-3.5 text-secondary" /> Website:
                 </span>
                 <span className="font-medium text-secondary truncate max-w-[180px]">
                   {formData.website}

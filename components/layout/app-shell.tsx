@@ -63,7 +63,7 @@ export function AppShell({
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="glass sticky top-0 z-50 border-b border-border">
+      <header className="glass sticky top-0 z-50 border-b border-border/90">
         <Container className="flex h-16 items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-6">
             {/* Mobile drawer trigger */}
@@ -121,7 +121,7 @@ export function AppShell({
         </Container>
       </header>
 
-      <main className="flex-1 pb-20 pt-8">
+      <main className="flex-1 pb-20 pt-8 lg:pt-10">
         <Container>{children}</Container>
       </main>
     </div>

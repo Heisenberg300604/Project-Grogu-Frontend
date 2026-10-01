@@ -550,7 +550,7 @@ export function SignupForm() {
                               className={cn(
                                 "flex flex-col items-start rounded-lg border p-3 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                 active
-                                  ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-300 font-semibold"
+                                  ? "border-secondary/60 bg-secondary/10 text-secondary font-semibold"
                                   : "border-border bg-surface/40 text-muted-foreground hover:border-border-strong"
                               )}
                             >

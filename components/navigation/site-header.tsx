@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
@@ -22,9 +22,28 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { session, isAuthenticated } = useSession();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const isHome = pathname === "/";
+
+  useEffect(() => {
+    if (!isHome) return;
+    const update = () => setScrolled(window.scrollY > 32);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, [isHome]);
 
   return (
-    <header className="glass sticky top-0 z-50 border-b border-border">
+    <header
+      className={cn(
+        "z-50 transition-[background-color,border-color,backdrop-filter] duration-200",
+        isHome
+          ? scrolled
+            ? "glass fixed inset-x-0 top-0 border-b border-border/80"
+            : "absolute inset-x-0 top-0 border-b border-transparent bg-gradient-to-b from-black/45 to-transparent"
+          : "glass sticky top-0 border-b border-border",
+      )}
+    >
       <Container className="flex h-16 items-center justify-between gap-6">
         <div className="flex items-center gap-8">
           <Logo />
@@ -50,7 +69,7 @@ export function SiteHeader() {
                       {active && (
                         <span
                           aria-hidden
-                          className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary"
+                          className="absolute inset-x-3 bottom-0 h-px bg-primary"
                         />
                       )}
                     </Link>
@@ -105,7 +124,7 @@ export function SiteHeader() {
       </Container>
 
       {open && (
-        <div id="mobile-nav" className="border-t border-border bg-background md:hidden">
+        <div id="mobile-nav" className="border-t border-border bg-background/98 md:hidden">
           <Container className="flex flex-col gap-1 py-4">
             {MARKETING_NAV.map((item) => (
               <Link

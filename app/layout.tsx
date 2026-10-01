@@ -1,29 +1,15 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
 
 import { SITE } from "@/lib/constants";
 import { ToastProvider } from "@/components/ui/toast";
 import { GroguProvider } from "@/components/providers/grogu-provider";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
-  weight: ["500", "600", "700"],
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} — Playtesting for indie games`,
+    default: `${SITE.name} — The playtest network`,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
@@ -31,8 +17,9 @@ export const metadata: Metadata = {
   keywords: [
     "playtesting",
     "game testing",
-    "indie games",
-    "QA",
+    "game playtest platform",
+    "find game testers",
+    "game feedback platform",
     "player feedback",
     "game development",
   ],
@@ -40,13 +27,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE.name,
-    title: `${SITE.name} — Playtesting for indie games`,
+    title: `${SITE.name} — The playtest network`,
     description: SITE.description,
     url: SITE.url,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE.name} — Playtesting for indie games`,
+    title: `${SITE.name} — The playtest network`,
     description: SITE.description,
   },
 };
@@ -57,15 +44,27 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE.fullName,
+    url: SITE.url,
+    description: SITE.description,
+  };
+
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} h-full`}
+      className="h-full"
       suppressHydrationWarning
     >
       {/* Extensions (ColorZilla, Grammarly, ...) inject attributes on <body>
           before React hydrates, which React reports as a mismatch. */}
       <body className="min-h-full antialiased" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <GroguProvider>
           <ToastProvider>{children}</ToastProvider>
         </GroguProvider>
