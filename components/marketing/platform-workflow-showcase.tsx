@@ -8,9 +8,15 @@ const STUDIO_STEPS = [
   { number: "03", title: "Read the signal", body: "Bring ratings, written feedback, bugs, and completion together so the next build has a clear direction.", icon: BarChart3 },
 ] as const;
 
+const SIGNALS = [
+  { label: "Brief", detail: "What the build needs observed" },
+  { label: "Mission", detail: "The play session and tasks" },
+  { label: "Return", detail: "Feedback tied back to the build" },
+] as const;
+
 export function PlatformWorkflowShowcase() {
   return (
-    <section id="platform" className="relative border-b border-border bg-background py-24 sm:py-32 lg:py-40">
+    <section id="platform" className="relative border-b border-border bg-background py-24 sm:py-32 lg:min-h-[calc(100svh-4rem)] lg:py-40">
       <div aria-hidden className="surface-grid pointer-events-none absolute inset-0 opacity-25" />
       <Container className="relative">
         <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:gap-24">
@@ -41,14 +47,25 @@ export function PlatformWorkflowShowcase() {
         </div>
 
         <div className="mt-16 grid border border-border bg-surface sm:grid-cols-[0.9fr_1.1fr] lg:mt-24">
-          <div className="border-b border-border p-6 sm:border-b-0 sm:border-r sm:p-8">
+          <div className="border-b border-border p-6 sm:border-b-0 sm:border-r sm:p-8 lg:p-10">
             <div className="flex items-center gap-3 text-secondary"><MessageSquareText className="size-4" aria-hidden /><span className="telemetry-label">A clear test brief</span></div>
             <p className="mt-6 text-xl font-semibold leading-snug text-foreground">Every mission tells the tester what to explore, why it matters, and how to report what they find.</p>
           </div>
           <div className="grid gap-px bg-border sm:grid-cols-2">
-            <div className="bg-surface p-6 sm:p-8"><p className="telemetry-label text-subtle-foreground">Mission context</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Game, focus area, platform requirements, and testing window are visible before the work begins.</p></div>
-            <div className="bg-surface p-6 sm:p-8"><p className="telemetry-label text-subtle-foreground">Structured return</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Ratings and written observations stay connected to the specific session that produced them.</p></div>
+            <div className="bg-surface p-6 sm:p-8 lg:p-10"><p className="telemetry-label text-subtle-foreground">Mission context</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Game, focus area, platform requirements, and testing window are visible before the work begins.</p></div>
+            <div className="bg-surface p-6 sm:p-8 lg:p-10"><p className="telemetry-label text-subtle-foreground">Structured return</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Ratings and written observations stay connected to the specific session that produced them.</p></div>
           </div>
+        </div>
+
+        <div className="mt-10 grid border border-border bg-surface/70 md:grid-cols-3">
+          {SIGNALS.map((signal, index) => (
+            <div key={signal.label} className="relative min-h-40 border-b border-border p-6 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0 lg:p-8">
+              {index < SIGNALS.length - 1 && <span aria-hidden className="absolute right-0 top-1/2 hidden h-px w-8 translate-x-full bg-secondary/50 md:block" />}
+              <p className="font-mono text-xs text-secondary">0{index + 1}</p>
+              <h3 className="mt-6 text-lg font-semibold text-foreground">{signal.label}</h3>
+              <p className="mt-2 max-w-52 text-sm leading-6 text-muted-foreground">{signal.detail}</p>
+            </div>
+          ))}
         </div>
       </Container>
     </section>

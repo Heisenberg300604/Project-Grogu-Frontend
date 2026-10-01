@@ -15,13 +15,14 @@ export function FeaturedPlaytests({
   playtests: PlaytestWithRelations[];
 }) {
   return (
-    <section className="border-b border-border py-20">
-      <Container className="flex flex-col gap-10">
+    <section className="relative border-b border-border bg-surface/45 py-24 sm:py-32 lg:min-h-[calc(100svh-4rem)] lg:py-40">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-secondary/30" />
+      <Container className="flex flex-col gap-12 lg:gap-16">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
             eyebrow="Open now"
             title="Playtests looking for testers"
-            lead="Every listing spells out the tasks, the time commitment, and the reward before you apply."
+            lead="Each listing gives you the mission context, the time commitment, and the reward before you apply."
           />
           <Link
             href="/discover"
