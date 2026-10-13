@@ -8,6 +8,9 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { cn } from "@/lib/utils";
+import { assetUrl } from "@/lib/assets";
+import { isValidUpiId } from "@/lib/domain";
+import { useWallet } from "@/lib/hooks/use-grogu";
 import {
   EXPERIENCE_LABELS,
   EXPERIENCE_OPTIONS,
@@ -40,6 +43,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/layout/page-header";
+import { PosterUpload } from "@/components/uploads/poster-upload";
 
 const STUDIO_SIZES = Object.keys(
   STUDIO_SIZE_LABELS,
@@ -58,8 +62,10 @@ const identity = {
   name: z.string().trim().min(2, "Enter your name."),
   location: z.string().trim().max(120).optional(),
   bio: z.string().trim().max(400, "Keep your bio under 400 characters.").optional(),
+  // An uploaded picture (`/uploads/...`) or an https link; empty clears it.
   avatarUrl: z
-    .union([z.literal(""), z.url("Enter a valid image URL, or leave empty.")])
+    .string()
+    .refine((value) => value === "" || assetUrl(value) !== undefined, "That image can't be used.")
     .optional(),
 };
 
@@ -77,6 +83,10 @@ const testerSchema = z.object({
     .int("Whole hours only.")
     .min(0)
     .max(168, "There are only 168 hours in a week."),
+  upiId: z
+    .string()
+    .trim()
+    .refine((value) => value === "" || isValidUpiId(value), "Enter a UPI ID like name@bank."),
 });
 
 const developerSchema = z.object({
@@ -203,7 +213,7 @@ function IdentityPreview({
         </p>
       </div>
       <p className="px-1 text-xs text-muted-foreground">
-        Leave the avatar URL empty to keep the generated initials.
+        Without a picture, your initials are shown instead.
       </p>
     </aside>
   );
@@ -234,6 +244,7 @@ export function TesterProfileForm({
 }) {
   const router = useRouter();
   const toast = useToast();
+  const wallet = useWallet();
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -254,6 +265,7 @@ export function TesterProfileForm({
       platforms: profile.platforms,
       languages: profile.languages.join(", "),
       weeklyAvailabilityHours: profile.weeklyAvailabilityHours,
+      upiId: wallet?.upiId ?? "",
     },
   });
 
@@ -290,6 +302,7 @@ export function TesterProfileForm({
         platforms: values.platforms as GamePlatform[],
         languages: parseLanguages(values.languages),
         weeklyAvailabilityHours: values.weeklyAvailabilityHours,
+        upiId: values.upiId,
       });
       toast({ title: "Profile updated" });
       router.push("/profile");
@@ -314,7 +327,7 @@ export function TesterProfileForm({
         <div className="min-w-0 space-y-6">
           <FormSection
             title="About you"
-            description="Your name and bio are shown on every application you send."
+            description="Your name and bio are shown on every application you send. A bio, your details and a picture each earn a one-time reputation bonus."
           >
             <div className="space-y-5">
               <Field label="Name" htmlFor="p-name" error={errors.name?.message} required>
@@ -336,13 +349,20 @@ export function TesterProfileForm({
               >
                 <Textarea id="p-bio" rows={4} {...register("bio")} />
               </Field>
-              <Field
-                label="Avatar URL"
-                htmlFor="p-avatar"
-                hint="A link to an image. Leave empty for generated initials."
-                error={errors.avatarUrl?.message}
-              >
-                <Input id="p-avatar" placeholder="https://…" {...register("avatarUrl")} />
+              <Field label="Profile picture" error={errors.avatarUrl?.message}>
+                <Controller
+                  control={control}
+                  name="avatarUrl"
+                  render={({ field }) => (
+                    <PosterUpload
+                      kind="avatar"
+                      noun="picture"
+                      note="A square image works best."
+                      value={field.value || null}
+                      onChange={(url) => field.onChange(url ?? "")}
+                    />
+                  )}
+                />
               </Field>
             </div>
           </FormSection>
@@ -423,6 +443,26 @@ export function TesterProfileForm({
                 </Field>
               </div>
             </div>
+          </FormSection>
+
+          <FormSection
+            title="Payouts"
+            description="Cash rewards from approved reviews add up in your balance on the Rewards page. Only you can see your UPI ID."
+          >
+            <Field
+              label="UPI ID"
+              htmlFor="p-upi"
+              hint="Where payouts will go once they're available, e.g. name@okaxis."
+              error={errors.upiId?.message}
+            >
+              <Input
+                id="p-upi"
+                placeholder="name@bank"
+                inputMode="email"
+                autoComplete="off"
+                {...register("upiId")}
+              />
+            </Field>
           </FormSection>
 
           <FormFeedback error={formError} />
@@ -602,13 +642,20 @@ export function DeveloperProfileForm({
               >
                 <Textarea id="p-bio" rows={4} {...register("bio")} />
               </Field>
-              <Field
-                label="Avatar URL"
-                htmlFor="p-avatar"
-                hint="A link to an image. Leave empty for generated initials."
-                error={errors.avatarUrl?.message}
-              >
-                <Input id="p-avatar" placeholder="https://…" {...register("avatarUrl")} />
+              <Field label="Profile picture" error={errors.avatarUrl?.message}>
+                <Controller
+                  control={control}
+                  name="avatarUrl"
+                  render={({ field }) => (
+                    <PosterUpload
+                      kind="avatar"
+                      noun="picture"
+                      note="A square image works best."
+                      value={field.value || null}
+                      onChange={(url) => field.onChange(url ?? "")}
+                    />
+                  )}
+                />
               </Field>
             </div>
           </FormSection>

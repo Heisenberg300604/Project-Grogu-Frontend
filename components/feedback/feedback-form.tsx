@@ -11,7 +11,11 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { testCompletion } from "@/lib/domain";
 import { RATING_DIMENSIONS } from "@/lib/constants";
-import type { FeedbackRatings, FeedbackSentiment } from "@/lib/types";
+import type {
+  FeedbackMedia,
+  FeedbackRatings,
+  FeedbackSentiment,
+} from "@/lib/types";
 import {
   usePlaytest,
   useFeedbackForPlaytest,
@@ -20,7 +24,7 @@ import {
 } from "@/lib/hooks/use-grogu";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { useSession } from "@/lib/hooks/use-session";
-import { testsService } from "@/lib/services";
+import { ServiceError, testsService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { EmptyState, PageSkeleton, SuccessState } from "@/components/ui/states";
 import { Field } from "@/components/ui/field";
@@ -28,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { MediaUploader } from "@/components/uploads/media-uploader";
 import { useToast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/layout/page-header";
 import { GameArt } from "@/components/games/game-cover";
@@ -138,6 +143,7 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [step, setStep] = useState(0);
+  const [media, setMedia] = useState<FeedbackMedia[]>([]);
 
   const {
     register,
@@ -259,6 +265,7 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
         answers,
         wouldRecommend: values.wouldRecommend === "yes",
         hoursPlayed: Number(values.hoursPlayed),
+        media,
       });
       setDone(true);
       toast({
@@ -266,8 +273,12 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
         description: `${playtest.developer.name} can see your report now.`,
       });
       router.refresh();
-    } catch {
-      setFormError("Couldn't submit your feedback. Please try again.");
+    } catch (error) {
+      setFormError(
+        error instanceof ServiceError
+          ? error.message
+          : "Couldn't submit your feedback. Please try again.",
+      );
     }
   });
 
@@ -521,6 +532,19 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
                   {...register("hoursPlayed")}
                 />
               </Field>
+            </div>
+
+            <div className="mt-8 space-y-2.5">
+              <p className="text-sm font-medium">
+                Screenshots and recordings{" "}
+                <span className="font-normal text-subtle-foreground">(optional)</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Show the studio what you saw: a bug, a confusing screen, a great
+                moment. Attachments are shared with {playtest.developer.name}{" "}
+                along with your report.
+              </p>
+              <MediaUploader value={media} onChange={setMedia} />
             </div>
           </FormSection>
         )}

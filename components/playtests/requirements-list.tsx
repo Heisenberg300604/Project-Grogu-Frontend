@@ -78,7 +78,11 @@ export function RequirementsList({
       <Row
         icon={Star}
         label="Minimum reputation"
-        value={`${requirements.minReputation} / 100`}
+        value={
+          requirements.minReputation > 0
+            ? `${requirements.minReputation}+ reputation`
+            : "Open to everyone"
+        }
       />
       <Row
         icon={Clock}

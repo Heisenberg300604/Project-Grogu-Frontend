@@ -23,9 +23,11 @@ import type {
   GameGenre,
   GamePlatform,
   GameStatus,
+  InsightSentiment,
   NotificationType,
   PlaytestFocus,
   PlaytestStatus,
+  ReviewStatus,
   TaskType,
   TestStage,
 } from "@/lib/types";
@@ -46,6 +48,11 @@ export interface NavItem {
   label: string;
   href: string;
   description?: string;
+  /**
+   * Hidden in the desktop header below `lg` (it is already tight at `md`).
+   * Always shown in the mobile menu.
+   */
+  lgOnly?: boolean;
 }
 
 export interface AppNavItem extends NavItem {
@@ -61,6 +68,8 @@ export const MARKETING_NAV: NavItem[] = [
   { label: "How it works", href: "/how-it-works#top" },
   { label: "For developers", href: "/developers" },
   { label: "For gamers", href: "/gametesters" },
+  { label: "Testers", href: "/testers", lgOnly: true },
+  { label: "Studios", href: "/studios", lgOnly: true },
 ];
 
 export const TESTER_NAV: AppNavItem[] = [
@@ -225,6 +234,34 @@ export const NOTIFICATION_META: Record<
   "playtest-published": { tone: "success" },
   "test-reminder": { tone: "warning" },
   system: { tone: "muted" },
+  "feedback-approved": { tone: "success" },
+  "feedback-rejected": { tone: "destructive" },
+  "game-key-sent": { tone: "primary" },
+  "reputation-earned": { tone: "info" },
+  "level-up": { tone: "primary" },
+  "playtest-invite": { tone: "info" },
+};
+
+/** How the overall mood of a playtest's feedback is labelled in its summary. */
+export const INSIGHT_SENTIMENT_META: Record<
+  InsightSentiment,
+  { label: string; tone: BadgeTone }
+> = {
+  positive: { label: "Mostly positive", tone: "success" },
+  mixed: { label: "Mixed", tone: "warning" },
+  negative: { label: "Mostly negative", tone: "destructive" },
+  neutral: { label: "Neutral", tone: "muted" },
+  none: { label: "No feedback yet", tone: "muted" },
+};
+
+/** How a review's decision is labelled, for both the studio and the tester. */
+export const REVIEW_STATUS_META: Record<
+  ReviewStatus,
+  { label: string; tone: BadgeTone }
+> = {
+  submitted: { label: "Awaiting review", tone: "warning" },
+  approved: { label: "Approved", tone: "success" },
+  rejected: { label: "Not approved", tone: "muted" },
 };
 
 /** Rating dimensions shown in the feedback UI, in display order. */

@@ -16,7 +16,7 @@ import { useSession } from "@/lib/hooks/use-session";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/states";
-import { Progress } from "@/components/ui/progress";
+import { LevelProgress } from "@/components/tester/level-progress";
 import { UserAvatar } from "@/components/ui/avatar";
 import { PageHeader, SectionTitle } from "@/components/layout/page-header";
 import { StatCard, StatCardGrid } from "@/components/dashboard/stat-card";
@@ -120,15 +120,12 @@ export function TesterProfileView() {
             <p className="text-label mt-1.5 text-subtle-foreground">
               Reputation
             </p>
+            <p className="mt-1 text-xs text-muted-foreground">Level {profile.level}</p>
           </div>
         </div>
 
         <div className="border-t border-border px-6 py-4 sm:px-8">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Reputation progress</span>
-            <span className="tabular-nums">{profile.reputation} / 100</span>
-          </div>
-          <Progress value={profile.reputation} className="mt-2" />
+          <LevelProgress profile={profile} />
         </div>
       </section>
 

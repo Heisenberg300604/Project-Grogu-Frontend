@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccessEditor } from "@/components/playtests/access-editor";
 import { useToast } from "@/components/ui/toast";
 import { PageHeader, SectionTitle } from "@/components/layout/page-header";
 import { StatCard, StatCardGrid } from "@/components/dashboard/stat-card";
@@ -48,6 +49,9 @@ import { GameArt } from "@/components/games/game-cover";
 import { ApplicantRow } from "@/components/playtests/applicant-row";
 import { TesterCard } from "@/components/dashboard/tester-card";
 import { FeedbackCard } from "@/components/feedback/feedback-card";
+import { StudioReviewPanel } from "@/components/feedback/review-panel";
+import { InsightsPanel } from "@/components/feedback/insights-panel";
+import { SuggestedTesters } from "@/components/developer/suggested-testers";
 import { RatingBar } from "@/components/feedback/rating";
 import { RatingsBarChart } from "@/components/charts/ratings-bar-chart";
 import { SentimentDonut } from "@/components/charts/sentiment-donut";
@@ -109,6 +113,7 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
   }
 
   const pending = applicants.filter((a) => a.application.status === "pending");
+  const unreviewed = feedback.filter((f) => f.reviewStatus === "submitted").length;
   const spotsLeft = Math.max(0, playtest.maxTesters - acceptedTesters.length);
   const analytics = computeAnalytics(playtest, feedback);
   const completedCount = acceptedTesters.filter(
@@ -239,7 +244,14 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
           <TabsTrigger value="testers">
             Testers ({acceptedTesters.length})
           </TabsTrigger>
-          <TabsTrigger value="feedback">Feedback ({feedback.length})</TabsTrigger>
+          <TabsTrigger value="feedback">
+            Feedback ({feedback.length})
+            {unreviewed > 0 && (
+              <span className="rounded-full bg-warning/20 px-1.5 text-[10px] font-semibold text-warning">
+                {unreviewed} to review
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -323,6 +335,23 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
             </Panel>
           </div>
 
+          {playtest.status === "recruiting" && (
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border bg-surface p-3.5 text-sm text-muted-foreground">
+              Looking for testers?
+              <Link
+                href={`/developer/playtests/${playtest.id}?tab=applicants`}
+                className="font-medium text-secondary underline-offset-2 hover:underline"
+              >
+                See suggested testers
+              </Link>
+              who fit this playtest, and invite them.
+            </p>
+          )}
+
+          <Panel title="Game access">
+            <AccessEditor key={playtest.id} playtest={playtest} />
+          </Panel>
+
           <Panel title="What you're testing for">
             <ul className="space-y-2.5">
               {playtest.goals.map((goal) => (
@@ -341,43 +370,47 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
         </TabsContent>
 
         {/* ---- Applicants ---------------------------------------------- */}
-        <TabsContent value="applicants" className="space-y-4">
-          {applicants.length === 0 ? (
-            <EmptyState
-              icon={Users}
-              title="No applicants yet"
-              description="Share the public playtest page to attract testers."
-              action={
-                <Button asChild size="sm" variant="secondary">
-                  <Link href={`/playtests/${playtest.id}`}>
-                    Open public page
-                  </Link>
-                </Button>
-              }
-            />
-          ) : (
-            <>
-              <SectionTitle
-                title={`${pending.length} awaiting review`}
-                description={
-                  spotsLeft > 0
-                    ? `${spotsLeft} tester ${spotsLeft === 1 ? "spot" : "spots"} left to fill.`
-                    : "Every tester slot is full."
+        <TabsContent value="applicants" className="space-y-6">
+          <SuggestedTesters playtest={playtest} />
+
+          <div className="space-y-4">
+            {applicants.length === 0 ? (
+              <EmptyState
+                icon={Users}
+                title="No applicants yet"
+                description="Share the public playtest page to attract testers."
+                action={
+                  <Button asChild size="sm" variant="secondary">
+                    <Link href={`/playtests/${playtest.id}`}>
+                      Open public page
+                    </Link>
+                  </Button>
                 }
               />
-              <div className="space-y-3">
-                {applicants.map(({ application, tester, profile }) => (
-                  <ApplicantRow
-                    key={application.id}
-                    application={application}
-                    tester={tester}
-                    profile={profile}
-                    spotsLeft={spotsLeft}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+            ) : (
+              <>
+                <SectionTitle
+                  title={`${pending.length} awaiting review`}
+                  description={
+                    spotsLeft > 0
+                      ? `${spotsLeft} tester ${spotsLeft === 1 ? "spot" : "spots"} left to fill.`
+                      : "Every tester slot is full."
+                  }
+                />
+                <div className="space-y-3">
+                  {applicants.map(({ application, tester, profile }) => (
+                    <ApplicantRow
+                      key={application.id}
+                      application={application}
+                      tester={tester}
+                      profile={profile}
+                      spotsLeft={spotsLeft}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </TabsContent>
 
         {/* ---- Testers -------------------------------------------------- */}
@@ -412,13 +445,23 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
               description="Testers submit feedback after completing the required tasks."
             />
           ) : (
-            feedback.map((entry) => (
-              <FeedbackCard
-                key={entry.id}
-                feedback={entry}
-                tester={users.find((u) => u.id === entry.testerId)}
-              />
-            ))
+            feedback.map((entry) => {
+              const tester = users.find((u) => u.id === entry.testerId);
+              return (
+                <FeedbackCard
+                  key={entry.id}
+                  feedback={entry}
+                  tester={tester}
+                  footer={
+                    <StudioReviewPanel
+                      feedback={entry}
+                      playtest={playtest}
+                      testerName={tester?.name ?? "The tester"}
+                    />
+                  }
+                />
+              );
+            })
           )}
         </TabsContent>
 
@@ -432,6 +475,8 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
             />
           ) : (
             <>
+              <InsightsPanel playtestId={playtest.id} />
+
               <StatCardGrid>
                 <StatCard label="Responses" value={feedback.length} />
                 <StatCard

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Building2, Globe, MapPin } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -29,7 +30,12 @@ export function DeveloperCard({
         />
         <div className="min-w-0">
           <p className="truncate font-display text-base font-semibold">
-            {profile?.studioName ?? user.name}
+            <Link
+              href={`/studios/${user.id}`}
+              className="transition-colors hover:text-secondary"
+            >
+              {profile?.studioName ?? user.name}
+            </Link>
           </p>
           <p className="truncate text-xs text-muted-foreground">
             Led by {user.name}

@@ -6,8 +6,6 @@ import {
   ArrowRight,
   CalendarClock,
   CheckCircle2,
-  Download,
-  ExternalLink,
   Gift,
   Lock,
   Target,
@@ -22,6 +20,7 @@ import {
 } from "@/lib/hooks/use-grogu";
 import { useHydrated } from "@/lib/hooks/use-hydrated";
 import { useSession } from "@/lib/hooks/use-session";
+import { useGroguStore } from "@/lib/store/grogu-store";
 import { testsService } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { EmptyState, PageSkeleton } from "@/components/ui/states";
@@ -31,6 +30,8 @@ import { useToast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/layout/page-header";
 import { GameArt } from "@/components/games/game-cover";
 import { TaskList } from "@/components/playtests/task-list";
+import { AccessPanel } from "@/components/tests/access-panel";
+import { TesterReviewOutcome } from "@/components/feedback/review-panel";
 import { WorkflowStepper } from "@/components/tests/workflow-stepper";
 
 /** One numbered step of the workspace. Locked steps explain why they're locked. */
@@ -87,6 +88,9 @@ export function Workspace({ playtestId }: { playtestId: string }) {
   const playtest = usePlaytest(playtestId);
   const application = useTesterApplication(user?.id, playtestId);
   const progress = useTestProgress(user?.id, playtestId);
+  const myFeedback = useGroguStore((s) =>
+    s.feedback.find((f) => f.playtestId === playtestId && f.testerId === user?.id),
+  );
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -120,7 +124,7 @@ export function Workspace({ playtestId }: { playtestId: string }) {
     try {
       await testsService.downloadBuild(playtestId, user!.id);
       toast({
-        title: "Build unlocked",
+        title: "Tasks unlocked",
         description: "You can start working through the tasks now.",
       });
     } finally {
@@ -175,7 +179,7 @@ export function Workspace({ playtestId }: { playtestId: string }) {
           steps={[
             {
               label: "Get the build",
-              hint: buildDownloaded ? "Downloaded" : "Not downloaded yet",
+              hint: buildDownloaded ? "Received" : "Not received yet",
               done: buildDownloaded,
             },
             {
@@ -203,30 +207,13 @@ export function Workspace({ playtestId }: { playtestId: string }) {
                 : "Download the current build and keep it updated during the test."
             }
           >
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                onClick={handleDownload}
-                loading={downloading}
-                disabled={buildDownloaded}
-                variant={buildDownloaded ? "secondary" : "primary"}
-              >
-                {buildDownloaded ? (
-                  <>
-                    <CheckCircle2 /> Build downloaded
-                  </>
-                ) : (
-                  <>
-                    <Download /> Download build
-                  </>
-                )}
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <a href={playtest.buildUrl} target="_blank" rel="noreferrer">
-                  Build page <ExternalLink className="size-3.5" />
-                </a>
-              </Button>
-            </div>
-            <p className="mt-3 text-xs text-subtle-foreground">
+            <AccessPanel
+              playtest={playtest}
+              downloaded={buildDownloaded}
+              busy={downloading}
+              onOpen={handleDownload}
+            />
+            <p className="mt-4 text-xs text-subtle-foreground">
               Build {playtest.game.buildVersion} · updated{" "}
               {formatDate(playtest.game.updatedAt)}
             </p>
@@ -257,7 +244,7 @@ export function Workspace({ playtestId }: { playtestId: string }) {
                 />
               ) : (
                 <p className="rounded-lg border border-border bg-elevated px-3.5 py-3 text-sm text-muted-foreground">
-                  Download the build above to start checking off tasks.
+                  Get the build above to start checking off tasks.
                 </p>
               )}
             </div>
@@ -269,17 +256,20 @@ export function Workspace({ playtestId }: { playtestId: string }) {
             locked={!requiredDone && !feedbackSubmitted}
           >
             {feedbackSubmitted ? (
-              <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success/10 p-3.5">
-                <CheckCircle2
-                  className="mt-0.5 size-4 shrink-0 text-success"
-                  aria-hidden
-                />
-                <div className="text-sm">
-                  <p className="font-medium text-foreground">Feedback submitted</p>
-                  <p className="text-muted-foreground">
-                    Thanks — {playtest.developer.name} can see your report now.
-                  </p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success/10 p-3.5">
+                  <CheckCircle2
+                    className="mt-0.5 size-4 shrink-0 text-success"
+                    aria-hidden
+                  />
+                  <div className="text-sm">
+                    <p className="font-medium text-foreground">Feedback submitted</p>
+                    <p className="text-muted-foreground">
+                      Thanks — {playtest.developer.name} can see your report now.
+                    </p>
+                  </div>
                 </div>
+                {myFeedback && <TesterReviewOutcome feedback={myFeedback} />}
               </div>
             ) : (
               <div className="space-y-3">

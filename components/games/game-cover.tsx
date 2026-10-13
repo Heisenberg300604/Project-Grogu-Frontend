@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { assetUrl } from "@/lib/assets";
 import type { Game, GameGenre } from "@/lib/types";
 
 /**
@@ -10,8 +11,8 @@ import type { Game, GameGenre } from "@/lib/types";
  * server and client render byte-identical SVG and each game keeps the same
  * artwork on every visit.
  *
- * If a real `coverImageUrl` is added later it wins — the generator is only a
- * stand-in, never a replacement.
+ * An uploaded poster (`coverImageUrl`) wins when present and loadable; the
+ * generator is the fallback for games without one.
  */
 
 type Motif = "ridge" | "shards" | "grid" | "contour" | "orbit" | "fog";
@@ -280,11 +281,12 @@ export function GameCover({
   className?: string;
   scrim?: boolean;
 }) {
-  if (game.coverImageUrl) {
+  const poster = assetUrl(game.coverImageUrl);
+  if (poster) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={game.coverImageUrl}
+        src={poster}
         alt={`${game.title} cover art`}
         className={cn("h-full w-full object-cover", className)}
       />

@@ -21,7 +21,15 @@ import type {
   PlaytestWithRelations,
   User,
 } from "@/lib/types";
-import { computeAnalytics, joinPlaytest, joinPlaytests } from "@/lib/domain";
+import {
+  computeAnalytics,
+  joinPlaytest,
+  joinPlaytests,
+  joinStudios,
+  joinTesters,
+  type StudioDirectoryEntry,
+  type TesterDirectoryEntry,
+} from "@/lib/domain";
 import {
   type BootstrapSnapshot,
   EMPTY_SNAPSHOT,
@@ -29,16 +37,25 @@ import {
 } from "@/lib/services/bootstrap";
 
 /**
- * One fetch per render pass. Next.js dedupes identical `fetch` calls within a
- * request, and a short revalidate window keeps the marketing pages from hitting
- * the API on every visit while still reflecting new playtests promptly.
+ * The anonymous snapshot, cached on the server for a minute.
+ *
+ * Server-side calls never carry a bearer token, so every visitor gets the same
+ * public document and it can be shared. Without the cache each page view waits
+ * for the API, which on a free host can take most of a minute after it has been
+ * idle. The client refreshes the store on every load, so signed-in users still
+ * see current data; the minute only affects the first paint.
  *
  * A failed load degrades to empty collections rather than throwing: a marketing
  * page with no featured games still renders, an error page helps nobody.
  */
+const SNAPSHOT_REVALIDATE_SECONDS = 60;
+
 async function snapshot(): Promise<BootstrapSnapshot> {
   try {
-    return await fetchBootstrap({ cache: "no-store" });
+    return await fetchBootstrap({
+      cache: "force-cache",
+      revalidate: SNAPSHOT_REVALIDATE_SECONDS,
+    });
   } catch (error) {
     // Server-rendered marketing pages must still render when the API is down or
     // misconfigured, so this degrades to empty rather than throwing. One line,
@@ -107,6 +124,22 @@ export async function getDeveloperProfile(userId: string) {
   const profile = developerProfiles.find((p) => p.userId === userId);
   if (!user || !profile) return undefined;
   return { user, profile };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Directory                                                                  */
+/* -------------------------------------------------------------------------- */
+
+/** Every tester with a public profile. */
+export async function getTesterDirectory(): Promise<TesterDirectoryEntry[]> {
+  const { users, testerProfiles } = await snapshot();
+  return joinTesters(users, testerProfiles);
+}
+
+/** Every studio with a public profile. */
+export async function getStudioDirectory(): Promise<StudioDirectoryEntry[]> {
+  const { users, developerProfiles } = await snapshot();
+  return joinStudios(users, developerProfiles);
 }
 
 /* -------------------------------------------------------------------------- */

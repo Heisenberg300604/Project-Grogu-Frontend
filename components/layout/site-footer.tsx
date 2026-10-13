@@ -10,6 +10,7 @@ const FOOTER_SECTIONS: { title: string; links: { label: string; href: string }[]
       title: "Testers",
       links: [
         { label: "Discover playtests", href: "/discover" },
+        { label: "Browse testers", href: "/testers" },
         { label: "Your applications", href: "/applications" },
         { label: "Tester profile", href: "/profile" },
       ],
@@ -18,6 +19,7 @@ const FOOTER_SECTIONS: { title: string; links: { label: string; href: string }[]
       title: "Developers",
       links: [
         { label: "For developers", href: "/developers" },
+        { label: "Browse studios", href: "/studios" },
         { label: "Developer dashboard", href: "/developer/dashboard" },
         { label: "Create a playtest", href: "/developer/playtests/new" },
       ],

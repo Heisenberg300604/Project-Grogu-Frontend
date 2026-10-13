@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/layout/page-header";
 import { GameArt } from "@/components/games/game-cover";
+import { PosterUpload } from "@/components/uploads/poster-upload";
 
 const HUES = [190, 130, 25, 95, 275, 320, 210, 0, 50, 160];
 const STATUSES = Object.keys(GAME_STATUS_LABELS) as GameStatus[];
@@ -78,6 +79,9 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(
+    initialGame?.coverImageUrl ?? null,
+  );
   const toast = useToast();
   const isEdit = Boolean(initialGame);
 
@@ -129,6 +133,8 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
         status: values.status,
         buildVersion: values.buildVersion,
         accentHue: values.accentHue,
+        // null removes an existing poster; the server keeps it when the key is absent.
+        coverImageUrl,
       };
       if (initialGame) {
         await gamesService.updateGame(initialGame.id, input);
@@ -306,6 +312,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                 title: title || "Your game",
                 accentHue: hue,
                 genres: genres as GameGenre[],
+                coverImageUrl: coverImageUrl ?? undefined,
               }}
               ratio="16/10"
               scrim
@@ -314,10 +321,15 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                 {title || "Your game"}
               </p>
             </GameArt>
-            <p className="p-4 text-xs text-muted-foreground">
-              Cover art is generated from the accent colour and the game&apos;s
-              first genre.
-            </p>
+            <div className="space-y-3 p-4">
+              <p className="text-label text-subtle-foreground">Poster</p>
+              <PosterUpload value={coverImageUrl} onChange={setCoverImageUrl} />
+              <p className="text-xs text-muted-foreground">
+                {coverImageUrl
+                  ? "Your poster is used on cards and the playtest page."
+                  : "Without a poster, cover art is generated from the accent colour and the game's first genre."}
+              </p>
+            </div>
           </div>
 
           <div className="rounded-xl border border-border bg-surface p-4">

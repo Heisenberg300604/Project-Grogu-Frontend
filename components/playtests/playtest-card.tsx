@@ -21,10 +21,13 @@ export function PlaytestCard({
   playtest,
   href,
   className,
+  footer,
 }: {
   playtest: PlaytestWithRelations;
   href?: string;
   className?: string;
+  /** Extra non-interactive detail under the card, such as why it is recommended. */
+  footer?: React.ReactNode;
 }) {
   const link = href ?? `/playtests/${playtest.id}`;
   const { spotsLeft, isFull, isNearlyFull } = playtestCapacity(playtest);
@@ -105,6 +108,8 @@ export function PlaytestCard({
         <p className="text-xs text-subtle-foreground">
           {formatDeadline(playtest.closesAt)}
         </p>
+
+        {footer}
       </div>
     </article>
   );

@@ -12,13 +12,19 @@ import type {
   DeveloperProfile,
   Feedback,
   Game,
+  GameKey,
+  LedgerEntry,
   Notification,
   Playtest,
+  ReputationEvent,
+  ReputationLevel,
+  ReputationRule,
   Session,
   TestProgress,
   TesterProfile,
   User,
   UserRole,
+  Wallet,
 } from "@/lib/types";
 
 import { apiBaseUrl } from "@/lib/config";
@@ -39,6 +45,18 @@ export interface BootstrapSnapshot {
   notifications: Notification[];
   /** Platform-wide totals for the marketing pages; always public. */
   stats: PlatformStats;
+  /** The signed-in studio's key inventory. Empty for everyone else. */
+  gameKeys: GameKey[];
+  /** The viewer's own money ledger. */
+  ledgerEntries: LedgerEntry[];
+  /** The signed-in tester's balance and UPI id; null for anyone else. */
+  wallet: Wallet | null;
+  /** The viewer's own reputation history. */
+  reputationEvents: ReputationEvent[];
+  /** Public: how reputation is earned. */
+  reputationRules: ReputationRule[];
+  /** Public: the level thresholds. */
+  reputationLevels: ReputationLevel[];
 }
 
 export interface PlatformStats {
@@ -60,16 +78,24 @@ export const EMPTY_SNAPSHOT: BootstrapSnapshot = {
   testProgress: [],
   notifications: [],
   stats: { games: 0, activePlaytests: 0, testers: 0, feedbackSubmitted: 0 },
+  gameKeys: [],
+  ledgerEntries: [],
+  wallet: null,
+  reputationEvents: [],
+  reputationRules: [],
+  reputationLevels: [],
 };
 
 export async function fetchBootstrap(options?: {
   signal?: AbortSignal;
   cache?: RequestCache;
+  revalidate?: number;
 }): Promise<BootstrapSnapshot> {
   try {
     return await apiFetch<BootstrapSnapshot>("/api/v1/bootstrap", {
       signal: options?.signal,
       cache: options?.cache,
+      revalidate: options?.revalidate,
     });
   } catch (error) {
     // A 404 on this endpoint is never a missing record — the route itself is

@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
+import { assetUrl } from "@/lib/assets";
 import { cn } from "@/lib/utils";
 
 export const Avatar = React.forwardRef<
@@ -47,7 +48,10 @@ export const AvatarFallback = React.forwardRef<
 ));
 AvatarFallback.displayName = "AvatarFallback";
 
-/** Convenience: initials avatar for a named user. */
+/**
+ * Convenience: initials avatar for a named user. `src` is a stored avatar link
+ * (an `/uploads/...` path or an https URL); anything else shows the initials.
+ */
 export function UserAvatar({
   name,
   src,
@@ -62,9 +66,10 @@ export function UserAvatar({
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+  const imageSrc = assetUrl(src);
   return (
     <Avatar className={className}>
-      {src ? <AvatarImage src={src} alt="" /> : null}
+      {imageSrc ? <AvatarImage src={imageSrc} alt="" /> : null}
       <AvatarFallback aria-hidden>{initials || "?"}</AvatarFallback>
     </Avatar>
   );

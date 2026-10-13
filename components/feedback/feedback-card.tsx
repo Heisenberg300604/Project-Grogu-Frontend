@@ -2,10 +2,12 @@ import { Bug, Clock, ThumbsDown, ThumbsUp } from "lucide-react";
 
 import { formatRelativeTime } from "@/lib/utils";
 import { overallRating } from "@/lib/domain";
+import { REVIEW_STATUS_META } from "@/lib/constants";
 import type { Feedback, User } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/ui/avatar";
 import { RatingStars } from "@/components/feedback/rating";
+import { MediaGallery } from "@/components/uploads/media-gallery";
 
 const SENTIMENT_TONE = {
   positive: "success",
@@ -45,14 +47,21 @@ function Points({
   );
 }
 
-/** One tester's feedback report. `tester` omitted → anonymised. */
+/**
+ * One tester's feedback report. `tester` omitted → anonymised. `footer` holds
+ * the review controls or outcome for whoever is looking.
+ */
 export function FeedbackCard({
   feedback,
   tester,
+  footer,
 }: {
   feedback: Feedback;
   tester?: User;
+  footer?: React.ReactNode;
 }) {
+  const review = REVIEW_STATUS_META[feedback.reviewStatus];
+
   return (
     <article className="space-y-4 rounded-xl border border-border bg-surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -74,6 +83,7 @@ export function FeedbackCard({
           <Badge tone={SENTIMENT_TONE[feedback.sentiment]}>
             {feedback.sentiment}
           </Badge>
+          <Badge tone={review.tone}>{review.label}</Badge>
         </div>
 
         <div className="flex shrink-0 items-center gap-2.5">
@@ -110,6 +120,8 @@ export function FeedbackCard({
         items={feedback.bugs}
       />
 
+      <MediaGallery media={feedback.media ?? []} />
+
       <dl className="flex flex-wrap gap-x-5 gap-y-1 border-t border-border pt-3 text-xs text-subtle-foreground">
         <div className="flex items-center gap-1.5">
           <Clock className="size-3" aria-hidden />
@@ -125,6 +137,8 @@ export function FeedbackCard({
           </dd>
         </div>
       </dl>
+
+      {footer}
     </article>
   );
 }

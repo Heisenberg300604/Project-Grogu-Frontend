@@ -56,6 +56,12 @@ import { GameArt } from "@/components/games/game-cover";
 
 const TASK_TYPES = Object.keys(TASK_TYPE_LABELS) as TaskType[];
 
+/**
+ * Reputation is unbounded points, not a 0–100 score. The cap only stops
+ * typos; 1000 is well past the top level threshold.
+ */
+const MAX_MIN_REPUTATION = 1000;
+
 const taskSchema = z.object({
   taskId: z.string().optional(),
   title: z.string().trim().min(3, "Name the task."),
@@ -75,11 +81,23 @@ const schema = z.object({
   minExperienceLevel: z.enum(EXPERIENCE_OPTIONS as [string, ...string[]]),
   platforms: z.array(z.string()).min(1, "Pick at least one platform."),
   languages: z.string().trim().min(2, "e.g. English"),
-  minReputation: z.coerce.number().int().min(0).max(100),
+  minReputation: z.coerce.number().int().min(0).max(MAX_MIN_REPUTATION),
   estimatedHours: z.coerce.number().min(0.5).max(60),
   ndaRequired: z.boolean(),
   reward: z.string().trim().min(3, "What do testers get? (reputation counts)"),
   maxTesters: z.coerce.number().int().min(1).max(500),
+  buildUrl: z
+    .string()
+    .trim()
+    .refine(
+      (v) => v === "" || /^https?:\/\/\S+$/i.test(v),
+      "Enter a full link, starting with http:// or https://.",
+    ),
+  installInstructions: z
+    .string()
+    .trim()
+    .max(4000, "Keep the instructions under 4,000 characters."),
+  accessKey: z.string().trim().max(200, "Keep the key under 200 characters."),
   tasks: z.array(taskSchema).min(1, "Add at least one task."),
   publish: z.boolean(),
 });
@@ -99,7 +117,7 @@ const STEP_FIELDS: FieldPath<FormValues>[][] = [
   ["gameId"],
   ["title", "summary", "goals", "focusAreas", "estimatedHours", "maxTesters", "closesAt"],
   ["minExperienceLevel", "platforms", "languages", "minReputation"],
-  ["tasks", "reward"],
+  ["tasks", "reward", "buildUrl", "installInstructions", "accessKey"],
   [],
 ];
 
@@ -279,6 +297,9 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
       ndaRequired: initialPlaytest?.requirements.ndaRequired ?? false,
       reward: initialPlaytest?.reward ?? "Grogu reputation",
       maxTesters: initialPlaytest?.maxTesters ?? 20,
+      buildUrl: initialPlaytest?.buildUrl ?? "",
+      installInstructions: initialPlaytest?.installInstructions ?? "",
+      accessKey: initialPlaytest?.accessKey ?? "",
       tasks: [
         ...(initialPlaytest?.tasks.map(({ id, ...task }) => ({
           ...task,
@@ -380,6 +401,9 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
           reward: values.reward,
           maxTesters: Number(values.maxTesters),
           closesAt: new Date(values.closesAt).toISOString(),
+          buildUrl: values.buildUrl,
+          installInstructions: values.installInstructions,
+          accessKey: values.accessKey,
         };
 
         if (initialPlaytest) {
@@ -658,14 +682,14 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
                 <Field
                   label="Minimum reputation"
                   htmlFor="pt-rep"
-                  hint="0–100. Higher means fewer but more proven applicants."
+                  hint="0 accepts everyone. Testers start at 0 and earn reputation by testing; higher means fewer but more proven applicants."
                   error={errors.minReputation?.message}
                 >
                   <Input
                     id="pt-rep"
                     type="number"
                     min={0}
-                    max={100}
+                    max={MAX_MIN_REPUTATION}
                     {...register("minReputation")}
                   />
                 </Field>
@@ -728,6 +752,55 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
                   {...register("reward")}
                 />
               </Field>
+            </StepPanel>
+
+            <StepPanel
+              title="How testers get the game"
+              description="Shown only to testers you accept. You can leave this blank and add it from the playtest page later."
+            >
+              <div className="space-y-5">
+                <Field
+                  label="Build or download link"
+                  htmlFor="pt-build"
+                  hint="A Steam beta, itch.io, TestFlight or direct download link."
+                  error={errors.buildUrl?.message}
+                >
+                  <Input
+                    id="pt-build"
+                    type="url"
+                    inputMode="url"
+                    placeholder="https://"
+                    aria-invalid={!!errors.buildUrl}
+                    {...register("buildUrl")}
+                  />
+                </Field>
+                <Field
+                  label="Access key or password"
+                  htmlFor="pt-key"
+                  hint="If your build needs one. Every accepted tester sees the same key."
+                  error={errors.accessKey?.message}
+                >
+                  <Input
+                    id="pt-key"
+                    autoComplete="off"
+                    aria-invalid={!!errors.accessKey}
+                    {...register("accessKey")}
+                  />
+                </Field>
+                <Field
+                  label="Install instructions"
+                  htmlFor="pt-install"
+                  hint="How to install and launch the build, and anything testers should know first."
+                  error={errors.installInstructions?.message}
+                >
+                  <Textarea
+                    id="pt-install"
+                    rows={4}
+                    aria-invalid={!!errors.installInstructions}
+                    {...register("installInstructions")}
+                  />
+                </Field>
+              </div>
             </StepPanel>
 
             <StepPanel
@@ -925,6 +998,19 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
                   }`}
                 />
                 <ReviewRow label="Reward" value={values.reward} />
+                <ReviewRow
+                  label="Game access"
+                  value={
+                    [
+                      values.buildUrl && "Link provided",
+                      values.accessKey && "Access key set",
+                      values.installInstructions && "Install notes added",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ") ||
+                    "Not set yet — add it from the playtest page before accepting testers"
+                  }
+                />
                 <ReviewRow
                   label="Commitment"
                   value={`~${values.estimatedHours}h · ${values.tasks.length} ${
