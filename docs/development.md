@@ -21,12 +21,38 @@ npm run dev         # http://localhost:3000 (next free port if taken)
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint (`eslint-config-next`) |
 | `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Vitest unit tests (`lib/**/*.test.ts`) for the pure domain logic |
 
 Run before committing:
 
 ```bash
-npm run lint && npm run typecheck && npm run build
+npm run lint && npm run typecheck && npm test && npm run build
 ```
+
+## Local backend and database
+
+The API and a throwaway PostgreSQL run from `docker-compose.yml` in the folder
+above this repo (the one that holds both projects):
+
+```bash
+docker compose up -d --build                 # db on :5433, api on :8080
+Project-Grogu-Backend/db/apply.sh migrations
+Project-Grogu-Backend/db/apply.sh seed       # 26 testers, 4 studios, 12 games, 15 playtests
+```
+
+If another container already holds port 8080, start the API on another port and
+point the frontend at it in `.env.local`:
+
+```bash
+API_PORT=8081 docker compose up -d api
+# .env.local
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8081
+```
+
+Seeded logins use the password `playtest`: `priya.nair@example.com` (tester),
+`mara@driftwoodgames.dev` (developer), plus any `@example.com` address in the
+seed. `docker compose down -v` resets the database. See the backend README for
+the seed contents and the SQL tests (`db/apply.sh tests`).
 
 ## Trying the prototype
 

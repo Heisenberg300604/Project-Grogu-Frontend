@@ -72,18 +72,31 @@ flowchart LR
 
 ### Tester workspace
 
-- Dashboard, applications with withdrawal, accepted tests, and testing progress.
+- Dashboard with reputation, level and progress to the next level, plus counts,
+  continue-testing and recent applications.
+- Applications with withdrawal, accepted tests, and testing progress.
 - Workspace progression from build download to task checklist to feedback submission.
-- Structured feedback with five ratings, sentiment, summary, highlights, pain points, bugs, task answers, recommendation, and hours played.
-- Tester profile and editable preferences, experience, platforms, genres, languages, and availability.
-- Rewards view for reward-related testing context. Payment or reward fulfilment is not integrated.
+- Build link, install notes and access key, shown only once the tester is accepted.
+- Structured feedback with five ratings, sentiment, summary, highlights, pain points, bugs, task answers, recommendation, hours played, and up to six screenshots or recordings.
+- Rewards page: the UPI balance (a ledger, with no payout yet), level and level
+  ladder, the ways to earn reputation, each review's studio decision, and the
+  reputation history.
+- Profile with a profile picture upload, a UPI id (visible only to the tester),
+  and editable preferences, experience, platforms, genres, languages and availability.
+- Notifications for application decisions, review decisions, game keys, level-ups and studio invites.
+- **Recommended for you** on the dashboard: open playtests the tester qualifies for, best match first, each with why it fits. Playtests a studio invited them to rank higher.
+
 
 ### Developer workspace
 
 - Dashboard with studio stats, active playtests, roster progress, and recent feedback.
+- Game poster upload, and a reward-key inventory on each game (paste keys, remove unused ones).
 - Game catalogue with create/edit flows, deterministic procedural cover art, and metadata.
 - Playtest catalogue with status views and a multi-step create/edit-draft wizard.
 - Playtest management tabs for overview, applicants, testers, feedback, and analytics.
+- Feedback review: approve a submission with a reputation bonus, a cash amount, a game key and a note, or reject it with a reason. Approval is final and happens once.
+- Feedback summary per playtest: an AI summary written by Gemini when a key is set, or an automatic summary computed from the reviews. See [AI features](#ai-features).
+- Suggested testers on a recruiting playtest's Applicants tab: testers who meet the requirements and haven't applied, best fit first, with the reasons they fit and an **Invite** button that sends them a notification.
 - Applicant decisions and playtest lifecycle status controls.
 - Per-playtest and cross-playtest analytics using Recharts, including ratings, sentiment, bugs, pain points, response rate, and playtime.
 - Studio profile and editable studio details.
@@ -148,7 +161,12 @@ The frontend uses these v1 endpoints through `lib/services/http.ts`:
 | Applications | `POST /api/v1/applications/{id}/withdraw`, `POST /api/v1/applications/{id}/decision` |
 | Tester tests | `POST /api/v1/tests/{playtestId}/download`, `POST /api/v1/tests/{playtestId}/tasks/{taskId}/toggle`, `POST /api/v1/tests/{playtestId}/feedback` |
 | Notifications | `POST /api/v1/notifications/{id}/read`, `POST /api/v1/notifications/read-all` |
-| Profiles | `PATCH /api/v1/profile` |
+| Profiles | `PATCH /api/v1/profile` (including `upiId` and `avatarUrl`) |
+| Uploads | `POST /api/v1/uploads?kind=poster\|review-media\|avatar` |
+| Feedback review | `POST /api/v1/feedback/{id}/review` |
+| Game keys | `POST /api/v1/games/{id}/keys`, `DELETE /api/v1/games/{id}/keys/{keyId}` |
+| Feedback summary | `GET` and `POST /api/v1/playtests/{id}/insights` |
+| Matching | `GET` and `POST /api/v1/playtests/{id}/suggestions`, `POST /api/v1/playtests/{id}/invites`, `GET` and `POST /api/v1/recommendations` |
 
 Errors are returned as `{ "message": "...", "code": "..." }` and mapped to `ServiceError`. Database functions enforce playtest ownership, accepted-roster access, capacity limits, lifecycle transitions, and one feedback submission per tester per playtest.
 
@@ -168,7 +186,7 @@ Errors are returned as `{ "message": "...", "code": "..." }` and mapped to `Serv
 | API documentation | Swagger/OpenAPI exposed by the backend |
 | Tooling | npm, ESLint, TypeScript, GitHub Actions |
 
-No payment provider, email provider, realtime service, image host, or AI service is required by the current frontend workflow.
+No payment provider, email provider, realtime service or image host is required. The AI feedback summary is optional: without a Gemini key on the API it uses an automatic summary instead.
 
 ## Project Structure
 
@@ -204,48 +222,23 @@ The frontend route groups are `(marketing)`, `(auth)`, `(tester)`, and `(develop
 - A PostgreSQL database. Neon is supported, but any compatible PostgreSQL instance can be used locally.
 - `psql` or another PostgreSQL client to apply migrations.
 
-### 1. Configure and start the backend
+### 1. Start the database and the API
 
-From the repository root:
-
-```bash
-cd Grogu_backend
-export ConnectionStrings__NeonDBConnection="your-postgres-connection-string"
-export Jwt__Key="your-random-signing-key-at-least-32-characters"
-export Cors__AllowedOrigins__0="http://localhost:3000"
-```
-
-Apply the ordered migrations before starting the API:
+The database and API run from the `docker-compose.yml` in the Grogu folder, one
+level above this repository. They are described step by step in the backend
+README, section **Local database and API (development)**. In short:
 
 ```bash
-for migration in db/migrations/*.sql; do
-  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$migration" || break
-done
+cd "/d/Vibe Code Startups/Grogu"
+API_PORT=8081 docker compose up -d --build
+Project-Grogu-Backend/db/apply.sh migrations   # first run, empty database only
+Project-Grogu-Backend/db/apply.sh seed         # dev accounts and content
 ```
 
-Use your own `DATABASE_URL` or replace it with the connection variable used by your PostgreSQL client. Do not commit connection strings or signing keys.
+The API then answers on `http://localhost:8081`. Use 8081 because another
+container may already hold 8080.
 
-Run with the .NET SDK:
-
-```bash
-dotnet run --project Grogu_backend
-```
-
-The development API normally listens on `http://localhost:5000`. Swagger is available at `/swagger`, and the health endpoint is `/api/health`.
-
-Alternatively, build and run the backend container on port 8080:
-
-```bash
-docker build -t grogu-backend .
-docker run --rm -p 8080:80 \
-  -e ConnectionStrings__NeonDBConnection="your-postgres-connection-string" \
-  -e Jwt__Key="your-random-signing-key-at-least-32-characters" \
-  grogu-backend
-```
-
-Migration `004_demo_accounts.sql` seeds the demo login actions shown in the frontend and initial public data for a fresh database.
-
-### 2. Configure and start the frontend
+### 2. Start the frontend
 
 In a second terminal:
 
@@ -254,22 +247,30 @@ cd Project-Grogu-Frontend
 npm install
 ```
 
-The frontend reads one public configuration value:
+The frontend reads its API address from `.env.local`. Create that file (it is
+git-ignored) with:
 
 ```bash
-# .env.local (optional; do not commit this file)
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8081
 ```
 
-Use `http://localhost:5000` instead when running the backend with `dotnet run`. `.env.local` overrides the other env files. `NEXT_PUBLIC_API_BASE_URL` is intentionally public because the browser calls the API directly; database credentials and JWT keys must never be placed in it.
+`.env.local` overrides the other env files. `NEXT_PUBLIC_API_BASE_URL` is public
+on purpose, because the browser calls the API directly. Never put a database
+URL, a JWT key, or the Gemini key in a `NEXT_PUBLIC_*` variable.
 
-Start the frontend:
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`. The login page provides seeded demo-account actions after the backend migrations are present, or you can create a tester or developer account through signup.
+Open `http://localhost:3000`. The API allows requests from ports 3000 and 3001.
+Demo logins (password `playtest`) are on the login screen: `priya.nair@example.com`
+for a tester and `mara@driftwoodgames.dev` for a developer. Any seeded
+`@example.com` address also works.
+
+To test a production build instead, run `npm run build` and then `npm run start`
+on port 3000, or `npx next start -p 3001` to keep 3000 free.
 
 ### Frontend commands
 
@@ -286,6 +287,41 @@ Before opening a pull request, run:
 ```bash
 npm run lint && npm run typecheck && npm run build
 ```
+
+## AI features
+
+Studios see a summary of their playtest's feedback on the **Analytics** tab, and
+on the Analytics page once one playtest is selected. It shows the overall mood,
+top highlights, what testers like and dislike, bugs, and suggested next steps.
+
+- With a Gemini key on the API, the summary is written by Gemini and labelled
+  **AI summary**. It is refreshed when new feedback arrives. The studio can press
+  **Update summary** to refresh it sooner.
+- Without a key, or when Gemini is unavailable, the summary is computed from the
+  reviews and labelled **Automatic summary**. A note explains why when the AI
+  was tried and failed.
+- The panel never shows an error because the AI failed. It only shows an error
+  if the summary itself cannot be loaded.
+
+**Matching.** Studios see **Suggested testers** on a recruiting playtest's
+Applicants tab, and testers see **Recommended for you** on their dashboard. The
+server decides who qualifies (platform, language, minimum experience and
+reputation, not already applied, playtest still open) and scores each match from
+0 to 100 with up to three reasons. With a key, Gemini re-orders the top of the
+list and adds one line per entry, labelled **AI-ranked**; it can never add
+anyone. Without a key the list is labelled **Rule-based order**. A studio can
+invite a suggested tester, who gets a notification and sees the playtest marked
+**Invited**.
+
+Setting the key up, the settings, the scoring weights and the notices are
+described in the backend README, section **AI feedback summaries and matching
+(Gemini)**.
+
+Frontend code: `components/feedback/insights-panel.tsx`,
+`components/developer/suggested-testers.tsx`, `components/tester/recommended-playtests.tsx`,
+the shared `lib/hooks/use-ai-resource.ts` (load, then AI-refresh once per visit
+when stale), `lib/services/insights.ts` and `lib/services/matching.ts`, and the
+pure helpers in `lib/insights.ts` and `lib/matching.ts`.
 
 ## Configuration and Security
 
@@ -304,27 +340,27 @@ Backend configuration:
 | `Jwt__Issuer` | No | JWT issuer; defaults to `grogu-backend` |
 | `Jwt__Audience` | No | JWT audience; defaults to `grogu-frontend` |
 | `Cors__AllowedOrigins__0`, `__1`, ... | Deployed frontend | Allowed browser origins; local ports 3000 and 3001 are allowed by default |
+| `Gemini__ApiKey` | Optional | Gemini key for AI feedback summaries and match rankings. Server-side only. Without it, summaries are computed automatically and matches keep their rule-based order. See the backend README |
 
 Never commit connection strings, JWT signing keys, deployment hooks, or other credentials.
 
-## Current Limitations
+## Current Limitations (not yet built)
 
-- The playtest form does not currently collect a `buildUrl`; "download build" records progress but does not host or deliver a build.
-- Game covers and avatars use deterministic procedural rendering when no image URL exists. There is no image upload or asset-hosting flow.
-- Notifications are persisted in-app rows only. Email and push delivery are not implemented.
-- Rewards are represented as playtest data; payment processing and fulfilment are not implemented.
-- The frontend refreshes one complete bootstrap snapshot. Larger datasets will need pagination, query caching, or more focused endpoints.
-- There is no realtime chat, admin dashboard, or recommendation engine beyond the current discovery filters.
+- Build hosting: studios link to their own build; Grogu does not host or deliver builds.
+- Game keys are not emailed. Testers are told to check their email, and the studio sees which key to send. Email delivery is not built.
+- Rewards are records only: the cash balance is a ledger, and there is no payment or payout.
+- Uploaded files are stored on the API's local disk. A production storage provider has not been chosen.
+- Frontend reads one bootstrap snapshot. Larger datasets will need pagination and more focused endpoints.
+- There is no realtime chat or admin dashboard.
 
 ## Future Scope
 
-1. Add a build URL or secure build delivery service to the playtest workflow.
-2. Add image upload and storage for game covers and avatars.
-3. Add tester/developer messaging scoped to a playtest.
-4. Add email or push delivery for existing notification events.
-5. Move to a query cache and paginated, view-specific reads as usage grows.
-6. Add payment and reward fulfilment integrations with appropriate compliance controls.
-7. Add optional feedback analysis or matching capabilities behind explicit backend APIs.
+1. Production file storage for uploads and review media.
+2. Email or push delivery for notification events and game keys.
+3. Payment and payout integrations, with appropriate compliance controls.
+4. Tester–developer messaging scoped to a playtest.
+5. Query caching and paginated, view-specific reads as usage grows.
+6. Learning match weights from outcomes (who gets accepted, who finishes, whose reviews are approved) instead of setting them by hand.
 
 ## Contributing
 

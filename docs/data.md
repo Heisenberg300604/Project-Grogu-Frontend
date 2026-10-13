@@ -21,9 +21,60 @@ caller's bearer token:
 | `testProgress` | The caller's own, plus that on playtests they own | private |
 | `notifications` | The caller's own only | private |
 | `stats` | Platform totals for the marketing pages | public |
+| `gameKeys` | Reward keys, codes included, for games the caller owns | private |
+| `ledgerEntries` | The caller's own money ledger | private |
+| `wallet` | `{ balance, upiId }` for a signed-in tester, otherwise `null` | private |
+| `reputationEvents` | The caller's own reputation history | private |
+| `reputationRules` | How reputation is earned, with amounts | public |
+| `reputationLevels` | Level thresholds | public |
 
-An anonymous request returns the public rows only, with all four private
-collections empty. That is what the marketing and discover pages render.
+An anonymous request returns the public rows only, with every private
+collection empty.
+
+## Feedback insights
+
+A playtest's feedback summary (`PlaytestInsight`) is **not** in the bootstrap. It
+is fetched per playtest, by the studio that owns it, from
+`GET /api/v1/playtests/{id}/insights` and held in the store's `insights`
+collection (`insightsService.loadInsight`). `refreshInsight` (POST) asks the
+server for a new AI summary, which it writes only when feedback has arrived since
+the last one.
+
+- `source` is `"ai"` (a cached Gemini summary) or `"rules"` (computed from the
+  feedback by the server). The shape is the same for both.
+- Sentiment counts always come from the feedback rows, never from the model.
+- `stale` means newer feedback exists than the shown summary covers (or no AI
+  summary exists yet); `aiEnabled` says whether the server can write one at all;
+  `notice` is the reason a fresh AI summary was not produced.
+- The panel never treats an AI failure as an error: the server falls back and
+  says why. Only a failure to load the summary at all is an error state.
+
+## Matching
+
+`TesterSuggestions` (studio side, per playtest) and `PlaytestRecommendations`
+(tester side) are not in the bootstrap either. They are fetched on demand by
+`matchingService` into the store's `testerSuggestions` and
+`playtestRecommendations` collections.
+
+- The server decides eligibility and the 0–100 `score`; `reasons` are its
+  strongest factors. Never filter or re-score on the client.
+- `source` is `"ai"` when Gemini re-ordered the list and added `aiReason`, or
+  `"rules"`. Gemini cannot add entries.
+- `invited` marks a studio invitation (`matchingService.inviteTester`).
+- `stale`, `aiEnabled` and `notice` mean what they mean for insights.
+
+## Rewards and reputation
+
+- A review (`Feedback.reviewStatus`) goes `submitted` → `approved` or
+  `rejected`, once, decided by the studio that owns the playtest
+  (`feedbackService.reviewFeedback`). `Feedback.rewards` is what approval granted.
+- Money is a ledger: the balance is the sum of `ledgerEntries`, computed by the
+  server as `wallet.balance`. There is no stored balance and no payout.
+- `TesterProfile.reputation` is unbounded points: the sum of the tester's
+  reputation events. `level`, `levelTitle`, `levelFloor` and `nextLevelAt` come
+  from the server's threshold table; `levelProgress()` in `lib/domain.ts` only
+  turns them into a bar. Never compute a level on the client.
+- `Playtest.requirements.minReputation` is on the same points scale. That is what the marketing and discover pages render.
 
 ## How it's consumed
 
@@ -59,6 +110,7 @@ Playtest        1─* Feedback        Feedback.playtestId
 User(tester)    1─* Feedback        Feedback.testerId
 Playtest        1─* TestProgress    (per accepted tester)
 Playtest        1─1 PlaytestTask[]  (embedded in the playtest document)
+Feedback        1─* FeedbackMedia   (embedded: uploaded screenshots / recordings, up to 6)
 User            1─1 Tester/DeveloperProfile
 User            1─* Notification
 ```
@@ -80,3 +132,18 @@ Composed view models (`lib/types.ts`): `PlaytestWithRelations`, `TesterTest`,
   default derived from the game.
 - Ids are numeric strings (the database's integer primary keys).
 - Dates are UTC ISO-8601 strings, fixed width, so string comparison sorts them.
+
+## Build access and uploads
+
+`Playtest.buildUrl`, `installInstructions` and `accessKey` are **not public**. The
+API returns empty strings for them to everyone except the studio that owns the
+playtest and testers who have been accepted to it (`grogu_playtest_view` in the
+database decides this, per viewer, when the bootstrap document is built). Do not
+render them from server-side accessors in `data/index.ts`: those use the
+anonymous slice and will always see blanks.
+
+Uploaded files are stored as `/uploads/<name>` paths and turned into loadable URLs
+by `assetUrl()` in `lib/assets.ts`, which refuses anything that is not an upload
+path or an `https` URL. Uploads go through `uploadsService` (`lib/services/uploads.ts`),
+which checks type and size for a fast error; the server re-checks from the file's
+real bytes.

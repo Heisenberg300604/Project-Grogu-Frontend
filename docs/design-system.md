@@ -148,7 +148,7 @@ generates cover art:
 - `GameArt` wraps `GameCover` in a fixed ratio (`16/9`, `16/10`, `3/2`, `21/9`)
   with an optional bottom `scrim`. **Always use `GameArt`** instead of a
   hand-rolled `aspect-*` wrapper, so every game image crops identically.
-- A real `coverImageUrl` on a `Game` always wins over the generator.
+- An uploaded poster (`coverImageUrl`) wins over the generator when it can be loaded, via `assetUrl()` in `lib/assets.ts`; the generated art is the fallback.
 
 ## Component conventions
 
