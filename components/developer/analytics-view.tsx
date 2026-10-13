@@ -25,6 +25,7 @@ import { StatCard, StatCardGrid } from "@/components/dashboard/stat-card";
 import { RatingsBarChart } from "@/components/charts/ratings-bar-chart";
 import { SentimentDonut } from "@/components/charts/sentiment-donut";
 import { FeedbackCard } from "@/components/feedback/feedback-card";
+import { InsightsPanel } from "@/components/feedback/insights-panel";
 import { RatingBar, RatingStars } from "@/components/feedback/rating";
 
 /** Count repeated free-text entries, most frequent first. */
@@ -187,6 +188,16 @@ export function AnalyticsView() {
         />
       ) : (
         <>
+          {/* ---- Summary ------------------------------------------------- */}
+          {scope === "all" ? (
+            <p className="rounded-lg border border-border bg-surface px-4 py-3 text-sm text-muted-foreground">
+              Choose a playtest above to see its feedback summary: top highlights,
+              what testers like and dislike, and suggested next steps.
+            </p>
+          ) : (
+            <InsightsPanel playtestId={scope} />
+          )}
+
           {/* ---- Headline ------------------------------------------------ */}
           <section className="flex flex-col gap-6 rounded-2xl border border-border bg-surface p-6 sm:flex-row sm:items-center sm:gap-10 sm:p-8">
             <div className="shrink-0">

@@ -33,3 +33,30 @@ export async function updateGame(
 
   return game;
 }
+
+/**
+ * Adds reward keys to a game. Blank lines and duplicates are skipped by the
+ * server, which reports how many were actually added.
+ */
+export async function addGameKeys(
+  gameId: string,
+  codes: string[],
+): Promise<{ added: number; skipped: number }> {
+  const result = await apiFetch<{ added: number; skipped: number }>(
+    `/api/v1/games/${gameId}/keys`,
+    { method: "POST", body: { codes } },
+  );
+
+  await useGroguStore.getState().refresh();
+
+  return { added: result.added, skipped: result.skipped };
+}
+
+/** Removes a key that has not been given to a tester. */
+export async function deleteGameKey(gameId: string, keyId: string): Promise<void> {
+  await apiFetch(`/api/v1/games/${gameId}/keys/${keyId}`, { method: "DELETE" });
+
+  useGroguStore.setState((state) => ({
+    gameKeys: state.gameKeys.filter((key) => key.id !== keyId),
+  }));
+}

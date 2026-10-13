@@ -13,6 +13,16 @@ Shared layout: `SiteHeader` (session-aware) + `SiteFooter`.
 | `/developers` | Developers | Developer-focused pitch + feature breakdown |
 | `/discover` | Everyone | Browse open playtests. Working search + genre/platform/time/NDA filters |
 | `/playtests/[id]` | Everyone | Playtest detail: banner, goals, tasks, requirements, reward, developer, apply CTA. Apply requires a tester session |
+| `/testers` | Everyone | Tester directory. Search + experience / platform / genre filters, sorting, pagination |
+| `/testers/[id]` | Everyone | Public tester profile: reputation, headline numbers, badges, skills. No testing history or feedback (private) |
+| `/studios` | Everyone | Studio directory. Search + studio-size filter, sorting, pagination |
+| `/studios/[id]` | Everyone | Public studio profile: details, open playtests, games. The website link is only rendered for `http(s)` URLs |
+
+`/discover`, `/testers` and `/studios` share a tab strip (`DirectoryTabs`). The
+directory pages render the public bootstrap slice on the server, then switch to
+the live store once it has hydrated, the same way Discover does. Header links to
+Testers and Studios appear from `lg` upward; the mobile menu and footer always
+carry them.
 
 ## Auth — `app/(auth)/`
 

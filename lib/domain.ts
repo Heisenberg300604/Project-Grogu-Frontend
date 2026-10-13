@@ -8,9 +8,11 @@
 
 import type {
   Application,
+  DeveloperProfile,
   ExperienceLevel,
   Feedback,
   FeedbackRatings,
+  FeedbackRewards,
   Game,
   GameGenre,
   GamePlatform,
@@ -19,9 +21,11 @@ import type {
   PlaytestStatus,
   PlaytestWithRelations,
   TestProgress,
+  TesterProfile,
   TesterTest,
   User,
 } from "@/lib/types";
+import { formatRupees } from "@/lib/utils";
 
 export const EXPERIENCE_ORDER: ExperienceLevel[] = [
   "casual",
@@ -260,4 +264,208 @@ export function isClosingSoon(closesAt: string): boolean {
   const ms = new Date(closesAt).getTime() - Date.now();
   const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
   return days >= 0 && days <= CLOSING_SOON_DAYS;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Tester + studio directory                                                  */
+/* -------------------------------------------------------------------------- */
+
+export interface TesterDirectoryEntry {
+  user: User;
+  profile: TesterProfile;
+}
+
+export interface StudioDirectoryEntry {
+  user: User;
+  profile: DeveloperProfile;
+}
+
+export type StudioSize = DeveloperProfile["studioSize"];
+
+/** Pairs each tester profile with its user, dropping orphans. */
+export function joinTesters(
+  users: User[],
+  profiles: TesterProfile[],
+): TesterDirectoryEntry[] {
+  const byId = new Map(users.map((u) => [u.id, u]));
+  return profiles.flatMap((profile) => {
+    const user = byId.get(profile.userId);
+    return user && user.role === "tester" ? [{ user, profile }] : [];
+  });
+}
+
+/** Pairs each studio profile with its owner, dropping orphans. */
+export function joinStudios(
+  users: User[],
+  profiles: DeveloperProfile[],
+): StudioDirectoryEntry[] {
+  const byId = new Map(users.map((u) => [u.id, u]));
+  return profiles.flatMap((profile) => {
+    const user = byId.get(profile.userId);
+    return user && user.role === "developer" ? [{ user, profile }] : [];
+  });
+}
+
+export interface TesterFilters {
+  search: string;
+  experience: ExperienceLevel[];
+  platforms: GamePlatform[];
+  genres: GameGenre[];
+}
+
+export const EMPTY_TESTER_FILTERS: TesterFilters = {
+  search: "",
+  experience: [],
+  platforms: [],
+  genres: [],
+};
+
+export function matchesTesterFilters(
+  { user, profile }: TesterDirectoryEntry,
+  filters: TesterFilters,
+): boolean {
+  const query = filters.search.trim().toLowerCase();
+  if (query) {
+    const haystack =
+      `${user.name} ${user.handle} ${user.location} ${user.bio}`.toLowerCase();
+    if (!haystack.includes(query)) return false;
+  }
+  if (
+    filters.experience.length &&
+    !filters.experience.includes(profile.experienceLevel)
+  ) {
+    return false;
+  }
+  if (
+    filters.platforms.length &&
+    !filters.platforms.some((p) => profile.platforms.includes(p))
+  ) {
+    return false;
+  }
+  if (
+    filters.genres.length &&
+    !filters.genres.some((g) => profile.preferredGenres.includes(g))
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export type TesterSort = "reputation" | "completed" | "availability" | "name";
+
+/** Returns a new array; ties fall back to name so the order is stable. */
+export function sortTesters(
+  list: TesterDirectoryEntry[],
+  sort: TesterSort,
+): TesterDirectoryEntry[] {
+  const byName = (a: TesterDirectoryEntry, b: TesterDirectoryEntry) =>
+    a.user.name.localeCompare(b.user.name);
+  const key = (e: TesterDirectoryEntry) => {
+    switch (sort) {
+      case "completed":
+        return e.profile.completedPlaytests;
+      case "availability":
+        return e.profile.weeklyAvailabilityHours;
+      case "reputation":
+        return e.profile.reputation;
+      default:
+        return 0;
+    }
+  };
+  return [...list].sort((a, b) =>
+    sort === "name" ? byName(a, b) : key(b) - key(a) || byName(a, b),
+  );
+}
+
+export interface StudioFilters {
+  search: string;
+  sizes: StudioSize[];
+}
+
+export const EMPTY_STUDIO_FILTERS: StudioFilters = { search: "", sizes: [] };
+
+export function matchesStudioFilters(
+  { user, profile }: StudioDirectoryEntry,
+  filters: StudioFilters,
+): boolean {
+  const query = filters.search.trim().toLowerCase();
+  if (query) {
+    const haystack =
+      `${profile.studioName} ${user.name} ${user.location} ${user.bio}`.toLowerCase();
+    if (!haystack.includes(query)) return false;
+  }
+  if (filters.sizes.length && !filters.sizes.includes(profile.studioSize)) {
+    return false;
+  }
+  return true;
+}
+
+export type StudioSort = "active" | "games" | "founded" | "name";
+
+/** Returns a new array; ties fall back to studio name so the order is stable. */
+export function sortStudios(
+  list: StudioDirectoryEntry[],
+  sort: StudioSort,
+): StudioDirectoryEntry[] {
+  const byName = (a: StudioDirectoryEntry, b: StudioDirectoryEntry) =>
+    a.profile.studioName.localeCompare(b.profile.studioName);
+  const key = (e: StudioDirectoryEntry) => {
+    switch (sort) {
+      case "games":
+        return e.profile.gamesPublished;
+      case "founded":
+        return e.profile.foundedYear;
+      case "active":
+        return e.profile.activePlaytests;
+      default:
+        return 0;
+    }
+  };
+  return [...list].sort((a, b) =>
+    sort === "name" ? byName(a, b) : key(b) - key(a) || byName(a, b),
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Reputation                                                                 */
+/* -------------------------------------------------------------------------- */
+
+export interface LevelProgress {
+  /** 0–100 through the current level; 100 at the top level. */
+  percent: number;
+  /** Reputation still needed for the next level; null at the top level. */
+  toNext: number | null;
+}
+
+/** How far a tester is through their current level, from the server's fields. */
+export function levelProgress(
+  profile: Pick<TesterProfile, "reputation" | "levelFloor" | "nextLevelAt">,
+): LevelProgress {
+  if (profile.nextLevelAt === null) return { percent: 100, toNext: null };
+
+  const span = Math.max(1, profile.nextLevelAt - profile.levelFloor);
+  const into = Math.min(span, Math.max(0, profile.reputation - profile.levelFloor));
+  return {
+    percent: Math.round((into / span) * 100),
+    toNext: Math.max(0, profile.nextLevelAt - profile.reputation),
+  };
+}
+
+/**
+ * A UPI id in `handle@provider` form. Format only, and the same pattern the
+ * server enforces (grogu_upi_id); no payment method is integrated.
+ */
+const UPI_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{1,255}@[A-Za-z][A-Za-z0-9]{1,63}$/;
+
+export function isValidUpiId(value: string): boolean {
+  return UPI_ID_PATTERN.test(value.trim());
+}
+
+/** "+25 reputation, ₹500, a game key" — empty when nothing was granted. */
+export function rewardSummary(rewards: FeedbackRewards): string {
+  const parts: string[] = [];
+  if (rewards.reputation > 0) parts.push(`+${rewards.reputation} reputation`);
+  if (rewards.cash > 0) parts.push(formatRupees(rewards.cash));
+  if (rewards.gameKey) parts.push("a game key");
+  return parts.join(", ");
 }

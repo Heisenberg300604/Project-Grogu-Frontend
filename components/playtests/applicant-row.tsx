@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Check, Gauge, MonitorSmartphone, Star, X } from "lucide-react";
 
 import { formatRelativeTime } from "@/lib/utils";
@@ -66,7 +67,14 @@ export function ApplicantRow({
             className="size-11 shrink-0"
           />
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{tester.name}</p>
+            <p className="truncate text-sm font-medium">
+              <Link
+                href={`/testers/${tester.id}`}
+                className="transition-colors hover:text-secondary"
+              >
+                {tester.name}
+              </Link>
+            </p>
             <p className="truncate text-xs text-muted-foreground">
               @{tester.handle} · {tester.location}
             </p>
@@ -120,7 +128,7 @@ export function ApplicantRow({
           <MetaItem
             icon={Star}
             label="Reputation"
-            value={`${profile.reputation}/100 · ${profile.completedPlaytests} completed`}
+            value={`${profile.reputation} · level ${profile.level} · ${profile.completedPlaytests} completed`}
           />
         </MetaRow>
       )}

@@ -54,7 +54,10 @@ export function SiteHeader() {
                 const active =
                   pathname === itemPath || pathname.startsWith(`${itemPath}/`);
                 return (
-                  <li key={item.href}>
+                  <li
+                    key={item.href}
+                    className={item.lgOnly ? "hidden lg:block" : undefined}
+                  >
                     <Link
                       href={item.href}
                       scroll

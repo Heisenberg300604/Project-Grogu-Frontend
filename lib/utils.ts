@@ -17,6 +17,15 @@ export function formatCompactNumber(value: number) {
   }).format(value);
 }
 
+/** Whole Indian rupees, e.g. 1500 -> "₹1,500". Ledger amounts are always whole. */
+export function formatRupees(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 /** Format an ISO date string as "Mar 14, 2026". */
 export function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-US", {

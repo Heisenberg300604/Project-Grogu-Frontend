@@ -13,11 +13,17 @@ import type {
   DeveloperProfile,
   Feedback,
   Game,
+  GameKey,
+  LedgerEntry,
   Notification,
   PlaytestWithRelations,
+  ReputationEvent,
+  ReputationLevel,
+  ReputationRule,
   TestProgress,
   TesterProfile,
   User,
+  Wallet,
 } from "@/lib/types";
 import {
   buildTesterTests,
@@ -25,7 +31,11 @@ import {
   type DiscoverFilters,
   joinPlaytest,
   joinPlaytests,
+  joinStudios,
+  joinTesters,
   matchesDiscoverFilters,
+  type StudioDirectoryEntry,
+  type TesterDirectoryEntry,
 } from "@/lib/domain";
 import { useGroguStore } from "@/lib/store/grogu-store";
 
@@ -193,6 +203,20 @@ export function useNotifications(userId: string | undefined): Notification[] {
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [notifications, userId],
   );
+}
+
+/** Every tester with a profile, for the public directory. */
+export function useTesterDirectory(): TesterDirectoryEntry[] {
+  const users = useGroguStore((s) => s.users);
+  const profiles = useGroguStore((s) => s.testerProfiles);
+  return useMemo(() => joinTesters(users, profiles), [users, profiles]);
+}
+
+/** Every studio with a profile, for the public directory. */
+export function useStudioDirectory(): StudioDirectoryEntry[] {
+  const users = useGroguStore((s) => s.users);
+  const profiles = useGroguStore((s) => s.developerProfiles);
+  return useMemo(() => joinStudios(users, profiles), [users, profiles]);
 }
 
 export function useUser(userId: string | undefined): User | undefined {
@@ -372,4 +396,50 @@ export function usePlaytestSummary(playtestId: string, maxTesters: number): Play
       completionRatio: accepted.length ? completed / accepted.length : 0,
     };
   }, [applications, feedback, progress, playtestId, maxTesters]);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Rewards and reputation                                                     */
+/* -------------------------------------------------------------------------- */
+
+/** A game's reward-key inventory. Only populated for the owning studio. */
+export function useGameKeys(gameId: string | undefined): GameKey[] {
+  const keys = useGroguStore((s) => s.gameKeys);
+  return useMemo(() => keys.filter((k) => k.gameId === gameId), [keys, gameId]);
+}
+
+/** Unused keys per game id, for the studio's review dialog and game list. */
+export function useAvailableKeyCounts(): Map<string, number> {
+  const keys = useGroguStore((s) => s.gameKeys);
+  return useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const key of keys) {
+      if (key.status !== "available") continue;
+      counts.set(key.gameId, (counts.get(key.gameId) ?? 0) + 1);
+    }
+    return counts;
+  }, [keys]);
+}
+
+/** The signed-in tester's balance and UPI id, or null. */
+export function useWallet(): Wallet | null {
+  return useGroguStore((s) => s.wallet);
+}
+
+/** The signed-in user's money ledger, newest first (the server's order). */
+export function useLedgerEntries(): LedgerEntry[] {
+  return useGroguStore((s) => s.ledgerEntries);
+}
+
+/** The signed-in tester's reputation history, newest first. */
+export function useReputationEvents(): ReputationEvent[] {
+  return useGroguStore((s) => s.reputationEvents);
+}
+
+export function useReputationRules(): ReputationRule[] {
+  return useGroguStore((s) => s.reputationRules);
+}
+
+export function useReputationLevels(): ReputationLevel[] {
+  return useGroguStore((s) => s.reputationLevels);
 }

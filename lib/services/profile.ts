@@ -28,6 +28,8 @@ export interface ProfileInput {
   platforms?: GamePlatform[];
   languages?: string[];
   weeklyAvailabilityHours?: number;
+  /** Format-checked only; no payment method is integrated. */
+  upiId?: string;
   /* developer */
   studioName?: string;
   studioSize?: DeveloperProfile["studioSize"];

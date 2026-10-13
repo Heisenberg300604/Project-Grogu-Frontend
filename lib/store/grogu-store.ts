@@ -27,12 +27,21 @@ import type {
   DeveloperProfile,
   Feedback,
   Game,
+  GameKey,
+  LedgerEntry,
   Notification,
   Playtest,
+  PlaytestInsight,
+  PlaytestRecommendations,
+  ReputationEvent,
+  ReputationLevel,
+  ReputationRule,
   Session,
   TestProgress,
   TesterProfile,
+  TesterSuggestions,
   User,
+  Wallet,
 } from "@/lib/types";
 import {
   type BootstrapSnapshot,
@@ -52,6 +61,21 @@ export interface Collections {
   feedback: Feedback[];
   notifications: Notification[];
   testProgress: TestProgress[];
+  gameKeys: GameKey[];
+  ledgerEntries: LedgerEntry[];
+  reputationEvents: ReputationEvent[];
+  reputationRules: ReputationRule[];
+  reputationLevels: ReputationLevel[];
+  /**
+   * Feedback summaries, keyed by playtest id. Not in the bootstrap: each one is
+   * fetched when a studio opens that playtest's analytics, so a snapshot refresh
+   * leaves them alone.
+   */
+  insights: PlaytestInsight[];
+  /** Suggested testers per playtest (studio side). Fetched on demand, like insights. */
+  testerSuggestions: TesterSuggestions[];
+  /** The signed-in tester's recommended playtests. Fetched on demand. */
+  playtestRecommendations: PlaytestRecommendations[];
 }
 
 /** Where the first load has got to. The UI gates on this via `useHydrated`. */
@@ -59,6 +83,8 @@ export type LoadStatus = "idle" | "loading" | "ready" | "error";
 
 export interface GroguState extends Collections {
   session: Session | null;
+  /** The signed-in tester's balance and UPI id; null for anyone else. */
+  wallet: Wallet | null;
   status: LoadStatus;
   /** Set when the last load failed, so the UI can offer a retry. */
   loadError: string | null;
@@ -90,6 +116,14 @@ function emptyCollections(): Collections {
     feedback: [],
     notifications: [],
     testProgress: [],
+    gameKeys: [],
+    ledgerEntries: [],
+    reputationEvents: [],
+    reputationRules: [],
+    reputationLevels: [],
+    insights: [],
+    testerSuggestions: [],
+    playtestRecommendations: [],
   };
 }
 
@@ -105,6 +139,7 @@ export const useGroguStore = create<GroguState>()(
     (set, get) => ({
       ...emptyCollections(),
       session: null,
+      wallet: null,
       status: "idle",
       loadError: null,
 
@@ -119,6 +154,12 @@ export const useGroguStore = create<GroguState>()(
           feedback: snapshot.feedback ?? [],
           notifications: snapshot.notifications ?? [],
           testProgress: snapshot.testProgress ?? [],
+          gameKeys: snapshot.gameKeys ?? [],
+          ledgerEntries: snapshot.ledgerEntries ?? [],
+          reputationEvents: snapshot.reputationEvents ?? [],
+          reputationRules: snapshot.reputationRules ?? [],
+          reputationLevels: snapshot.reputationLevels ?? [],
+          wallet: snapshot.wallet ?? null,
           // The server is authoritative about who the caller is: if the token
           // has expired it returns no session, and the stale one is dropped.
           session: sessionFromSnapshot(snapshot) ?? null,
@@ -141,7 +182,7 @@ export const useGroguStore = create<GroguState>()(
           // rather than leaving the user staring at a broken signed-in shell.
           if (error instanceof ServiceError && error.status === 401) {
             setAuthToken(null);
-            set({ ...emptyCollections(), session: null, status: "ready", loadError: null });
+            set({ ...emptyCollections(), session: null, wallet: null, status: "ready", loadError: null });
             return;
           }
 
@@ -162,7 +203,7 @@ export const useGroguStore = create<GroguState>()(
 
         if (session === null) {
           setAuthToken(null);
-          set({ ...emptyCollections(), session: null, status: "ready", loadError: null });
+          set({ ...emptyCollections(), session: null, wallet: null, status: "ready", loadError: null });
           return;
         }
 

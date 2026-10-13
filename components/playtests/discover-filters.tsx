@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-function toggle<T>(list: T[], value: T): T[] {
+export function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value)
     ? list.filter((v) => v !== value)
     : [...list, value];
@@ -46,7 +46,7 @@ export function activeFilterCount(filters: DiscoverFilters) {
 }
 
 /** Pill toggle. One style for every filter chip on the page. */
-function FilterChip({
+export function FilterChip({
   active,
   onClick,
   children,
@@ -72,7 +72,7 @@ function FilterChip({
   );
 }
 
-function FilterGroup({
+export function FilterGroup({
   legend,
   children,
 }: {

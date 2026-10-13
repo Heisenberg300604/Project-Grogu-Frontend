@@ -81,17 +81,23 @@ export interface RequestOptions {
   signal?: AbortSignal;
   /** Next.js fetch caching, for the server-side accessors in `data/`. */
   cache?: RequestCache;
+  /** Seconds a cached response may be reused. Server-side only. */
+  revalidate?: number;
 }
 
 export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = "GET", body, auth = true, signal, cache } = options;
+  const { method = "GET", body, auth = true, signal, cache, revalidate } = options;
 
   const headers: Record<string, string> = {};
 
-  if (body !== undefined) {
+  // FormData sets its own multipart Content-Type (with the boundary); JSON
+  // bodies need it spelled out.
+  const isForm = typeof FormData !== "undefined" && body instanceof FormData;
+
+  if (body !== undefined && !isForm) {
     headers["Content-Type"] = "application/json";
   }
 
@@ -108,9 +114,15 @@ export async function apiFetch<T>(
     response = await fetch(`${apiBaseUrl()}${path}`, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body:
+        body === undefined
+          ? undefined
+          : isForm
+            ? (body as FormData)
+            : JSON.stringify(body),
       signal,
       cache,
+      next: revalidate === undefined ? undefined : { revalidate },
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {

@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 
 import { greeting } from "@/lib/utils";
-import { EMPTY_DISCOVER_FILTERS } from "@/lib/domain";
+import { levelProgress } from "@/lib/domain";
+import type { TesterProfile } from "@/lib/types";
 import {
   useApplicationsByTester,
-  useDiscoverPlaytests,
   usePlaytests,
   useTesterProfile,
   useTesterTests,
@@ -26,7 +26,15 @@ import { PageHeader, SectionTitle } from "@/components/layout/page-header";
 import { StatCard, StatCardGrid } from "@/components/dashboard/stat-card";
 import { ApplicationCard } from "@/components/applications/application-card";
 import { TestProgressCard } from "@/components/tests/test-progress-card";
-import { PlaytestCard } from "@/components/playtests/playtest-card";
+import { RecommendedPlaytests } from "@/components/tester/recommended-playtests";
+import { LevelProgress } from "@/components/tester/level-progress";
+
+function levelHint(profile: TesterProfile) {
+  const { toNext } = levelProgress(profile);
+  return toNext === null
+    ? `Level ${profile.level}, the top level`
+    : `Level ${profile.level} · ${toNext} to level ${profile.level + 1}`;
+}
 
 /**
  * The tester's home. Ordered by what needs doing: tests in flight first,
@@ -38,17 +46,12 @@ export function TesterDashboard() {
   const applications = useApplicationsByTester(user?.id);
   const allPlaytests = usePlaytests();
   const tests = useTesterTests(user?.id);
-  const recommended = useDiscoverPlaytests(EMPTY_DISCOVER_FILTERS);
 
   if (!user) return null;
 
   const activeTests = tests.filter((t) => t.progress?.stage !== "completed");
   const completedTests = tests.filter((t) => t.progress?.stage === "completed");
   const pending = applications.filter((a) => a.status === "pending");
-  const appliedPlaytestIds = new Set(applications.map((a) => a.playtestId));
-  const suggestions = recommended
-    .filter((p) => !appliedPlaytestIds.has(p.id))
-    .slice(0, 3);
 
   return (
     <div className="space-y-12">
@@ -69,11 +72,7 @@ export function TesterDashboard() {
         <StatCard
           label="Reputation"
           value={profile ? profile.profile.reputation : "—"}
-          hint={
-            profile
-              ? `${profile.profile.completedPlaytests} playtests completed`
-              : undefined
-          }
+          hint={profile ? levelHint(profile.profile) : undefined}
           icon={Star}
         />
         <StatCard
@@ -94,6 +93,19 @@ export function TesterDashboard() {
           icon={CheckCircle2}
         />
       </StatCardGrid>
+
+      {profile && (
+        <section className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-5 sm:flex-row sm:items-center">
+          <div className="min-w-0 flex-1">
+            <LevelProgress profile={profile.profile} />
+          </div>
+          <Button asChild size="sm" variant="secondary" className="shrink-0">
+            <Link href="/rewards">
+              Ways to earn reputation <ArrowRight />
+            </Link>
+          </Button>
+        </section>
+      )}
 
       {/* ---- Active tests ------------------------------------------------- */}
       <section className="space-y-5">
@@ -175,25 +187,7 @@ export function TesterDashboard() {
       </section>
 
       {/* ---- Recommendations ---------------------------------------------- */}
-      <section className="space-y-5">
-        <SectionTitle
-          title="Recommended for you"
-          description="Open playtests you haven't applied to yet."
-        />
-        {suggestions.length === 0 ? (
-          <EmptyState
-            icon={Compass}
-            title="Nothing new right now"
-            description="You've applied to everything that's open. Check back soon."
-          />
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {suggestions.map((playtest) => (
-              <PlaytestCard key={playtest.id} playtest={playtest} />
-            ))}
-          </div>
-        )}
-      </section>
+      <RecommendedPlaytests testerId={user.id} />
     </div>
   );
 }

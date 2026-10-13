@@ -111,12 +111,19 @@ Do not implement these unless explicitly requested:
 * Supabase
 * Real game hosting
 * Real-time chat
-* AI feedback analysis
-* Advanced recommendation engine
+* AI beyond Phase 6 (see `implementation-phases.md`). In scope: the studio's
+  per-playtest feedback summary, and matching (suggested testers, recommended
+  playtests). Both run on the backend, work without a key, and never expose it
+* A recommendation engine beyond the rule-based matching in Phase 6 (no learned
+  models, no tracking of browsing behaviour)
 * Notification *delivery* (email/push — in-app rows exist and are persisted)
 * Admin dashboard
-* Payments and rewards fulfilment
-* File upload / build hosting
+* Payments. Rewards are in scope as records only: a cash ledger and UPI ID
+  with no payout, and game keys allocated from a studio's inventory with no
+  email delivery (see `implementation-phases.md`, Phases 4 and 5)
+* Build hosting — studios link to their own hosting. Image and video uploads
+  (game posters, review screenshots and recordings) are in scope; see
+  `implementation-phases.md`
 
 ---
 

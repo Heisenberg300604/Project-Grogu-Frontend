@@ -61,6 +61,7 @@ landing-page sections, composed by `app/(marketing)/page.tsx`.
 | `game-card.tsx` | Game summary card (featured games, catalogues) |
 | `developer-card.tsx` | Studio summary (playtest detail sidebar) |
 | `game-form.tsx` | Create/edit game form + live preview. Client |
+| `game-keys-panel.tsx` | Reward-key inventory on the edit-game page: paste keys, remove unused ones, see who received each given key |
 
 ## `components/playtests/`
 
@@ -92,7 +93,28 @@ landing-page sections, composed by `app/(marketing)/page.tsx`.
 | --- | --- |
 | `rating.tsx` | `RatingStars` (read), `RatingInput` (interactive radio), `RatingBar` (analytics) |
 | `feedback-form.tsx` | 3-step structured feedback form (Ratings → Report → Wrap up) → `testsService.submitFeedback` |
-| `feedback-card.tsx` | One feedback report (developer views, tester history) |
+| `feedback-card.tsx` | One feedback report (developer views, tester history), including attached screenshots and recordings and the review status; `footer` takes the review controls |
+| `review-dialog.tsx` | The studio's approve (reputation bonus, cash, game key, note) or reject dialog → `feedbackService.reviewFeedback` |
+| `insights-panel.tsx` | The per-playtest feedback summary (AI or automatic): highlights, what testers like and dislike, bugs, next steps. Uses `useInsight`, which loads it and refreshes it once per visit when feedback is newer |
+| `review-panel.tsx` | `StudioReviewPanel` (decide, or see what was granted and which key to email) and `TesterReviewOutcome` (the tester's view of the decision) |
+
+## `components/uploads/`
+
+| Component | Purpose |
+| --- | --- |
+| `poster-upload.tsx` | Chooses and uploads one image: a game poster, or a profile picture with `kind="avatar"` (`uploadsService`); the parent holds the stored path |
+| `media-uploader.tsx` | Attaches up to six screenshots or recordings to a review; uploads as files are chosen |
+| `media-gallery.tsx` | Read-only view of a review's attachments for studios (images open full size, videos play inline) |
+
+## `components/directory/`
+
+| Component | Purpose |
+| --- | --- |
+| `directory-tabs.tsx` | Playtests / Testers / Studios switcher shared by the three browse pages |
+| `directory-layout.tsx` | Search, sort, filter rail (drawer below `lg`) and result count shared by both directories |
+| `tester-directory.tsx`, `studio-directory.tsx` | The two explorers: filter state, sorting, pagination |
+| `tester-directory-card.tsx`, `studio-directory-card.tsx` | One directory entry; whole card is a single link |
+| `tester-public-profile.tsx`, `studio-public-profile.tsx` | Public profile pages (server components) |
 
 ## `components/dashboard/`
 
@@ -112,6 +134,14 @@ Page-level feature components — one per authenticated route
 `analytics-view`, `developer-profile-view`). Each is the client body rendered by
 a thin `page.tsx`. `developer/playtest-row.tsx` is the shared playtest list row
 used by both the developer dashboard and the Playtests page.
+`tester/rewards-view.tsx` is `/rewards` (balance, level, ways to earn, review
+outcomes, reputation history). `tester/level-progress.tsx` draws a tester's
+level and progress to the next one from the server's level fields.
+`developer/suggested-testers.tsx` is the Suggested testers panel on a recruiting
+playtest's Applicants tab (match strength, reasons, the AI line, Invite), and
+`tester/recommended-playtests.tsx` is **Recommended for you** on the tester
+dashboard (`PlaytestCard`s with a footer saying why each fits). Both, and the
+feedback summary, load through `lib/hooks/use-ai-resource.ts`.
 
 ## `components/auth/`
 

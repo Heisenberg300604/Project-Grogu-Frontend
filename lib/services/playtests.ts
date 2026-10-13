@@ -9,6 +9,7 @@
 import type {
   NewPlaytestInput,
   Playtest,
+  PlaytestAccessInput,
   PlaytestStatus,
   UpdatePlaytestInput,
 } from "@/lib/types";
@@ -38,6 +39,25 @@ export async function updatePlaytest(
     method: "PATCH",
     body: input,
   });
+
+  useGroguStore.getState().applyEntity("playtests", playtest);
+  void useGroguStore.getState().refresh();
+
+  return playtest;
+}
+
+/**
+ * Changes how testers get the game (build link, install notes, key). Unlike
+ * `updatePlaytest`, this works after publishing, so a studio can fix a link.
+ */
+export async function saveAccess(
+  playtestId: string,
+  input: PlaytestAccessInput,
+): Promise<Playtest> {
+  const playtest = await apiFetch<Playtest>(
+    `/api/v1/playtests/${playtestId}/access`,
+    { method: "PATCH", body: input },
+  );
 
   useGroguStore.getState().applyEntity("playtests", playtest);
   void useGroguStore.getState().refresh();

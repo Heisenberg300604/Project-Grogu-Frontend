@@ -38,6 +38,10 @@ export const metadata: Metadata = {
   },
 };
 
+// Every page renders per request, so the cached API snapshot is refreshed on
+// schedule rather than frozen into the build output.
+export const dynamic = "force-dynamic";
+
 export const viewport: Viewport = {
   themeColor: "#0f0d19",
   colorScheme: "dark",
