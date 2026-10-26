@@ -91,10 +91,10 @@ export function PlaytestsView() {
                   aria-pressed={active}
                   onClick={() => setFilter(f.value)}
                   className={cn(
-                    "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors duration-[120ms] focus-visible:outline-none",
+                    "shrink-0 rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition-colors duration-[120ms]",
                     active
-                      ? "border-primary-line bg-primary-soft text-secondary"
-                      : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+                      ? "border-line bg-primary text-primary-foreground shadow-sm"
+                      : "border-line bg-surface text-foreground hover:-translate-y-0.5",
                   )}
                 >
                   {f.label}

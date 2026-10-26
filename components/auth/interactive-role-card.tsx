@@ -51,20 +51,20 @@ export function InteractiveRoleCard({ role, active, onSelect }: RoleCardProps) {
       transition={{ duration: 0.2 }}
       aria-pressed={active}
       className={cn(
-        "relative flex flex-col justify-between rounded-xl border p-5 text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "relative flex flex-col justify-between rounded-xl border-2 border-line p-5 text-left transition-[background-color,box-shadow] duration-300",
         active
-          ? "border-primary bg-gradient-to-b from-primary/15 via-surface/90 to-surface shadow-lg shadow-primary/10 ring-1 ring-primary/40"
-          : "border-border/80 bg-surface/40 hover:border-border-strong hover:bg-surface/70"
+          ? "bg-primary-soft shadow-md"
+          : "bg-surface hover:bg-elevated"
       )}
     >
       {/* Radio checkmark circle indicator */}
       <div className="absolute top-4 right-4 flex items-center justify-center">
         <div
           className={cn(
-            "flex size-5 items-center justify-center rounded-full border transition-all duration-200",
+            "flex size-5 items-center justify-center rounded-full border-2 transition-all duration-200",
             active
-              ? "border-primary bg-primary text-primary-foreground scale-110 shadow-sm"
-              : "border-border bg-muted/40 text-transparent"
+              ? "border-line bg-primary text-primary-foreground scale-110 shadow-sm"
+              : "border-line bg-surface text-transparent"
           )}
         >
           <Check className="size-3.5 stroke-[3]" />
@@ -76,10 +76,10 @@ export function InteractiveRoleCard({ role, active, onSelect }: RoleCardProps) {
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              "flex size-11 items-center justify-center rounded-lg border transition-colors",
+              "flex size-11 items-center justify-center rounded-lg border-2 transition-colors",
               active
-                ? "border-primary/40 bg-primary/20 text-secondary"
-                : "border-border bg-muted/50 text-muted-foreground"
+                ? "border-line bg-primary text-primary-foreground"
+                : "border-line bg-elevated text-muted-foreground"
             )}
           >
             <Icon className="size-5" />
@@ -87,10 +87,10 @@ export function InteractiveRoleCard({ role, active, onSelect }: RoleCardProps) {
           <div>
             <span
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide uppercase",
+                "hud inline-flex items-center gap-1 rounded-full border-2 border-line px-2.5 py-1 text-[0.62rem]",
                 active
-                  ? "bg-primary/20 text-secondary border border-primary/30"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-grape text-white"
+                  : "bg-elevated text-muted-foreground"
               )}
             >
               <Sparkles className="size-3" />
@@ -101,7 +101,7 @@ export function InteractiveRoleCard({ role, active, onSelect }: RoleCardProps) {
 
         {/* Title & Description */}
         <div>
-          <h3 className="text-base font-semibold tracking-tight text-foreground">
+          <h3 className="font-display text-lg font-extrabold leading-tight text-foreground">
             {data.title}
           </h3>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -110,7 +110,7 @@ export function InteractiveRoleCard({ role, active, onSelect }: RoleCardProps) {
         </div>
 
         {/* Key Features Bullet List */}
-        <ul className="space-y-2 pt-2 border-t border-border/50 text-xs">
+        <ul className="space-y-2 pt-2 border-t-2 border-dashed border-border text-xs">
           {data.features.map((feature, idx) => (
             <li key={idx} className="flex items-center gap-2 text-subtle-foreground">
               <ShieldCheck

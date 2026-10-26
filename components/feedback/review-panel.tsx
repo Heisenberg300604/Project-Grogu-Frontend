@@ -65,7 +65,7 @@ export function StudioReviewPanel({
   );
 
   return (
-    <div className="flex flex-col gap-3 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 border-t-2 border-dashed border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 space-y-1.5">
         {feedback.reviewStatus === "submitted" ? (
           <p className="text-xs text-muted-foreground">
@@ -112,7 +112,7 @@ export function StudioReviewPanel({
 /** Tester side: where their review stands and what it earned. */
 export function TesterReviewOutcome({ feedback }: { feedback: Feedback }) {
   return (
-    <div className="space-y-2 rounded-lg border border-border bg-surface p-3.5">
+    <div className="space-y-2 rounded-lg border-2 border-line bg-surface p-3.5">
       <p className="text-label text-subtle-foreground">STUDIO REVIEW</p>
       <Outcome feedback={feedback} />
       {feedback.reviewStatus === "submitted" && (

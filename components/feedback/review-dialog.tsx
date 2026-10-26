@@ -157,7 +157,7 @@ export function ReviewDialog({
 
           {approving && (
             <>
-              <p className="flex items-start gap-2.5 rounded-lg border border-border bg-surface p-3 text-sm text-muted-foreground">
+              <p className="flex items-start gap-2.5 rounded-lg border-2 border-line bg-surface p-3 text-sm text-muted-foreground">
                 <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" aria-hidden />
                 Approving always awards +{approvalAward} Grogu reputation. Add a bonus
                 if the review was especially useful.
@@ -254,7 +254,7 @@ export function ReviewDialog({
 
           {formError && (
             <p
-              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
               role="alert"
             >
               {formError}

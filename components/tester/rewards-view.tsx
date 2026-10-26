@@ -62,7 +62,7 @@ function Panel({
 }) {
   return (
     // min-w-0: as a grid item it would otherwise grow to fit long ledger notes.
-    <section className={cn("min-w-0 rounded-xl border border-border bg-surface p-5 sm:p-6", className)}>
+    <section className={cn("min-w-0 rounded-xl border-2 border-line bg-surface p-5 sm:p-6", className)}>
       <div className="flex items-center gap-2.5">
         <span className="grid size-9 place-items-center rounded-lg bg-primary-soft text-secondary">
           <Icon className="size-4" aria-hidden />
@@ -151,12 +151,12 @@ export function RewardsView() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel icon={Banknote} label="UPI BALANCE">
-          <p className="font-display text-3xl font-semibold tabular-nums">{formatRupees(balance)}</p>
+          <p className="font-display text-3xl font-bold tabular-nums">{formatRupees(balance)}</p>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Cash rewards from approved reviews. Payouts aren&apos;t live yet: your balance is
             recorded and will be sent to your UPI ID when they launch.
           </p>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border-strong/70 bg-elevated p-3.5">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-line bg-elevated p-3.5">
             <div className="flex min-w-0 items-start gap-2.5">
               <Smartphone className="mt-0.5 size-4 shrink-0 text-secondary" aria-hidden />
               <div className="min-w-0">
@@ -171,7 +171,7 @@ export function RewardsView() {
             </Button>
           </div>
           {ledger.length > 0 && (
-            <ul className="mt-5 divide-y divide-border border-t border-border">
+            <ul className="mt-5 divide-y divide-border border-t-2 border-dashed border-border">
               {ledger.slice(0, 6).map((entry) => (
                 <li key={entry.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <span className="min-w-0">
@@ -213,9 +213,9 @@ export function RewardsView() {
                     key={level.level}
                     aria-current={current ? "step" : undefined}
                     className={cn(
-                      "rounded-lg border px-2.5 py-2 text-xs",
+                      "rounded-lg border-2 px-2.5 py-2 text-xs",
                       current
-                        ? "border-primary-line bg-primary-soft text-secondary"
+                        ? "border-line bg-primary text-primary-foreground shadow-sm"
                         : reached
                           ? "border-border text-foreground"
                           : "border-border text-subtle-foreground",
@@ -242,7 +242,7 @@ export function RewardsView() {
           <div className="grid gap-4 md:grid-cols-3">
             {rulesByCategory.map(({ category, rules: list }) =>
               list.length === 0 ? null : (
-                <div key={category} className="rounded-xl border border-border bg-surface p-4">
+                <div key={category} className="rounded-xl border-2 border-line bg-surface p-4">
                   <p className="text-sm font-semibold">{CATEGORY_LABELS[category]}</p>
                   <ul className="mt-3 space-y-3">
                     {list.map((rule) => {
@@ -303,7 +303,7 @@ export function RewardsView() {
               return (
                 <li
                   key={feedback.id}
-                  className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-xl border-2 border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0 space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
@@ -345,7 +345,7 @@ export function RewardsView() {
       {events.length > 0 && (
         <section className="space-y-5">
           <SectionTitle title="Reputation history" description="Every change to your reputation." />
-          <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
+          <ul className="divide-y divide-border rounded-xl border-2 border-line bg-surface">
             {events.map((event) => {
               const title = playtestTitle(event.playtestId);
               return (

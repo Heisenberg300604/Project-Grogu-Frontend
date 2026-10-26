@@ -24,7 +24,7 @@ export function TesterCard({
   const done = stage === "completed";
 
   return (
-    <article className="space-y-3.5 rounded-xl border border-border bg-surface p-4">
+    <article className="space-y-3.5 rounded-xl border-2 border-line bg-surface p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <UserAvatar

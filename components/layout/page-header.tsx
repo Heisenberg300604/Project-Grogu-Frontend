@@ -54,8 +54,8 @@ export function PageHeader({
 
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0 space-y-2">
-          {eyebrow && <p className="text-label text-secondary">{eyebrow}</p>}
-          <h1 className="text-2xl font-semibold sm:text-3xl">{title}</h1>
+          {eyebrow && <p className="hud text-secondary">{eyebrow}</p>}
+          <h1 className="text-3xl font-extrabold sm:text-4xl">{title}</h1>
           {description && (
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {description}
@@ -90,7 +90,7 @@ export function SectionTitle({
   return (
     <div className={cn("flex flex-wrap items-end justify-between gap-3", className)}>
       <div className="space-y-1">
-        <h2 className="font-display text-lg font-semibold">{title}</h2>
+        <h2 className="font-display text-xl font-extrabold">{title}</h2>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}

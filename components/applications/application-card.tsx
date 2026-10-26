@@ -27,14 +27,14 @@ export function ApplicationCard({
   return (
     <article
       className={cn(
-        "flex flex-col gap-4 rounded-xl border bg-surface p-4 transition-colors duration-[180ms] sm:flex-row sm:items-center",
-        accepted ? "border-success/30" : "border-border hover:border-border-strong",
+        "card-lift flex flex-col gap-4 rounded-xl border-2 border-line bg-surface p-4 shadow-md sm:flex-row sm:items-center",
+        accepted && "border-success",
         className,
       )}
     >
       <Link
         href={`/playtests/${playtest.id}`}
-        className="shrink-0 overflow-hidden rounded-lg sm:w-36"
+        className="shrink-0 overflow-hidden rounded-lg border-2 border-line sm:w-36"
         aria-label={`${playtest.game.title} playtest page`}
       >
         <GameArt game={playtest.game} ratio="16/10" />
@@ -47,7 +47,7 @@ export function ApplicationCard({
             Applied {formatRelativeTime(application.submittedAt)}
           </span>
         </div>
-        <h3 className="font-medium leading-snug">
+        <h3 className="font-display text-lg font-bold leading-snug">
           <Link
             href={`/playtests/${playtest.id}`}
             className="transition-colors hover:text-secondary"
@@ -59,7 +59,7 @@ export function ApplicationCard({
           {playtest.game.title} · {playtest.developer.name}
         </p>
         {application.status === "rejected" && application.decisionNote && (
-          <p className="mt-2 rounded-md border border-border bg-elevated px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-2 rounded-md border-2 border-line bg-elevated px-3 py-2 text-xs leading-relaxed text-muted-foreground">
             {application.decisionNote}
           </p>
         )}

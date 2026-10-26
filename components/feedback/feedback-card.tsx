@@ -63,7 +63,7 @@ export function FeedbackCard({
   const review = REVIEW_STATUS_META[feedback.reviewStatus];
 
   return (
-    <article className="space-y-4 rounded-xl border border-border bg-surface p-5">
+    <article className="space-y-4 rounded-xl border-2 border-line bg-surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           {tester ? (
@@ -122,7 +122,7 @@ export function FeedbackCard({
 
       <MediaGallery media={feedback.media ?? []} />
 
-      <dl className="flex flex-wrap gap-x-5 gap-y-1 border-t border-border pt-3 text-xs text-subtle-foreground">
+      <dl className="flex flex-wrap gap-x-5 gap-y-1 border-t-2 border-dashed border-border pt-3 text-xs text-subtle-foreground">
         <div className="flex items-center gap-1.5">
           <Clock className="size-3" aria-hidden />
           <dt className="sr-only">Hours played</dt>

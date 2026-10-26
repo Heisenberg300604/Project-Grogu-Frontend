@@ -82,7 +82,7 @@ export function AccessPanel({
       </div>
 
       {!link && (
-        <p className="rounded-lg border border-border bg-elevated px-3.5 py-3 text-sm text-muted-foreground">
+        <p className="rounded-lg border-2 border-line bg-elevated px-3.5 py-3 text-sm text-muted-foreground">
           {hasDetails
             ? "The studio hasn't shared a download link. Follow the instructions below, then mark the build as received."
             : "The studio hasn't shared download details yet. Once you have the build, mark it as received to start the tasks."}
@@ -95,7 +95,7 @@ export function AccessPanel({
             <KeyRound className="size-3.5" aria-hidden /> Access key
           </p>
           <div className="flex items-center gap-2">
-            <code className="min-w-0 flex-1 truncate rounded-md border border-border bg-elevated px-3 py-2 font-mono text-sm">
+            <code className="min-w-0 flex-1 truncate rounded-md border-2 border-line bg-elevated px-3 py-2 font-mono text-sm">
               {playtest.accessKey}
             </code>
             <Button
@@ -115,7 +115,7 @@ export function AccessPanel({
       {playtest.installInstructions && (
         <div className="space-y-1.5">
           <p className="text-label text-subtle-foreground">Install instructions</p>
-          <p className="whitespace-pre-wrap rounded-lg border border-border bg-elevated px-3.5 py-3 text-sm leading-relaxed text-muted-foreground">
+          <p className="whitespace-pre-wrap rounded-lg border-2 border-line bg-elevated px-3.5 py-3 text-sm leading-relaxed text-muted-foreground">
             {playtest.installInstructions}
           </p>
         </div>

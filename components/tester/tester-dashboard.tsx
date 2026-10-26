@@ -95,7 +95,7 @@ export function TesterDashboard() {
       </StatCardGrid>
 
       {profile && (
-        <section className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-5 sm:flex-row sm:items-center">
+        <section className="flex flex-col gap-4 rounded-xl border-2 border-line bg-surface p-5 sm:flex-row sm:items-center">
           <div className="min-w-0 flex-1">
             <LevelProgress profile={profile.profile} />
           </div>

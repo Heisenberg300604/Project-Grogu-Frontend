@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { getTesterDirectory } from "@/data";
 import { Container } from "@/components/ui/container";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { DirectoryTabs } from "@/components/directory/directory-tabs";
 import { TesterDirectory } from "@/components/directory/tester-directory";
 
@@ -16,11 +17,11 @@ export default async function TestersPage() {
 
   return (
     <>
-      <div className="surface-grid border-b border-border">
+      <div className="dots border-b-2 border-line">
         <Container className="py-12 sm:py-16">
           <DirectoryTabs className="mb-6" />
-          <p className="text-label text-secondary">Community</p>
-          <h1 className="text-display-sm mt-3 max-w-2xl">Meet the testers</h1>
+          <Eyebrow>Community</Eyebrow>
+          <h1 className="text-display-sm max-w-2xl">Meet the testers</h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
             The players who give studios structured feedback. Browse by
             experience, platform and the genres they know best.

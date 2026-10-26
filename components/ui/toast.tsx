@@ -36,15 +36,15 @@ const TONE_META: Record<
 > = {
   success: {
     icon: CheckCircle2,
-    className: "border-success/30",
+    className: "border-line",
     iconClass: "text-success",
   },
   error: {
     icon: AlertTriangle,
-    className: "border-destructive/30",
+    className: "border-line",
     iconClass: "text-destructive",
   },
-  info: { icon: Info, className: "border-border", iconClass: "text-secondary" },
+  info: { icon: Info, className: "border-line", iconClass: "text-secondary" },
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -82,14 +82,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               key={toast.id}
               role="status"
               className={cn(
-                "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border bg-elevated p-3.5 shadow-lg",
-                "animate-in slide-in-from-bottom-2 fade-in-0 duration-[180ms]",
+                "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border-2 bg-surface p-3.5 shadow-md",
+                "a-pop",
                 meta.className,
               )}
             >
               <Icon className={cn("mt-0.5 size-4 shrink-0", meta.iconClass)} aria-hidden />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground">{toast.title}</p>
+                <p className="text-sm font-bold text-foreground">{toast.title}</p>
                 {toast.description && (
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {toast.description}

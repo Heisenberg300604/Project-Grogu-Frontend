@@ -43,14 +43,14 @@ export function UserMenu({ session }: { session: Session }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex items-center gap-2 rounded-full p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex items-center gap-2 rounded-full transition-transform hover:scale-105"
         aria-label="Account menu"
       >
         <UserAvatar name={session.user.name} src={session.user.avatarUrl} />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>
-          <span className="block text-sm font-medium text-foreground">
+          <span className="block text-sm font-bold text-foreground">
             {session.user.name}
           </span>
           <span className="block truncate text-xs text-muted-foreground">

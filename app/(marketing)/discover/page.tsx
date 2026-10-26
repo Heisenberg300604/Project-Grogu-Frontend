@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { getDiscoverablePlaytests } from "@/data";
 import { Container } from "@/components/ui/container";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { CardGridSkeleton } from "@/components/ui/states";
 import { DirectoryTabs } from "@/components/directory/directory-tabs";
 import { DiscoverExplorer } from "@/components/playtests/discover-explorer";
@@ -37,11 +38,11 @@ function DiscoverListFallback() {
 export default function DiscoverPage() {
   return (
     <>
-      <div className="surface-grid border-b border-border">
+      <div className="dots border-b-2 border-line">
         <Container className="py-12 sm:py-16">
           <DirectoryTabs className="mb-6" />
-          <p className="text-label text-secondary">Discover</p>
-          <h1 className="text-display-sm mt-3 max-w-2xl">
+          <Eyebrow tone="mint">Open now</Eyebrow>
+          <h1 className="text-display-sm max-w-2xl">
             Find your next playtest
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">

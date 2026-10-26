@@ -1,16 +1,19 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { Eyebrow } from "@/components/ui/eyebrow";
 
 /** Consistent eyebrow + title + lead block for marketing sections. */
 export function SectionHeading({
   eyebrow,
+  eyebrowTone,
   title,
   lead,
   align = "left",
   className,
 }: {
   eyebrow?: string;
+  eyebrowTone?: React.ComponentProps<typeof Eyebrow>["tone"];
   title: string;
   lead?: string;
   align?: "left" | "center";
@@ -24,7 +27,7 @@ export function SectionHeading({
         className,
       )}
     >
-      {eyebrow && <span className="text-label text-secondary">{eyebrow}</span>}
+      {eyebrow && <Eyebrow tone={eyebrowTone} className="mb-0">{eyebrow}</Eyebrow>}
       <h2 className="text-display-sm">{title}</h2>
       {lead && (
         <p className="text-base leading-relaxed text-muted-foreground">{lead}</p>

@@ -92,7 +92,7 @@ export function DirectoryLayout<SortKey extends string>({
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="max-w-sm overflow-y-auto">
-              <SheetTitle className="font-display text-base font-semibold">
+              <SheetTitle className="font-display text-base font-bold">
                 Filters
               </SheetTitle>
               {filterPanel}
@@ -137,7 +137,7 @@ export function DirectoryLayout<SortKey extends string>({
         <div className="min-w-0 space-y-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground" aria-live="polite">
-              <span className="font-medium text-foreground">{resultCount}</span>{" "}
+              <span className="font-bold text-foreground">{resultCount}</span>{" "}
               {resultCount === 1 ? noun.singular : noun.plural}
               {filtering && " match your filters"}
             </p>

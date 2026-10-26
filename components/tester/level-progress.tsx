@@ -1,6 +1,8 @@
+import { Flame } from "lucide-react";
+
 import type { TesterProfile } from "@/lib/types";
 import { levelProgress } from "@/lib/domain";
-import { Progress } from "@/components/ui/progress";
+import { Segments } from "@/components/ui/segments";
 
 type LevelFields = Pick<
   TesterProfile,
@@ -13,25 +15,30 @@ export function levelLabel(profile: Pick<TesterProfile, "level" | "levelTitle">)
 }
 
 /**
- * The tester's level and how far they are from the next one. Levels come from
- * the server's threshold table; this only draws them.
+ * The tester's level and how far they are from the next one, drawn as a
+ * segmented XP bar. Levels come from the server's threshold table; this only
+ * draws them.
  */
 export function LevelProgress({ profile }: { profile: LevelFields }) {
   const { percent, toNext } = levelProgress(profile);
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">{levelLabel(profile)}</span>
+    <div className="space-y-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm text-muted-foreground">
+        <span className="flex items-center gap-2 font-bold text-foreground">
+          <Flame className="size-[18px] text-destructive" aria-hidden />
+          {levelLabel(profile)}
+        </span>
         <span className="tabular-nums">
           {toNext === null
             ? `${profile.reputation} reputation · top level`
             : `${profile.reputation} reputation · ${toNext} to level ${profile.level + 1}`}
         </span>
       </div>
-      <Progress
-        value={percent}
-        aria-label={
+      <Segments
+        value={percent / 100}
+        total={24}
+        label={
           toNext === null
             ? `${levelLabel(profile)}, the top level`
             : `${percent}% of the way to level ${profile.level + 1}`

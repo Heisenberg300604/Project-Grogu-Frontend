@@ -87,7 +87,7 @@ export function MediaUploader({
             return (
               <li
                 key={item.url}
-                className="relative overflow-hidden rounded-lg border border-border bg-elevated"
+                className="relative overflow-hidden rounded-lg border-2 border-line bg-elevated"
               >
                 {src && item.kind === "image" && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -115,7 +115,7 @@ export function MediaUploader({
                     onChange(value.filter((m) => m.url !== item.url))
                   }
                   aria-label={`Remove ${item.name || "attachment"}`}
-                  className="absolute right-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-dark/80 text-foreground backdrop-blur-sm transition-colors hover:bg-dark focus-visible:outline-none"
+                  className="absolute right-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-dark/80 text-white backdrop-blur-sm transition-colors hover:bg-dark"
                 >
                   <X className="size-3.5" aria-hidden />
                 </button>

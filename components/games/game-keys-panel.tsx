@@ -85,11 +85,11 @@ export function GameKeysPanel({ game }: { game: Game }) {
   return (
     <section
       id="game-keys"
-      className="scroll-mt-24 space-y-5 rounded-xl border border-border bg-surface p-5"
+      className="scroll-mt-24 space-y-5 rounded-xl border-2 border-line bg-surface p-5"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="flex items-center gap-2 font-display text-base font-semibold">
+          <h2 className="flex items-center gap-2 font-display text-base font-bold">
             <KeyRound className="size-4 text-secondary" aria-hidden /> Reward keys
           </h2>
           <p className="max-w-xl text-sm text-muted-foreground">
@@ -133,7 +133,7 @@ export function GameKeysPanel({ game }: { game: Game }) {
       </div>
 
       {keys.length > 0 && (
-        <ul className="max-h-80 divide-y divide-border overflow-y-auto rounded-lg border border-border">
+        <ul className="max-h-80 divide-y divide-border overflow-y-auto rounded-lg border-2 border-line">
           {keys.map((key) => (
             <li
               key={key.id}

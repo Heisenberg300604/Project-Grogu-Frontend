@@ -33,11 +33,11 @@ export function TaskList({
           <li
             key={task.id}
             className={cn(
-              "flex gap-3.5 rounded-lg border p-4 transition-colors duration-[180ms]",
+              "flex gap-3.5 rounded-lg border-2 p-4 transition-colors duration-[180ms]",
               done
-                ? "border-success/35 bg-success/6"
-                : "border-border bg-surface",
-              interactive && !done && "hover:border-border-strong",
+                ? "border-success bg-success/10"
+                : "border-line bg-surface",
+              interactive && !done && "hover:bg-elevated",
             )}
           >
             {interactive ? (
@@ -52,7 +52,7 @@ export function TaskList({
               <span
                 aria-hidden
                 className={cn(
-                  "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border text-[10px] font-semibold tabular-nums",
+                  "mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-2 text-[10px] font-semibold tabular-nums",
                   done
                     ? "border-success bg-success text-success-foreground"
                     : "border-border-strong text-subtle-foreground",

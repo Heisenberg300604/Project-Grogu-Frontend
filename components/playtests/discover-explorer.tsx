@@ -156,7 +156,7 @@ export function DiscoverExplorer({
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="max-w-sm overflow-y-auto">
-              <SheetTitle className="font-display text-base font-semibold">
+              <SheetTitle className="font-display text-base font-bold">
                 Filters
               </SheetTitle>
               {filterPanel}
@@ -245,7 +245,7 @@ export function DiscoverExplorer({
               {visible.length > 0 && (
                 <section className="space-y-5">
                   {featured && (
-                    <h2 className="font-display text-lg font-semibold">
+                    <h2 className="font-display text-lg font-bold">
                       More open playtests
                     </h2>
                   )}

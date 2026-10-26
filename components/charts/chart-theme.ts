@@ -1,22 +1,23 @@
 /**
- * Shared chart palette — pulls from the design tokens so charts match the rest
- * of the UI in the dark theme. Values are resolved hex (Recharts needs concrete
- * colours, not CSS variables, for SVG fills).
+ * Shared chart palette. Fills use the brand colours, which are the same in the
+ * light and dark themes. Lines and text use CSS variables so they follow the
+ * active theme; Recharts passes them straight through to SVG attributes.
  */
 export const CHART_COLORS = {
-  primary: "#6c37c3",
-  secondary: "#b0b3d7",
-  success: "#3fb984",
-  warning: "#e0a73b",
-  destructive: "#e5555a",
-  info: "#5b8dff",
-  grid: "#2a2540",
-  axis: "#9a95ae",
-  surface: "#16131f",
+  primary: "#5b3ff0",
+  secondary: "#34b6ff",
+  success: "#19c58d",
+  warning: "#ffc933",
+  destructive: "#ff5a7a",
+  info: "#34b6ff",
+  grid: "var(--border)",
+  axis: "var(--muted-foreground)",
+  label: "var(--foreground)",
+  outline: "var(--line)",
 } as const;
 
 export const SENTIMENT_COLORS = {
   positive: CHART_COLORS.success,
-  neutral: CHART_COLORS.secondary,
+  neutral: CHART_COLORS.warning,
   negative: CHART_COLORS.destructive,
 } as const;

@@ -31,10 +31,10 @@ export function ApplyPanel({ playtest }: { playtest: PlaytestWithRelations }) {
   const closingSoon = isClosingSoon(playtest.closesAt);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-elevated shadow-md">
+    <div className="overflow-hidden rounded-xl border-2 border-line bg-elevated shadow-md">
       <div className="space-y-4 p-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="font-display text-base font-semibold">
+          <p className="font-display text-base font-bold">
             {isOpen ? "Applications open" : "Not recruiting"}
           </p>
           {isOpen && closingSoon && !isFull && (
@@ -90,7 +90,7 @@ function PanelNote({
   children: React.ReactNode;
 }) {
   return (
-    <p className="flex items-start gap-2.5 rounded-lg border border-border bg-surface p-3 text-sm text-muted-foreground">
+    <p className="flex items-start gap-2.5 rounded-lg border-2 border-line bg-surface p-3 text-sm text-muted-foreground">
       <Icon className="mt-0.5 size-4 shrink-0 text-subtle-foreground" aria-hidden />
       <span>{children}</span>
     </p>
@@ -121,10 +121,10 @@ function PanelAction({
     return (
       <div className="space-y-3">
         <div
-          className={`flex items-start gap-2.5 rounded-lg border p-3 text-sm ${
+          className={`flex items-start gap-2.5 rounded-lg border-2 p-3 text-sm ${
             accepted
-              ? "border-success/30 bg-success/10"
-              : "border-border bg-surface"
+              ? "border-success bg-success/10"
+              : "border-line bg-surface"
           }`}
         >
           {accepted && (

@@ -9,9 +9,11 @@ import Link from "next/link";
 export function AuthCard({
   title,
   description,
+  eyebrow = "Select player",
   children,
   footer,
 }: {
+  eyebrow?: string;
   title: string;
   description: string;
   children: React.ReactNode;
@@ -20,7 +22,8 @@ export function AuthCard({
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="font-display text-2xl font-semibold">{title}</h1>
+        <p className="hud text-secondary">{eyebrow}</p>
+        <h1 className="font-display text-4xl font-extrabold">{title}</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           {description}
         </p>
@@ -28,7 +31,7 @@ export function AuthCard({
 
       {children}
 
-      <div className="space-y-3 border-t border-border pt-6">
+      <div className="space-y-3 border-t-2 border-dashed border-border pt-6">
         <p className="text-sm text-muted-foreground">{footer}</p>
         <p className="text-xs text-subtle-foreground">
           Prototype · no real accounts.{" "}

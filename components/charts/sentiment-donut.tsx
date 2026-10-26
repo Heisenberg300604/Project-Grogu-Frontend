@@ -41,7 +41,8 @@ export function SentimentDonut({
               innerRadius={44}
               outerRadius={68}
               paddingAngle={2}
-              stroke="none"
+              stroke="var(--line)"
+              strokeWidth={2}
             >
               {data.map((entry) => (
                 <Cell key={entry.key} fill={SENTIMENT_COLORS[entry.key]} />
@@ -54,12 +55,12 @@ export function SentimentDonut({
         {data.map((entry) => (
           <li key={entry.key} className="flex items-center gap-2">
             <span
-              className="size-2.5 rounded-full"
+              className="size-3 rounded-full border-2 border-line"
               style={{ backgroundColor: SENTIMENT_COLORS[entry.key] }}
               aria-hidden
             />
             <span className="text-muted-foreground">{entry.name}</span>
-            <span className="font-medium tabular-nums">
+            <span className="font-bold tabular-nums">
               {entry.value} ({Math.round((entry.value / total) * 100)}%)
             </span>
           </li>

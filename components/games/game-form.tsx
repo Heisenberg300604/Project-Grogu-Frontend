@@ -50,7 +50,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const CHIP =
-  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-[120ms] focus-visible:outline-none";
+  "rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-colors duration-[120ms]";
 
 /** Section wrapper — heading plus fields, separated by a hairline. */
 function FormSection({
@@ -63,9 +63,9 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-5 border-t border-border pt-6 first:border-0 first:pt-0">
+    <section className="space-y-5 border-t-2 border-dashed border-border pt-6 first:border-0 first:pt-0">
       <div className="space-y-1">
-        <h2 className="font-display text-lg font-semibold">{title}</h2>
+        <h2 className="font-display text-lg font-bold">{title}</h2>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}
@@ -214,8 +214,8 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                       className={cn(
                         CHIP,
                         genres.includes(genre)
-                          ? "border-primary-line bg-primary-soft text-secondary"
-                          : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+                          ? "border-line bg-primary text-primary-foreground shadow-sm"
+                          : "border-line bg-surface text-foreground hover:-translate-y-0.5",
                       )}
                     >
                       {GENRE_LABELS[genre]}
@@ -234,8 +234,8 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
                       className={cn(
                         CHIP,
                         platforms.includes(platform)
-                          ? "border-primary-line bg-primary-soft text-secondary"
-                          : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+                          ? "border-line bg-primary text-primary-foreground shadow-sm"
+                          : "border-line bg-surface text-foreground hover:-translate-y-0.5",
                       )}
                     >
                       {PLATFORM_LABELS[platform]}
@@ -279,7 +279,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
 
           {formError && (
             <p
-              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
               role="alert"
             >
               {formError}
@@ -288,7 +288,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
 
           {successMessage && (
             <p
-              className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+              className="rounded-md border-2 border-success bg-success/10 px-3 py-2 text-sm text-success"
               role="status"
             >
               {successMessage}
@@ -306,7 +306,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-          <div className="overflow-hidden rounded-xl border border-border bg-surface">
+          <div className="overflow-hidden rounded-xl border-2 border-line bg-surface">
             <GameArt
               game={{
                 title: title || "Your game",
@@ -317,7 +317,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
               ratio="16/10"
               scrim
             >
-              <p className="absolute inset-x-4 bottom-3 truncate font-display text-base font-semibold text-white">
+              <p className="absolute inset-x-4 bottom-3 truncate font-display text-base font-bold text-white">
                 {title || "Your game"}
               </p>
             </GameArt>
@@ -332,7 +332,7 @@ export function GameForm({ initialGame }: { initialGame?: Game }) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="rounded-xl border-2 border-line bg-surface p-4">
             <p className="text-label mb-3 text-subtle-foreground">Cover accent</p>
             <div className="flex flex-wrap gap-2">
               {HUES.map((h) => (

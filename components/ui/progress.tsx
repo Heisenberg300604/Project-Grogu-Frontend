@@ -18,14 +18,14 @@ export const Progress = React.forwardRef<
       ref={ref}
       value={clamped}
       className={cn(
-        "relative h-2 w-full overflow-hidden rounded-full bg-muted",
+        "relative h-3.5 w-full overflow-hidden rounded-full border-2 border-line bg-elevated",
         className,
       )}
       {...props}
     >
       <ProgressPrimitive.Indicator
         className={cn(
-          "h-full rounded-full bg-primary transition-[width] duration-500 ease-out",
+          "h-full rounded-full border-r-2 border-line bg-primary transition-[width] duration-700 ease-out",
           indicatorClassName,
         )}
         style={{ width: `${clamped}%` }}

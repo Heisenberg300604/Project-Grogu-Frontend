@@ -30,12 +30,12 @@ export function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
             <div className="flex items-center gap-3 sm:w-full">
               <span
                 className={cn(
-                  "grid size-8 shrink-0 place-items-center rounded-full border text-xs font-semibold tabular-nums transition-colors duration-[180ms]",
+                  "hud grid size-9 shrink-0 place-items-center rounded-full border-2 border-line text-xs transition-colors duration-[180ms]",
                   step.done
-                    ? "border-success bg-success text-success-foreground"
+                    ? "bg-mint text-ink shadow-sm"
                     : active
-                      ? "border-primary bg-primary-soft text-secondary"
-                      : "border-border-strong text-subtle-foreground",
+                      ? "a-pop bg-primary text-primary-foreground shadow-sm"
+                      : "bg-elevated text-subtle-foreground",
                 )}
               >
                 {step.done ? <Check className="size-4" aria-hidden /> : i + 1}
@@ -46,8 +46,8 @@ export function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
                 <span
                   aria-hidden
                   className={cn(
-                    "hidden h-px flex-1 transition-colors duration-[180ms] sm:block",
-                    step.done ? "bg-success/60" : "bg-border",
+                    "hidden h-1 flex-1 transition-colors duration-[180ms] sm:block",
+                    step.done ? "bg-mint" : "bg-border",
                   )}
                 />
               )}
@@ -56,7 +56,7 @@ export function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
             <div className="min-w-0 sm:pr-6">
               <p
                 className={cn(
-                  "text-sm font-medium",
+                  "text-sm font-bold",
                   step.done || active ? "text-foreground" : "text-muted-foreground",
                 )}
               >

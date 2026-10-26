@@ -77,7 +77,7 @@ export function MetaStat({
   return (
     <div className={cn("min-w-0", className)}>
       <dt className="text-label text-subtle-foreground">{label}</dt>
-      <dd className="mt-1.5 truncate font-display text-lg font-semibold tabular-nums text-foreground">
+      <dd className="mt-1.5 truncate font-display text-xl font-extrabold tabular-nums text-foreground">
         {value}
       </dd>
       {hint && <p className="mt-0.5 truncate text-xs text-muted-foreground">{hint}</p>}
@@ -93,7 +93,7 @@ export function MetaStatGrid({
   return (
     <dl
       className={cn(
-        "grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-4 [&>*]:bg-surface [&>*]:p-4",
+        "grid grid-cols-2 gap-0.5 overflow-hidden rounded-xl border-2 border-line bg-line shadow-md sm:grid-cols-4 [&>*]:bg-surface [&>*]:p-4",
         className,
       )}
       {...props}

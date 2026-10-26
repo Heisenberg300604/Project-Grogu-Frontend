@@ -2,13 +2,15 @@ import { ClipboardList, MessageSquareText, Search, UserCheck } from "lucide-reac
 import type { LucideIcon } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { Reveal } from "@/components/ui/reveal";
 
 interface Step {
   icon: LucideIcon;
   title: string;
   description: string;
   audience: "Testers" | "Developers";
+  tile: string;
 }
 
 const STEPS: Step[] = [
@@ -18,6 +20,7 @@ const STEPS: Step[] = [
     description:
       "Browse open playtests filtered by platform, genre, time commitment, and the skills the developer is looking for.",
     audience: "Testers",
+    tile: "bg-gold",
   },
   {
     icon: UserCheck,
@@ -25,6 +28,7 @@ const STEPS: Step[] = [
     description:
       "Send a short pitch. Developers review applicants against their requirements and build a focused tester group.",
     audience: "Testers",
+    tile: "bg-azure",
   },
   {
     icon: ClipboardList,
@@ -32,6 +36,7 @@ const STEPS: Step[] = [
     description:
       "Work through the developer's objectives, surveys, and bug-report tasks — with time estimates so nothing is a surprise.",
     audience: "Testers",
+    tile: "bg-mint",
   },
   {
     icon: MessageSquareText,
@@ -39,55 +44,53 @@ const STEPS: Step[] = [
     description:
       "Ratings, highlights, pain points, and repro steps land in one place. Developers see analytics; testers build reputation.",
     audience: "Developers",
+    tile: "bg-coral",
   },
 ];
 
 /**
- * The four-step loop. Numbered rail rather than four cards — the steps are a
- * sequence, and boxing each one hides that.
+ * The four-step loop, drawn as a level map: numbered badges on a dashed trail.
  */
 export function HowItWorks() {
   return (
-    <section className="border-b border-border bg-surface/35 py-24 lg:py-32">
-      <Container className="flex flex-col gap-12">
-        <div className="max-w-2xl">
-          <SectionHeading
-            eyebrow="The shared loop"
-            title="From first brief to feedback you can act on"
-            lead="Four steps keep the session focused for players and useful for the people building the game."
+    <section className="border-b-2 border-line bg-elevated py-24">
+      <Container>
+        <Reveal>
+          <Eyebrow tone="coral">The shared loop</Eyebrow>
+          <h2 className="text-display-sm md:text-6xl">
+            From first brief to feedback you can act on
+          </h2>
+          <p className="mt-5 max-w-xl text-muted-foreground">
+            Four steps keep the session focused for players and useful for the people building the game.
+          </p>
+        </Reveal>
+
+        <ol className="relative mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-9 hidden h-0 border-t-4 border-dashed border-line lg:block"
           />
-        </div>
-
-        <ol className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, index) => (
-            <li key={step.title} className="relative flex flex-col gap-5 border-t border-border-strong/70 pt-5">
-              {/* Connector rail — desktop only, and not after the last step. */}
-              {index < STEPS.length - 1 && (
-                <span
-                  aria-hidden
-                  className="absolute left-11 top-5 hidden h-px w-[calc(100%-1rem)] bg-linear-to-r from-border-strong to-transparent lg:block"
-                />
-              )}
-
-              <div className="flex items-center gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-primary-line bg-primary-soft text-secondary">
-                  <step.icon className="size-4.5" aria-hidden />
-                </span>
-                <span className="font-display text-sm font-semibold tabular-nums text-secondary">
-                  0{index + 1}
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-base font-semibold">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {step.description}
-                </p>
-              </div>
-
-              <span className="text-label mt-auto text-secondary-muted">
-                {step.audience}
-              </span>
+            <li key={step.title}>
+              <Reveal delay={index * 110}>
+                <div className="wiggle-hover relative">
+                  <div className="relative z-10 mb-5 flex items-center gap-3">
+                    <span
+                      className={`wiggle-target grid size-[72px] place-items-center rounded-full border-2 border-line text-ink shadow-sm ${step.tile}`}
+                    >
+                      <step.icon size={28} aria-hidden />
+                    </span>
+                    <span className="hud rounded-md border-2 border-line bg-surface px-2 py-1.5">
+                      Lv {index + 1}
+                    </span>
+                  </div>
+                  <div className="h-full rounded-xl border-2 border-line bg-surface p-5 shadow-md">
+                    <h3 className="text-xl font-bold">{step.title}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
+                    <div className="hud mt-4 text-secondary">{step.audience}</div>
+                  </div>
+                </div>
+              </Reveal>
             </li>
           ))}
         </ol>

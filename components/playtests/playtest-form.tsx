@@ -153,10 +153,10 @@ function ChipToggle({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-[120ms] focus-visible:outline-none",
+        "rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-colors duration-[120ms]",
         active
-          ? "border-primary-line bg-primary-soft text-secondary"
-          : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+          ? "border-line bg-primary text-primary-foreground shadow-sm"
+          : "border-line bg-surface text-foreground hover:-translate-y-0.5",
       )}
     >
       {children}
@@ -186,11 +186,11 @@ function StepRail({
                 disabled={!done && !current}
                 aria-current={current ? "step" : undefined}
                 className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-[120ms]",
+                  "flex shrink-0 items-center gap-2 rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-colors duration-[120ms]",
                   current
-                    ? "border-primary-line bg-primary-soft text-secondary"
+                    ? "border-line bg-primary text-primary-foreground shadow-sm"
                     : done
-                      ? "border-border text-foreground hover:bg-accent"
+                      ? "border-line bg-surface text-foreground hover:bg-elevated"
                       : "border-border text-subtle-foreground",
                 )}
               >
@@ -199,7 +199,7 @@ function StepRail({
                     "grid size-4 place-items-center rounded-full text-[10px] tabular-nums",
                     done
                       ? "bg-success text-success-foreground"
-                      : "border border-current",
+                      : "border-2 border-current",
                   )}
                 >
                   {done ? <Check className="size-2.5" /> : i + 1}
@@ -234,7 +234,7 @@ function StepPanel({
     <section className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="font-display text-lg font-semibold">{title}</h2>
+          <h2 className="font-display text-lg font-bold">{title}</h2>
           {description && (
             <p className="text-sm text-muted-foreground">{description}</p>
           )}
@@ -248,7 +248,7 @@ function StepPanel({
 
 function ReviewRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="grid gap-1 border-b border-border py-3 last:border-0 sm:grid-cols-[9rem_1fr] sm:gap-4">
+    <div className="grid gap-1 border-b-2 border-dashed border-border py-3 last:border-0 sm:grid-cols-[9rem_1fr] sm:gap-4">
       <dt className="text-label text-subtle-foreground">{label}</dt>
       <dd className="text-sm text-foreground">{value || "—"}</dd>
     </div>
@@ -485,10 +485,10 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
                         aria-checked={active}
                         onClick={() => field.onChange(game.id)}
                         className={cn(
-                          "flex items-center gap-3 overflow-hidden rounded-xl border p-3 text-left transition-colors duration-[120ms] focus-visible:outline-none",
+                          "flex items-center gap-3 overflow-hidden rounded-xl border-2 p-3 text-left transition-colors duration-[120ms]",
                           active
-                            ? "border-primary bg-primary-soft"
-                            : "border-border bg-surface hover:border-border-strong",
+                            ? "border-line bg-primary-soft shadow-sm"
+                            : "border-line bg-surface hover:bg-elevated",
                         )}
                       >
                         <GameArt
@@ -708,7 +708,7 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
                 />
               </Field>
 
-              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface p-3.5">
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-line bg-surface p-3.5">
                 <Controller
                   control={control}
                   name="ndaRequired"
@@ -835,7 +835,7 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
                 {fields.map((fieldItem, index) => (
                   <div
                     key={fieldItem.id}
-                    className="space-y-4 rounded-xl border border-border bg-surface p-4"
+                    className="space-y-4 rounded-xl border-2 border-line bg-surface p-4"
                   >
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">Task {index + 1}</p>
@@ -946,14 +946,14 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
           >
             <div className="space-y-6">
               {selectedGame && (
-                <div className="flex items-center gap-4 rounded-xl border border-border bg-surface p-4">
+                <div className="flex items-center gap-4 rounded-xl border-2 border-line bg-surface p-4">
                   <GameArt
                     game={selectedGame}
                     ratio="3/2"
                     className="w-28 shrink-0 rounded-lg"
                   />
                   <div className="min-w-0">
-                    <p className="truncate font-display text-base font-semibold">
+                    <p className="truncate font-display text-base font-bold">
                       {selectedGame.title}
                     </p>
                     <p className="truncate text-sm text-muted-foreground">
@@ -1028,7 +1028,7 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
 
         {formError && (
           <p
-            className="mt-6 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            className="mt-6 rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
             role="alert"
           >
             {formError}
@@ -1036,7 +1036,7 @@ export function PlaytestForm({ initialPlaytest }: { initialPlaytest?: Playtest }
         )}
 
         {/* ---- Controls -------------------------------------------------- */}
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t-2 border-dashed border-border pt-6">
           {step > 0 ? (
             <Button
               type="button"

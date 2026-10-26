@@ -149,7 +149,7 @@ export function DeveloperDashboard() {
             description="Reports from your testers will appear here as they submit them."
           />
         ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
+          <ul className="divide-y divide-border rounded-xl border-2 border-line bg-surface">
             {feedback.slice(0, 5).map(({ feedback: f, playtest, tester }) => (
               <li
                 key={f.id}

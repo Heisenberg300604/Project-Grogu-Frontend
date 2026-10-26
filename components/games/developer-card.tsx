@@ -18,7 +18,7 @@ export function DeveloperCard({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-surface p-5",
+        "rounded-xl border-2 border-line bg-surface p-5",
         className,
       )}
     >
@@ -29,7 +29,7 @@ export function DeveloperCard({
           className="size-12"
         />
         <div className="min-w-0">
-          <p className="truncate font-display text-base font-semibold">
+          <p className="truncate font-display text-base font-bold">
             <Link
               href={`/studios/${user.id}`}
               className="transition-colors hover:text-secondary"
@@ -47,7 +47,7 @@ export function DeveloperCard({
         {user.bio}
       </p>
 
-      <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+      <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t-2 border-dashed border-border pt-4 text-xs text-muted-foreground">
         {profile && (
           <div className="flex items-center gap-2">
             <Building2 className="size-3.5 text-subtle-foreground" aria-hidden />

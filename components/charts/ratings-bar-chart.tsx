@@ -38,12 +38,20 @@ export function RatingsBarChart({ ratings }: { ratings: FeedbackRatings }) {
             tickLine={false}
             axisLine={false}
           />
-          <Bar dataKey="value" fill={CHART_COLORS.primary} radius={[4, 4, 0, 0]} maxBarSize={56}>
+          <Bar
+            dataKey="value"
+            fill={CHART_COLORS.primary}
+            stroke={CHART_COLORS.outline}
+            strokeWidth={2}
+            radius={[6, 6, 0, 0]}
+            maxBarSize={56}
+          >
             <LabelList
               dataKey="value"
               position="top"
-              fill={CHART_COLORS.secondary}
+              fill={CHART_COLORS.label}
               fontSize={12}
+              fontWeight={700}
             />
           </Bar>
         </BarChart>

@@ -9,7 +9,7 @@ import { GameCard } from "@/components/games/game-card";
 
 export function FeaturedGames({ games }: { games: Game[] }) {
   return (
-    <section className="border-b border-border bg-surface/40 py-20">
+    <section className="border-b-2 border-dashed border-border bg-surface/40 py-20">
       <Container className="flex flex-col gap-10">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading

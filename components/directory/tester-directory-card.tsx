@@ -30,8 +30,8 @@ export function TesterDirectoryCard({
   return (
     <article
       className={cn(
-        "lift group relative flex flex-col gap-4 rounded-xl border border-border bg-surface p-5",
-        "hover:border-border-strong focus-within:border-border-strong",
+        "card-lift shadow-md group relative flex flex-col gap-4 rounded-xl border-2 border-line bg-surface p-5",
+        "hover:border-border-strong",
         className,
       )}
     >
@@ -42,7 +42,7 @@ export function TesterDirectoryCard({
           className="size-12 shrink-0"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-display text-base font-semibold">
+          <h3 className="truncate font-display text-base font-bold">
             <Link
               href={`/testers/${user.id}`}
               className="transition-colors hover:text-secondary"
@@ -58,11 +58,11 @@ export function TesterDirectoryCard({
           </p>
         </div>
 
-        <div className="shrink-0 rounded-lg border border-primary-line bg-primary-soft px-2.5 py-1.5 text-center">
-          <p className="font-display text-lg font-semibold leading-none tabular-nums text-secondary">
+        <div className="shrink-0 rounded-lg border-2 border-line bg-primary px-2.5 py-1.5 text-center text-primary-foreground shadow-sm">
+          <p className="font-display text-xl font-extrabold leading-none tabular-nums">
             {profile.reputation}
           </p>
-          <p className="text-label mt-1 text-[10px] text-subtle-foreground">
+          <p className="hud mt-1 text-[0.55rem]">
             Rep · Lv {profile.level}
           </p>
         </div>
@@ -86,7 +86,7 @@ export function TesterDirectoryCard({
               .join(" • ") + (extraGenres > 0 ? ` +${extraGenres}` : "")}
       </p>
 
-      <dl className="mt-auto flex flex-wrap gap-x-5 gap-y-1.5 border-t border-border pt-3.5 text-xs text-muted-foreground">
+      <dl className="mt-auto flex flex-wrap gap-x-5 gap-y-1.5 border-t-2 border-dashed border-border pt-3.5 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <CheckCircle2 className="size-3.5 text-subtle-foreground" aria-hidden />
           <dt className="sr-only">Completed playtests</dt>

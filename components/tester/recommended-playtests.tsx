@@ -18,7 +18,7 @@ function WhyItFits({ recommendation }: { recommendation: PlaytestRecommendation 
   const strength = matchStrength(recommendation.score);
 
   return (
-    <div className="space-y-2 border-t border-border pt-3">
+    <div className="space-y-2 border-t-2 border-dashed border-border pt-3">
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge tone={strength.tone}>{strength.label}</Badge>
         {recommendation.invited && (
@@ -92,7 +92,7 @@ export function RecommendedPlaytests({ testerId }: { testerId: string }) {
       <div aria-live="polite">
         {!generating && status && (
           <p
-            className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground"
+            className="flex items-start gap-2 rounded-lg border-2 border-warning bg-warning/10 px-3 py-2 text-sm text-foreground"
             role="status"
           >
             <Info className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />

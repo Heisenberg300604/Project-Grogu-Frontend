@@ -6,11 +6,10 @@ export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 /** Shared field styling. `Textarea` and `SelectTrigger` mirror these values. */
 export const fieldClassName = [
-  "w-full rounded-md border border-border bg-input text-sm text-foreground",
-  "transition-colors duration-[120ms]",
+  "w-full rounded-lg border-2 border-line bg-input text-sm text-foreground",
+  "transition-[box-shadow,border-color] duration-[150ms]",
   "placeholder:text-subtle-foreground",
-  "hover:border-border-strong",
-  "focus-visible:border-ring focus-visible:outline-none",
+  "focus-visible:outline-none focus-visible:shadow-[4px_4px_0_var(--grape)]",
   "aria-[invalid=true]:border-destructive",
   "disabled:cursor-not-allowed disabled:opacity-50",
 ].join(" ");

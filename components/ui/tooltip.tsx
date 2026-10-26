@@ -50,7 +50,7 @@ export function Tooltip({
         hidden={!open}
         className={cn(
           "pointer-events-none absolute left-1/2 z-50 w-max max-w-56 -translate-x-1/2 rounded-md",
-          "border border-border bg-elevated px-2.5 py-1.5 text-xs text-elevated-foreground shadow-md",
+          "border-2 border-line bg-surface px-2.5 py-1.5 text-xs font-semibold text-surface-foreground shadow-sm",
           "animate-in fade-in-0 zoom-in-95 duration-[120ms]",
           side === "top" ? "bottom-full mb-2" : "top-full mt-2",
         )}

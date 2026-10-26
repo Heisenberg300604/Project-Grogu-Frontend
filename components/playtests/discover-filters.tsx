@@ -61,10 +61,10 @@ export function FilterChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-[120ms] focus-visible:outline-none",
+        "rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-[transform,background-color] duration-[120ms]",
         active
-          ? "border-primary-line bg-primary-soft text-secondary"
-          : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+          ? "border-line bg-primary text-primary-foreground shadow-sm"
+          : "border-line bg-surface text-foreground hover:-translate-y-0.5",
       )}
     >
       {children}
@@ -80,10 +80,12 @@ export function FilterGroup({
   children: React.ReactNode;
 }) {
   return (
-    <fieldset className="space-y-3 border-t border-border pt-5 first:border-0 first:pt-0">
-      <legend className="text-label text-subtle-foreground">{legend}</legend>
-      <div className="flex flex-wrap gap-1.5">{children}</div>
-    </fieldset>
+    <div className="border-t-2 border-dashed border-border pt-5 first:border-0 first:pt-0">
+      <fieldset className="min-w-0 space-y-3">
+        <legend className="hud mb-3 text-muted-foreground">{legend}</legend>
+        <div className="flex flex-wrap gap-1.5">{children}</div>
+      </fieldset>
+    </div>
   );
 }
 
@@ -148,7 +150,7 @@ export function DiscoverFilterPanel({
         })}
       </FilterGroup>
 
-      <div className="border-t border-border pt-5">
+      <div className="border-t-2 border-dashed border-border pt-5">
         <div className="flex items-center gap-2.5">
           <Checkbox
             id="nda-only"
@@ -159,7 +161,7 @@ export function DiscoverFilterPanel({
           />
           <Label
             htmlFor="nda-only"
-            className="cursor-pointer text-sm font-normal text-muted-foreground"
+            className="cursor-pointer text-sm font-semibold text-muted-foreground"
           >
             Only playtests requiring an NDA
           </Label>

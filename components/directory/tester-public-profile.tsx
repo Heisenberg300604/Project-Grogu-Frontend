@@ -58,7 +58,7 @@ export function TesterPublicProfile({ entry }: { entry: TesterDirectoryEntry }) 
         <ArrowLeft className="size-4" aria-hidden /> All testers
       </Link>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="overflow-hidden rounded-2xl border-2 border-line bg-surface shadow-md">
         <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
           <UserAvatar
             name={user.name}
@@ -68,7 +68,7 @@ export function TesterPublicProfile({ entry }: { entry: TesterDirectoryEntry }) 
 
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="font-display text-2xl font-semibold">{user.name}</h1>
+              <h1 className="font-display text-2xl font-bold">{user.name}</h1>
               <Badge tone="primary" size="md">
                 <Gamepad2 /> Game tester
               </Badge>
@@ -94,16 +94,16 @@ export function TesterPublicProfile({ entry }: { entry: TesterDirectoryEntry }) 
             )}
           </div>
 
-          <div className="shrink-0 rounded-xl border border-primary-line bg-primary-soft px-6 py-4 text-center">
-            <p className="font-display text-4xl font-semibold tabular-nums text-secondary">
+          <div className="shrink-0 rounded-xl border-2 border-line bg-primary px-6 py-4 text-center text-primary-foreground shadow-sm">
+            <p className="font-display text-4xl font-extrabold tabular-nums">
               {profile.reputation}
             </p>
-            <p className="text-label mt-1.5 text-subtle-foreground">Reputation</p>
-            <p className="mt-1 text-xs text-muted-foreground">Level {profile.level}</p>
+            <p className="hud mt-1.5">Reputation</p>
+            <p className="mt-1 text-xs font-semibold">Level {profile.level}</p>
           </div>
         </div>
 
-        <div className="border-t border-border px-6 py-4 sm:px-8">
+        <div className="border-t-2 border-dashed border-border px-6 py-4 sm:px-8">
           <LevelProgress profile={profile} />
         </div>
       </section>
@@ -133,7 +133,7 @@ export function TesterPublicProfile({ entry }: { entry: TesterDirectoryEntry }) 
 
       <div className="grid gap-10 lg:grid-cols-[1fr_19rem]">
         <section className="space-y-5">
-          <h2 className="font-display text-lg font-semibold">Skills</h2>
+          <h2 className="font-display text-lg font-bold">Skills</h2>
           <SkillGroup
             label="Platforms"
             values={profile.platforms.map((p) => PLATFORM_LABELS[p])}
@@ -146,7 +146,7 @@ export function TesterPublicProfile({ entry }: { entry: TesterDirectoryEntry }) 
         </section>
 
         <aside className="space-y-4">
-          <h2 className="font-display text-lg font-semibold">Badges</h2>
+          <h2 className="font-display text-lg font-bold">Badges</h2>
           {profile.badges.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No badges earned yet.
@@ -156,9 +156,9 @@ export function TesterPublicProfile({ entry }: { entry: TesterDirectoryEntry }) 
               {profile.badges.map((badge) => (
                 <li
                   key={badge}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3.5 py-2.5"
+                  className="flex items-center gap-3 rounded-lg border-2 border-line bg-surface px-3.5 py-2.5"
                 >
-                  <span className="grid size-7 shrink-0 place-items-center rounded-md bg-primary-soft text-secondary">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-md border-2 border-line bg-primary text-primary-foreground">
                     <Award className="size-3.5" aria-hidden />
                   </span>
                   <span className="text-sm font-medium">{badge}</span>

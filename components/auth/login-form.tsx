@@ -80,7 +80,7 @@ export function LoginForm({ next }: { next?: string }) {
       footer={
         <>
           New here?{" "}
-          <Link href="/signup" className="text-secondary hover:underline">
+          <Link href="/signup" className="font-bold text-secondary underline">
             Create an account
           </Link>
         </>
@@ -88,7 +88,7 @@ export function LoginForm({ next }: { next?: string }) {
     >
       <div className="space-y-4">
         {session && (
-          <div className="rounded-md border border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
+          <div className="rounded-lg border-2 border-line bg-surface px-3 py-2 text-xs text-muted-foreground">
             Signed in as{" "}
             <span className="font-medium text-foreground">{session.user.name}</span>.
             Logging in below switches accounts.
@@ -116,9 +116,9 @@ export function LoginForm({ next }: { next?: string }) {
         </div>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
+          <span className="h-0.5 flex-1 bg-border" />
           or with email
-          <span className="h-px flex-1 bg-border" />
+          <span className="h-0.5 flex-1 bg-border" />
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -149,7 +149,7 @@ export function LoginForm({ next }: { next?: string }) {
 
           {formError && (
             <p
-              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              className="a-shake rounded-lg border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm font-bold text-destructive"
               role="alert"
             >
               {formError}

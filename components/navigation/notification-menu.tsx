@@ -20,24 +20,24 @@ export function NotificationMenu({ userId }: { userId: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="relative grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="relative grid size-10 place-items-center rounded-lg border-2 border-line bg-surface transition-colors hover:bg-elevated"
         aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}
       >
-        <Bell className="size-4" />
+        <Bell className="size-[17px]" />
         {unread > 0 && (
-          <span className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground ring-2 ring-background">
+          <span className="hud absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full border-2 border-line bg-coral px-1 text-[0.6rem] text-ink">
             {unread}
           </span>
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[22rem] p-0">
-        <div className="flex items-center justify-between border-b border-border px-3.5 py-3">
-          <p className="text-sm font-semibold">Notifications</p>
+        <div className="flex items-center justify-between border-b-2 border-line px-3.5 py-3">
+          <p className="font-display text-base font-extrabold">Notifications</p>
           {unread > 0 && (
             <button
               type="button"
               onClick={() => notificationsService.markAllRead(userId)}
-              className="inline-flex items-center gap-1 rounded text-xs text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1 rounded text-xs font-bold text-secondary hover:underline"
             >
               <Check className="size-3" /> Mark all read
             </button>
@@ -55,12 +55,12 @@ export function NotificationMenu({ userId }: { userId: string }) {
               <div className="flex gap-3">
                 <span
                   className={cn(
-                    "mt-1.5 size-2 shrink-0 rounded-full",
-                    tone === "success" && "bg-success",
-                    tone === "destructive" && "bg-destructive",
-                    tone === "warning" && "bg-warning",
-                    tone === "info" && "bg-info",
-                    tone === "primary" && "bg-primary",
+                    "mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-line",
+                    tone === "success" && "bg-mint",
+                    tone === "destructive" && "bg-coral",
+                    tone === "warning" && "bg-gold",
+                    tone === "info" && "bg-azure",
+                    tone === "primary" && "bg-grape",
                     tone === "muted" && "bg-muted-foreground",
                   )}
                   aria-hidden
