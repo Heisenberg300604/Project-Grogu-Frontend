@@ -67,7 +67,7 @@ export function DeveloperProfileView() {
         }
       />
 
-      <section className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
+      <section className="rounded-2xl border-2 border-line bg-surface p-6 sm:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
           <UserAvatar
             name={profile.studioName}
@@ -75,7 +75,7 @@ export function DeveloperProfileView() {
           />
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="font-display text-2xl font-semibold">
+              <h2 className="font-display text-2xl font-bold">
                 {profile.studioName}
               </h2>
               <Badge tone="primary" size="md">
@@ -91,7 +91,7 @@ export function DeveloperProfileView() {
           </div>
         </div>
 
-        <MetaRow className="mt-6 border-t border-border pt-5">
+        <MetaRow className="mt-6 border-t-2 border-dashed border-border pt-5">
           <MetaItem
             icon={Building2}
             label="Studio size"
@@ -148,7 +148,7 @@ export function DeveloperProfileView() {
             {games.map((game) => (
               <li
                 key={game.id}
-                className="flex items-center gap-4 rounded-xl border border-border bg-surface p-3"
+                className="flex items-center gap-4 rounded-xl border-2 border-line bg-surface p-3"
               >
                 <GameArt
                   game={game}

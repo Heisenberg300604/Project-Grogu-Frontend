@@ -33,7 +33,7 @@ function GameManagementCard({
   rollup: GameRollup;
 }) {
   return (
-    <article className="lift flex flex-col overflow-hidden rounded-xl border border-border bg-surface hover:border-border-strong">
+    <article className="card-lift shadow-md flex flex-col overflow-hidden rounded-xl border-2 border-line bg-surface">
       <GameArt game={game} ratio="16/9" scrim>
         <div className="absolute right-3 top-3 flex gap-1.5">
           {rollup.active > 0 && (
@@ -44,7 +44,7 @@ function GameManagementCard({
           <StatusBadge kind="game" status={game.status} overlay />
         </div>
         <div className="absolute inset-x-4 bottom-3">
-          <h3 className="truncate font-display text-lg font-semibold text-white">
+          <h3 className="truncate font-display text-lg font-bold text-white">
             {game.title}
           </h3>
           <p className="truncate text-xs text-white/70">
@@ -59,21 +59,21 @@ function GameManagementCard({
           {game.tagline}
         </p>
 
-        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border text-center [&>*]:bg-elevated [&>*]:px-2 [&>*]:py-2.5">
+        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border-2 border-line bg-border text-center [&>*]:bg-elevated [&>*]:px-2 [&>*]:py-2.5">
           <div>
-            <dd className="font-display text-base font-semibold tabular-nums">
+            <dd className="font-display text-base font-bold tabular-nums">
               {rollup.playtests}
             </dd>
             <dt className="text-label mt-1 text-subtle-foreground">Tests</dt>
           </div>
           <div>
-            <dd className="font-display text-base font-semibold tabular-nums">
+            <dd className="font-display text-base font-bold tabular-nums">
               {rollup.testers}
             </dd>
             <dt className="text-label mt-1 text-subtle-foreground">Testers</dt>
           </div>
           <div>
-            <dd className="font-display text-base font-semibold tabular-nums">
+            <dd className="font-display text-base font-bold tabular-nums">
               {rollup.feedback}
             </dd>
             <dt className="text-label mt-1 text-subtle-foreground">Reports</dt>

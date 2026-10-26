@@ -69,8 +69,8 @@ function Panel({
   className?: string;
 }) {
   return (
-    <section className={`rounded-xl border border-border bg-surface p-5 ${className ?? ""}`}>
-      <h3 className="font-display text-base font-semibold">{title}</h3>
+    <section className={`rounded-xl border-2 border-line bg-surface p-5 ${className ?? ""}`}>
+      <h3 className="font-display text-base font-bold">{title}</h3>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -200,8 +200,8 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
       />
 
       {/* Banner keeps the game present while managing it. */}
-      <div className="relative overflow-hidden rounded-xl border border-border">
-        <GameArt game={playtest.game} ratio="21/9" scrim className="max-h-40" />
+      <div className="relative overflow-hidden rounded-xl border-2 border-line">
+        <GameArt game={playtest.game} ratio="21/9" scrim className="max-h-40 w-full" />
         <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-2 p-4">
           <StatusBadge kind="playtest" status={playtest.status} overlay />
           {playtest.focusAreas.map((f) => (
@@ -214,7 +214,7 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
 
       {statusError && (
         <p
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
           role="alert"
         >
           {statusError}
@@ -222,7 +222,7 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
       )}
 
       {!editable && playtest.status !== "archived" && (
-        <p className="flex items-start gap-2.5 rounded-lg border border-border bg-surface p-3.5 text-sm text-muted-foreground">
+        <p className="flex items-start gap-2.5 rounded-lg border-2 border-line bg-surface p-3.5 text-sm text-muted-foreground">
           <Lock className="mt-0.5 size-4 shrink-0 text-subtle-foreground" aria-hidden />
           This playtest is{" "}
           {PLAYTEST_STATUS_META[playtest.status].label.toLowerCase()}. Editing is
@@ -336,7 +336,7 @@ export function ManagePlaytest({ playtestId }: { playtestId: string }) {
           </div>
 
           {playtest.status === "recruiting" && (
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border bg-surface p-3.5 text-sm text-muted-foreground">
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border-2 border-line bg-surface p-3.5 text-sm text-muted-foreground">
               Looking for testers?
               <Link
                 href={`/developer/playtests/${playtest.id}?tab=applicants`}

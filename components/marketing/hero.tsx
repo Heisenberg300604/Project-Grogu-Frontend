@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, Compass, RadioTower } from "lucide-react";
+import { ArrowRight, Bug, Compass, Star } from "lucide-react";
 
-import { formatCompactNumber } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { HeroScene } from "@/components/art/pixel-art";
+import { CountUp } from "@/components/marketing/count-up";
 
 interface HeroStats {
   games: number;
@@ -13,71 +13,97 @@ interface HeroStats {
   feedbackSubmitted: number;
 }
 
-export function Hero({ stats }: { stats: HeroStats }) {
-  return (
-    <section className="relative isolate flex min-h-[46rem] overflow-hidden bg-dark sm:min-h-[52rem] lg:min-h-dvh">
-      <Image
-        src="/images/grogu-hero-cinematic.png"
-        alt="An explorer overlooking an unreleased fantasy game world of mountains, bridges, and a distant city."
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-[63%_center] sm:object-center"
-      />
-      <div aria-hidden className="hero-scrim absolute inset-0" />
-      <div aria-hidden className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/45 to-transparent" />
+const GENRE_CHIPS = ["Co-op", "RPG", "Roguelike"];
 
-      <Container className="relative z-10 flex w-full flex-col justify-center pb-20 pt-28 sm:pb-24 lg:pb-16 lg:pt-20">
-        <div className="max-w-2xl">
-          <div className="animate-rise flex items-center gap-3 text-secondary">
-            <span className="size-1.5 rounded-full bg-secondary shadow-[0_0_0_4px_rgb(158_200_203_/_12%)]" />
-            <p className="telemetry-label">The playtest network</p>
-            <span className="h-px w-10 signal-rule" />
-            <p className="telemetry-label hidden text-secondary-muted sm:block">Signal / 01</p>
+export function Hero({ stats }: { stats: HeroStats }) {
+  const figures = [
+    { label: "Open now", value: stats.activePlaytests, unit: "playtests", shadow: "var(--gold)" },
+    { label: "Network", value: stats.testers, unit: "testers", shadow: "var(--azure)" },
+    { label: "Signals", value: stats.feedbackSubmitted, unit: "reports", shadow: "var(--coral)" },
+  ];
+
+  return (
+    <section className="dots relative overflow-hidden border-b-2 border-line">
+      <Container className="grid items-center gap-10 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
+        <div>
+          <div className="hud a-pop mb-6 inline-flex items-center gap-2 rounded-lg border-2 border-line bg-surface px-3 py-2 shadow-sm">
+            <span aria-hidden className="a-live size-2.5 rounded-full bg-mint" />
+            The playtest network
+            <span aria-hidden className="a-blink">
+              ▮
+            </span>
           </div>
 
-          <h1 className="mt-6 max-w-xl text-display text-foreground sm:mt-7 lg:max-w-2xl">
-            Build better games with the players who actually play them.
+          <h1 className="text-display">
+            Build better games with the players who{" "}
+            <span className="hl">actually play them.</span>
           </h1>
-          <p className="mt-6 max-w-xl text-base leading-7 text-[#d9d5cb] sm:text-lg sm:leading-8">
+          <p className="mt-6 max-w-lg text-lg text-muted-foreground">
             Recruit the right testers, run structured playtests, and turn real gameplay
             into feedback your team can act on.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/discover" className={buttonVariants({ variant: "primary", size: "xl" })}>
-              <Compass />
+              <Compass aria-hidden />
               Find playtests
-              <ArrowRight aria-hidden />
+              <ArrowRight aria-hidden className="arrow" />
             </Link>
-            <Link href="/signup" className={buttonVariants({ variant: "outline", size: "xl", className: "border-white/35 bg-black/15 text-[#f2eee5] hover:border-white/60 hover:bg-black/30" })}>
+            <Link href="/signup" className={buttonVariants({ variant: "secondary", size: "xl" })}>
               Run a playtest
             </Link>
           </div>
 
-          <dl className="mt-10 grid max-w-xl grid-cols-3 border-y border-white/15 py-4 text-[#dedbd2] sm:mt-12">
-            <div className="border-r border-white/15 pr-3">
-              <dt className="telemetry-label text-[#aaa89f]">Open now</dt>
-              <dd className="mt-1 text-sm font-semibold tabular-nums text-foreground">{stats.activePlaytests} playtests</dd>
-            </div>
-            <div className="border-r border-white/15 px-3">
-              <dt className="telemetry-label text-[#aaa89f]">Network</dt>
-              <dd className="mt-1 text-sm font-semibold tabular-nums text-foreground">{formatCompactNumber(stats.testers)} testers</dd>
-            </div>
-            <div className="pl-3">
-              <dt className="telemetry-label text-[#aaa89f]">Signals</dt>
-              <dd className="mt-1 text-sm font-semibold tabular-nums text-foreground">{formatCompactNumber(stats.feedbackSubmitted)} reports</dd>
-            </div>
+          <dl className="mt-10 grid max-w-lg grid-cols-3 gap-3">
+            {figures.map((figure) => (
+              <div
+                key={figure.label}
+                className="rounded-xl border-2 border-line bg-surface px-3 py-3"
+                style={{ boxShadow: `3px 3px 0 ${figure.shadow}` }}
+              >
+                <dt className="hud text-muted-foreground">{figure.label}</dt>
+                <dd className="mt-2 text-sm font-bold">
+                  <span className="font-display text-2xl font-extrabold">
+                    <CountUp value={figure.value} />
+                  </span>{" "}
+                  {figure.unit}
+                </dd>
+              </div>
+            ))}
           </dl>
         </div>
 
-        <div className="absolute bottom-7 left-5 hidden items-center gap-3 text-[#b9b6ae] sm:left-8 lg:left-12 lg:flex">
-          <RadioTower className="size-3.5 text-secondary" aria-hidden />
-          <span className="telemetry-label">Observe the build. Find the signal.</span>
+        <div className="relative">
+          <div className="relative aspect-[1.1] overflow-hidden rounded-[28px] border-2 border-line bg-surface shadow-[8px_8px_0_var(--shadow-ink)]">
+            <HeroScene className="size-full" />
+            <div className="hud absolute left-4 top-4 flex items-center gap-2 rounded-lg border-2 border-line bg-surface px-3 py-2">
+              <Star size={12} className="text-gold" fill="currentColor" aria-hidden />
+              Lvl 5 · Veteran
+            </div>
+          </div>
+
+          <div aria-hidden className="a-float absolute -right-2 top-10 sm:-right-5">
+            <span className="hud inline-block rounded-lg border-2 border-line bg-mint px-3 py-2 text-ink shadow-sm">
+              +25 REP
+            </span>
+          </div>
+          <div aria-hidden className="a-float-2 absolute -left-2 bottom-24 sm:-left-6">
+            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-line bg-surface px-3 py-1.5 text-xs font-bold shadow-sm">
+              <Bug size={14} className="text-destructive" /> Bug found! Repro saved.
+            </span>
+          </div>
+          <div aria-hidden className="absolute -bottom-5 right-6 flex gap-2">
+            {GENRE_CHIPS.map((genre, i) => (
+              <span
+                key={genre}
+                className="rounded-full border-2 border-line bg-surface px-3 py-1 text-xs font-bold shadow-sm"
+                style={{ transform: `rotate(${(i - 1) * 3}deg)` }}
+              >
+                {genre}
+              </span>
+            ))}
+          </div>
         </div>
-        <a href="#platform" className="absolute bottom-7 right-5 inline-flex items-center gap-2 text-xs font-medium text-[#dedbd2] transition-colors hover:text-white sm:right-8 lg:right-12">
-          Explore Grogu <ArrowDown className="size-4" aria-hidden />
-        </a>
       </Container>
     </section>
   );

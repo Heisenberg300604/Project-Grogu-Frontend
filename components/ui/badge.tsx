@@ -4,21 +4,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium [&_svg]:size-3 [&_svg]:shrink-0",
+  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border-2 font-bold [&_svg]:size-3 [&_svg]:shrink-0",
   {
     variants: {
       tone: {
-        default: "border-border bg-elevated text-elevated-foreground",
-        muted: "border-transparent bg-muted text-muted-foreground",
-        primary: "border-primary-line bg-primary-soft text-secondary",
-        success: "border-transparent bg-success/15 text-success",
-        warning: "border-transparent bg-warning/15 text-warning",
-        destructive: "border-transparent bg-destructive/15 text-destructive",
-        info: "border-transparent bg-info/15 text-info",
-        outline: "border-border-strong bg-transparent text-muted-foreground",
+        default: "border-line bg-surface text-surface-foreground",
+        muted: "border-border bg-elevated text-muted-foreground",
+        primary: "border-line bg-grape text-white",
+        success: "border-line bg-mint text-ink",
+        warning: "border-line bg-gold text-ink",
+        destructive: "border-line bg-coral text-ink",
+        info: "border-line bg-azure text-ink",
+        outline: "border-line bg-transparent text-foreground",
         /** For badges sitting on top of game art. */
-        overlay:
-          "border-white/10 bg-dark/70 text-foreground backdrop-blur-sm",
+        overlay: "border-line bg-surface text-surface-foreground",
       },
       size: {
         sm: "px-2 py-0.5 text-[11px] leading-4",
@@ -30,15 +29,15 @@ const badgeVariants = cva(
 );
 
 const DOT_TONE = {
-  default: "bg-secondary",
+  default: "bg-ink dark:bg-foreground",
   muted: "bg-muted-foreground",
-  primary: "bg-primary",
-  success: "bg-success",
-  warning: "bg-warning",
-  destructive: "bg-destructive",
-  info: "bg-info",
-  outline: "bg-muted-foreground",
-  overlay: "bg-secondary",
+  primary: "bg-white",
+  success: "bg-ink",
+  warning: "bg-ink",
+  destructive: "bg-ink",
+  info: "bg-ink",
+  outline: "bg-foreground",
+  overlay: "bg-mint a-live",
 } as const;
 
 export interface BadgeProps
@@ -56,12 +55,25 @@ export function Badge({
   children,
   ...props
 }: BadgeProps) {
+  // A live status (recruiting, in progress) reads as a white chip with a
+  // pulsing green dot, as in the design.
+  const live = dot && tone === "success";
   return (
-    <span className={cn(badgeVariants({ tone, size }), className)} {...props}>
+    <span
+      className={cn(
+        badgeVariants({ tone, size }),
+        live && "bg-surface text-surface-foreground",
+        className,
+      )}
+      {...props}
+    >
       {dot && (
         <span
           aria-hidden
-          className={cn("size-1.5 rounded-full", DOT_TONE[tone ?? "default"])}
+          className={cn(
+            "size-2 rounded-full",
+            live ? "a-live bg-mint" : DOT_TONE[tone ?? "default"],
+          )}
         />
       )}
       {children}

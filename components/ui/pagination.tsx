@@ -70,10 +70,10 @@ export function Pagination({
             aria-current={entry === page ? "page" : undefined}
             onClick={() => onPageChange(entry)}
             className={cn(
-              "h-8 min-w-8 rounded-md px-2 text-sm font-medium transition-colors",
+              "h-10 min-w-10 rounded-lg border-2 border-line px-2 text-sm font-bold transition-colors",
               entry === page
-                ? "bg-primary-soft text-secondary"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-surface text-foreground hover:bg-elevated",
             )}
           >
             {entry}

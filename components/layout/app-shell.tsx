@@ -10,6 +10,7 @@ import type { UserRole } from "@/lib/types";
 import { useRequireRole } from "@/lib/hooks/use-session";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PageSkeleton } from "@/components/ui/states";
 import {
   Sheet,
@@ -49,8 +50,8 @@ export function AppShell({
   if (loading || !allowed || !session) {
     return (
       <div className="min-h-dvh">
-        <div className="border-b border-border">
-          <Container className="flex h-16 items-center">
+        <div className="border-b-2 border-line">
+          <Container className="flex h-[68px] items-center">
             <Logo />
           </Container>
         </div>
@@ -63,13 +64,13 @@ export function AppShell({
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="glass sticky top-0 z-50 border-b border-border/90">
-        <Container className="flex h-16 items-center justify-between gap-4">
+      <header className="sticky top-0 z-50 border-b-2 border-line bg-background/95 backdrop-blur">
+        <Container className="flex h-[68px] items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-6">
             {/* Mobile drawer trigger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
-                className="-ml-2 grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none lg:hidden"
+                className="grid size-10 place-items-center rounded-lg border-2 border-line transition-colors hover:bg-elevated lg:hidden"
                 aria-label="Open navigation"
               >
                 <Menu className="size-5" />
@@ -79,7 +80,7 @@ export function AppShell({
                   {roleLabel} navigation
                 </SheetTitle>
                 <Logo />
-                <p className="text-label text-subtle-foreground">{roleLabel}</p>
+                <p className="hud text-muted-foreground">{roleLabel}</p>
                 <nav aria-label={`${roleLabel} navigation`}>
                   <AppNavList
                     nav={nav}
@@ -90,7 +91,7 @@ export function AppShell({
                 <SheetClose asChild>
                   <Link
                     href="/"
-                    className="mt-auto flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    className="mt-auto flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground"
                   >
                     <ExternalLink className="size-4" aria-hidden />
                     Back to grogu.com
@@ -101,7 +102,7 @@ export function AppShell({
 
             <div className="flex items-center gap-3">
               <Logo href={nav[0].href} />
-              <span className="hidden text-label text-subtle-foreground sm:inline">
+              <span className="hud hidden rounded-md bg-elevated px-1.5 py-1 text-muted-foreground sm:inline">
                 {roleLabel}
               </span>
             </div>
@@ -114,14 +115,15 @@ export function AppShell({
             </nav>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-3">
+            <ThemeToggle />
             <NotificationMenu userId={session.user.id} />
             <UserMenu session={session} />
           </div>
         </Container>
       </header>
 
-      <main className="flex-1 pb-20 pt-8 lg:pt-10">
+      <main className="page-in flex-1 pb-20 pt-8 lg:pt-10">
         <Container>{children}</Container>
       </main>
     </div>

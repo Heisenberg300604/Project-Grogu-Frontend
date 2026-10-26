@@ -278,6 +278,7 @@ export function SignupForm() {
 
   return (
     <AuthCard
+      eyebrow="New player"
       title="Create your Grogu account"
       description={
         currentStep === 1
@@ -397,7 +398,7 @@ export function SignupForm() {
                 className="space-y-5"
               >
                 {role === "tester" ? (
-                  <div className="space-y-5 rounded-xl border border-border bg-surface/70 p-5 shadow-sm">
+                  <div className="space-y-5 rounded-xl border-2 border-line bg-surface p-5 shadow-sm">
                     <Field
                       label="Experience Level"
                       htmlFor="su-experience"
@@ -445,10 +446,10 @@ export function SignupForm() {
                                 toggleArray("preferredGenres", genres, genre)
                               }
                               className={cn(
-                                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                                "inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer",
                                 active
-                                  ? "border-primary bg-primary/20 text-secondary shadow-sm shadow-primary/20 font-semibold"
-                                  : "border-border/70 bg-surface/50 text-muted-foreground hover:border-border-strong hover:text-foreground"
+                                  ? "border-line bg-primary text-primary-foreground shadow-sm"
+                                  : "border-line bg-surface text-foreground hover:-translate-y-0.5"
                               )}
                             >
                               {active && <CheckCircle2 className="size-3 text-secondary" />}
@@ -474,10 +475,10 @@ export function SignupForm() {
                               aria-pressed={active}
                               onClick={() => toggleArray("platforms", platforms, platform)}
                               className={cn(
-                                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                                "inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer",
                                 active
-                                  ? "border-secondary/60 bg-secondary/15 text-foreground shadow-sm shadow-secondary/10 font-semibold"
-                                  : "border-border/70 bg-surface/50 text-muted-foreground hover:border-border-strong hover:text-foreground"
+                                  ? "border-line bg-primary text-primary-foreground shadow-sm"
+                                  : "border-line bg-surface text-foreground hover:-translate-y-0.5"
                               )}
                             >
                               {active && <CheckCircle2 className="size-3 text-secondary" />}
@@ -519,7 +520,7 @@ export function SignupForm() {
                     </Field>
                   </div>
                 ) : (
-                  <div className="space-y-4 rounded-xl border border-border bg-surface/70 p-5 shadow-sm">
+                  <div className="space-y-4 rounded-xl border-2 border-line bg-surface p-5 shadow-sm">
                     <Field
                       label="Studio / Team Name"
                       htmlFor="su-studio"
@@ -548,10 +549,10 @@ export function SignupForm() {
                                 setValue("studioSize", size, { shouldValidate: true })
                               }
                               className={cn(
-                                "flex flex-col items-start rounded-lg border p-3 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                "flex flex-col items-start rounded-lg border-2 p-3 text-left transition-all duration-200 ",
                                 active
-                                  ? "border-secondary/60 bg-secondary/10 text-secondary font-semibold"
-                                  : "border-border bg-surface/40 text-muted-foreground hover:border-border-strong"
+                                  ? "border-line bg-primary-soft text-foreground font-bold shadow-sm"
+                                  : "border-line bg-surface text-muted-foreground"
                               )}
                             >
                               <span className="text-xs">{STUDIO_SIZE_LABELS[size]}</span>
@@ -627,7 +628,7 @@ export function SignupForm() {
 
                 {formError && (
                   <p
-                    className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                    className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
                     role="alert"
                   >
                     {formError}
@@ -646,7 +647,7 @@ export function SignupForm() {
                   </Button>
                   <Button
                     type="submit"
-                    className="w-2/3 shadow-lg shadow-primary/25"
+                    className="w-2/3"
                     loading={isSubmitting}
                   >
                     {isSubmitting ? "Creating account…" : "Launch Account"}

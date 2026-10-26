@@ -51,8 +51,8 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-border bg-surface p-5">
-      <h3 className="font-display text-base font-semibold">{title}</h3>
+    <section className="rounded-xl border-2 border-line bg-surface p-5">
+      <h3 className="font-display text-base font-bold">{title}</h3>
       {description && (
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       )}
@@ -190,7 +190,7 @@ export function AnalyticsView() {
         <>
           {/* ---- Summary ------------------------------------------------- */}
           {scope === "all" ? (
-            <p className="rounded-lg border border-border bg-surface px-4 py-3 text-sm text-muted-foreground">
+            <p className="rounded-lg border-2 border-line bg-surface px-4 py-3 text-sm text-muted-foreground">
               Choose a playtest above to see its feedback summary: top highlights,
               what testers like and dislike, and suggested next steps.
             </p>
@@ -199,13 +199,13 @@ export function AnalyticsView() {
           )}
 
           {/* ---- Headline ------------------------------------------------ */}
-          <section className="flex flex-col gap-6 rounded-2xl border border-border bg-surface p-6 sm:flex-row sm:items-center sm:gap-10 sm:p-8">
+          <section className="flex flex-col gap-6 rounded-2xl border-2 border-line bg-surface p-6 sm:flex-row sm:items-center sm:gap-10 sm:p-8">
             <div className="shrink-0">
               <p className="text-label text-subtle-foreground">
                 Overall experience
               </p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-display text-6xl font-semibold tabular-nums">
+                <span className="font-display text-6xl font-bold tabular-nums">
                   {overall.toFixed(1)}
                 </span>
                 <span className="text-lg text-subtle-foreground">/ 5</span>

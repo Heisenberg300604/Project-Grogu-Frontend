@@ -28,7 +28,7 @@ function Row({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3.5">
+    <div className="flex items-start gap-3 rounded-lg border-2 border-line bg-surface p-3.5">
       <Icon className="mt-0.5 size-4 shrink-0 text-subtle-foreground" aria-hidden />
       <div className="min-w-0">
         <dt className="text-label text-subtle-foreground">{label}</dt>

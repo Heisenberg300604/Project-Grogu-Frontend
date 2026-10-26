@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { getStudioDirectory } from "@/data";
 import { Container } from "@/components/ui/container";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { DirectoryTabs } from "@/components/directory/directory-tabs";
 import { StudioDirectory } from "@/components/directory/studio-directory";
 
@@ -16,11 +17,11 @@ export default async function StudiosPage() {
 
   return (
     <>
-      <div className="surface-grid border-b border-border">
+      <div className="dots border-b-2 border-line">
         <Container className="py-12 sm:py-16">
           <DirectoryTabs className="mb-6" />
-          <p className="text-label text-secondary">Community</p>
-          <h1 className="text-display-sm mt-3 max-w-2xl">Browse studios</h1>
+          <Eyebrow tone="azure">Community</Eyebrow>
+          <h1 className="text-display-sm max-w-2xl">Browse studios</h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
             The teams building the games you can help shape. See what they have
             made and which playtests are open.

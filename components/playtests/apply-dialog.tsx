@@ -148,14 +148,14 @@ export function ApplyDialog({
             </DialogHeader>
 
             {/* Always show what is being applied for. */}
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3">
+            <div className="flex items-center gap-3 rounded-lg border-2 border-line bg-surface p-3">
               <GameArt
                 game={playtest.game}
                 ratio="3/2"
                 className="w-20 shrink-0 rounded-md"
               />
               <div className="min-w-0">
-                <p className="truncate font-display text-sm font-semibold">
+                <p className="truncate font-display text-sm font-bold">
                   {playtest.game.title}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
@@ -235,7 +235,7 @@ export function ApplyDialog({
 
             {formError && (
               <p
-                className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
                 role="alert"
               >
                 {formError}

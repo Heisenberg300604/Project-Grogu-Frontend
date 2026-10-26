@@ -17,7 +17,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-dark/70 backdrop-blur-sm",
+      "fixed inset-0 z-50 bg-dark/70 backdrop-blur-[2px]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
       className,
     )}
@@ -36,16 +36,16 @@ export const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4",
-        "rounded-xl border border-border bg-surface p-6 shadow-lg",
+        "rounded-2xl border-2 border-line bg-surface p-6 shadow-lg",
         "max-h-[calc(100dvh-4rem)] overflow-y-auto",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-90 data-[state=open]:duration-300 data-[state=open]:ease-[cubic-bezier(0.3,1.6,0.5,1)]",
         className,
       )}
       {...props}
     >
       {children}
       <DialogPrimitive.Close
-        className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="absolute right-4 top-4 grid size-8 place-items-center rounded-lg border-2 border-line bg-surface text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
         aria-label="Close"
       >
         <X className="size-4" />
@@ -83,7 +83,7 @@ export const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold text-foreground", className)}
+    className={cn("font-display text-xl font-extrabold text-foreground", className)}
     {...props}
   />
 ));

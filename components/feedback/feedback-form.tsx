@@ -118,12 +118,12 @@ function FormSection({
   return (
     <section
       className={cn(
-        "space-y-5 border-t border-border pt-6 first:border-0 first:pt-0",
+        "space-y-5 border-t-2 border-dashed border-border pt-6 first:border-0 first:pt-0",
         className,
       )}
     >
       <div className="space-y-1">
-        <h2 className="font-display text-base font-semibold">{title}</h2>
+        <h2 className="font-display text-base font-bold">{title}</h2>
         {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
       </div>
       {children}
@@ -297,14 +297,14 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
       />
 
       {/* What's being reviewed, so the tester never loses the thread. */}
-      <div className="flex items-center gap-3.5 rounded-xl border border-border bg-surface p-3.5">
+      <div className="flex items-center gap-3.5 rounded-xl border-2 border-line bg-surface p-3.5">
         <GameArt
           game={playtest.game}
           ratio="3/2"
           className="w-24 shrink-0 rounded-lg"
         />
         <div className="min-w-0">
-          <p className="truncate font-display text-sm font-semibold">
+          <p className="truncate font-display text-sm font-bold">
             {playtest.game.title}
           </p>
           <p className="truncate text-xs text-muted-foreground">
@@ -551,7 +551,7 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
 
         {formError && (
           <p
-            className="mt-6 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            className="mt-6 rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
             role="alert"
           >
             {formError}
@@ -559,7 +559,7 @@ export function FeedbackForm({ playtestId }: { playtestId: string }) {
         )}
 
         {/* ---- Step controls ------------------------------------------- */}
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t-2 border-dashed border-border pt-6">
           {step > 0 ? (
             <Button
               type="button"

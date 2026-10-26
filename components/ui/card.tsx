@@ -15,11 +15,11 @@ import { cn } from "@/lib/utils";
 const cardVariants = cva("text-surface-foreground", {
   variants: {
     variant: {
-      default: "rounded-xl border border-border bg-surface",
-      elevated: "rounded-xl border border-border bg-elevated shadow-md",
+      default: "rounded-xl border-2 border-line bg-surface shadow-md",
+      elevated: "rounded-xl border-2 border-line bg-elevated shadow-md",
       /** Whole card is a link/button target. Pair with a focusable child. */
       interactive:
-        "lift rounded-xl border border-border bg-surface hover:border-border-strong hover:bg-elevated",
+        "card-lift rounded-xl border-2 border-line bg-surface shadow-md",
       /** Grouping without a frame. */
       plain: "rounded-xl bg-transparent",
     },
@@ -48,7 +48,7 @@ export function CardTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn("text-base font-semibold leading-tight", className)}
+      className={cn("font-display text-lg font-bold leading-tight", className)}
       {...props}
     />
   );

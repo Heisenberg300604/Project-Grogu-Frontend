@@ -34,9 +34,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 border-t border-border pt-8 first:border-0 first:pt-0">
+    <section className="space-y-4 border-t-2 border-dashed border-border pt-8 first:border-0 first:pt-0">
       <div className="space-y-1.5">
-        <h2 className="flex items-center gap-2 font-display text-xl font-semibold">
+        <h2 className="flex items-center gap-2 font-display text-2xl font-extrabold">
           {Icon && <Icon className="size-4.5 text-secondary" aria-hidden />}
           {title}
         </h2>
@@ -91,19 +91,18 @@ export function PlaytestDetail({
   return (
     <div>
       {/* ---- Banner ------------------------------------------------------- */}
-      <header className="relative border-b border-border">
+      <header className="relative border-b-2 border-line">
         <div className="absolute inset-0" aria-hidden>
           <GameCover game={playtest.game} />
           {/* Two stacked scrims: one for overall legibility, one to anchor the
               text block at the bottom-left. */}
-          <div className="absolute inset-0 bg-background/45" />
-          <div className="absolute inset-0 bg-linear-to-t from-background via-background/85 to-background/30" />
+          <div className="absolute inset-0 bg-linear-to-t from-background via-background/75 to-transparent" />
         </div>
 
         <Container className="relative flex min-h-[22rem] flex-col justify-end pb-10 pt-8 sm:min-h-[26rem] sm:pb-12">
           <nav
             aria-label="Breadcrumb"
-            className="mb-auto text-xs text-muted-foreground"
+            className="mb-auto w-fit rounded-lg border-2 border-line bg-surface px-3 py-1.5 text-xs font-semibold text-muted-foreground shadow-sm"
           >
             <Link href="/discover" className="transition-colors hover:text-foreground">
               Discover
@@ -181,7 +180,7 @@ export function PlaytestDetail({
               {playtest.goals.map((goal) => (
                 <li
                   key={goal}
-                  className="flex gap-3 rounded-lg border border-border bg-surface p-3.5 text-sm leading-relaxed"
+                  className="flex gap-3 rounded-lg border-2 border-line bg-surface p-3.5 text-sm leading-relaxed"
                 >
                   <span aria-hidden className="mt-0.5 text-secondary">
                     →

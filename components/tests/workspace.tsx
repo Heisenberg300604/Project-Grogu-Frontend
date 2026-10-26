@@ -53,13 +53,13 @@ function Step({
   return (
     <section
       className={cn(
-        "rounded-xl border border-border bg-surface p-5 transition-opacity duration-[180ms]",
+        "rounded-xl border-2 border-line bg-surface p-5 transition-opacity duration-[180ms]",
         locked && "opacity-60",
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="flex items-center gap-2.5 font-display text-base font-semibold">
+          <h2 className="flex items-center gap-2.5 font-display text-base font-bold">
             <span className="text-subtle-foreground tabular-nums">
               {index}
             </span>
@@ -154,9 +154,9 @@ export function Workspace({ playtestId }: { playtestId: string }) {
       />
 
       {/* Compact banner — keeps the game present without stealing the page. */}
-      <div className="relative overflow-hidden rounded-xl border border-border">
-        <GameArt game={playtest.game} ratio="21/9" scrim className="max-h-44" />
-        <dl className="absolute inset-x-0 bottom-0 flex flex-wrap gap-x-6 gap-y-1 p-4 text-xs text-white/85">
+      <div className="relative overflow-hidden rounded-xl border-2 border-line">
+        <GameArt game={playtest.game} ratio="21/9" scrim className="max-h-44 w-full" />
+        <dl className="absolute inset-x-0 bottom-0 flex flex-wrap gap-x-6 gap-y-1 p-4 text-xs font-semibold text-white">
           <div className="flex items-center gap-1.5">
             <CalendarClock className="size-3.5" aria-hidden />
             <dt className="sr-only">Deadline</dt>
@@ -174,7 +174,7 @@ export function Workspace({ playtestId }: { playtestId: string }) {
         </dl>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="rounded-xl border-2 border-line bg-surface p-5">
         <WorkflowStepper
           steps={[
             {
@@ -243,7 +243,7 @@ export function Workspace({ playtestId }: { playtestId: string }) {
                   pendingId={pendingTaskId}
                 />
               ) : (
-                <p className="rounded-lg border border-border bg-elevated px-3.5 py-3 text-sm text-muted-foreground">
+                <p className="rounded-lg border-2 border-line bg-elevated px-3.5 py-3 text-sm text-muted-foreground">
                   Get the build above to start checking off tasks.
                 </p>
               )}
@@ -257,7 +257,7 @@ export function Workspace({ playtestId }: { playtestId: string }) {
           >
             {feedbackSubmitted ? (
               <div className="space-y-3">
-                <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success/10 p-3.5">
+                <div className="flex items-start gap-3 rounded-lg border-2 border-success bg-success/10 p-3.5">
                   <CheckCircle2
                     className="mt-0.5 size-4 shrink-0 text-success"
                     aria-hidden
@@ -296,8 +296,8 @@ export function Workspace({ playtestId }: { playtestId: string }) {
 
         {/* ---- Context rail --------------------------------------------- */}
         <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
-          <div className="rounded-xl border border-border bg-surface p-5">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
+          <div className="rounded-xl border-2 border-line bg-surface p-5">
+            <h2 className="flex items-center gap-2 text-sm font-bold">
               <Target className="size-4 text-secondary" aria-hidden />
               What they want to learn
             </h2>
@@ -313,12 +313,12 @@ export function Workspace({ playtestId }: { playtestId: string }) {
             </ul>
           </div>
 
-          <div className="rounded-xl border border-border bg-surface p-5 text-xs">
-            <h2 className="text-sm font-semibold text-foreground">Deadline</h2>
+          <div className="rounded-xl border-2 border-line bg-surface p-5 text-xs">
+            <h2 className="text-sm font-bold text-foreground">Deadline</h2>
             <p className="mt-1 text-muted-foreground">
               {formatDate(playtest.closesAt)} · {formatDeadline(playtest.closesAt)}
             </p>
-            <h2 className="mt-4 text-sm font-semibold text-foreground">
+            <h2 className="mt-4 text-sm font-bold text-foreground">
               Need help?
             </h2>
             <p className="mt-1 leading-relaxed text-muted-foreground">

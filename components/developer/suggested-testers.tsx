@@ -77,7 +77,7 @@ function SuggestionRow({
               {suggestion.reasons.map((reason) => (
                 <li
                   key={reason}
-                  className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground"
+                  className="rounded-full border-2 border-line px-2.5 py-0.5 text-xs text-muted-foreground"
                 >
                   {reason}
                 </li>
@@ -119,7 +119,7 @@ export function SuggestedTesters({ playtest }: { playtest: PlaytestWithRelations
 
   if (!recruiting) return null;
 
-  const frame = "rounded-xl border border-border bg-surface p-5 sm:p-6";
+  const frame = "rounded-xl border-2 border-line bg-surface p-5 sm:p-6";
 
   if (error && !data) {
     return <ErrorState title="Couldn't load suggested testers" description={error} onRetry={reload} />;
@@ -144,7 +144,7 @@ export function SuggestedTesters({ playtest }: { playtest: PlaytestWithRelations
     <section className={frame} aria-labelledby="suggested-testers-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-2">
-          <h3 id="suggested-testers-title" className="font-display text-base font-semibold">
+          <h3 id="suggested-testers-title" className="font-display text-base font-bold">
             Suggested testers
           </h3>
           <p className="max-w-xl text-sm text-muted-foreground">
@@ -176,7 +176,7 @@ export function SuggestedTesters({ playtest }: { playtest: PlaytestWithRelations
         )}
         {!generating && status && (
           <p
-            className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground"
+            className="flex items-start gap-2 rounded-lg border-2 border-warning bg-warning/10 px-3 py-2 text-sm text-foreground"
             role="status"
           >
             <Info className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
@@ -191,7 +191,7 @@ export function SuggestedTesters({ playtest }: { playtest: PlaytestWithRelations
             Every spot is taken, so there is nobody to suggest.
           </p>
         ) : data.suggestions.length === 0 ? (
-          <div className="flex items-start gap-3 rounded-lg border border-dashed border-border p-4">
+          <div className="flex items-start gap-3 rounded-lg border-2 border-dashed border-line p-4">
             <UserSearch className="mt-0.5 size-4 shrink-0 text-subtle-foreground" aria-hidden />
             <p className="text-sm text-muted-foreground">
               Nobody who hasn&apos;t applied meets the requirements right now. A lower minimum

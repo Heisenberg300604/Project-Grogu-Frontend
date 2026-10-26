@@ -42,7 +42,7 @@ function PointList({
 
   return (
     <div className="min-w-0 space-y-3">
-      <h4 className={cn("flex items-center gap-1.5 text-sm font-semibold", tone)}>
+      <h4 className={cn("flex items-center gap-1.5 text-sm font-bold", tone)}>
         <Icon className="size-3.5" aria-hidden /> {title}
       </h4>
       {items.length === 0 ? (
@@ -99,7 +99,7 @@ function InsightBody({ insight }: { insight: PlaytestInsight }) {
 
       {insight.highlights.length > 0 && (
         <div className="space-y-2.5">
-          <h4 className="flex items-center gap-1.5 text-sm font-semibold">
+          <h4 className="flex items-center gap-1.5 text-sm font-bold">
             <Sparkles className="size-3.5 text-secondary" aria-hidden /> Top highlights
           </h4>
           <ul className="space-y-2">
@@ -118,7 +118,7 @@ function InsightBody({ insight }: { insight: PlaytestInsight }) {
         </div>
       )}
 
-      <div className="grid gap-6 border-t border-border pt-5 sm:grid-cols-2">
+      <div className="grid gap-6 border-t-2 border-dashed border-border pt-5 sm:grid-cols-2">
         <PointList
           icon={ThumbsUp}
           title="What testers like"
@@ -137,7 +137,7 @@ function InsightBody({ insight }: { insight: PlaytestInsight }) {
 
       <div
         className={cn(
-          "grid gap-6 border-t border-border pt-5",
+          "grid gap-6 border-t-2 border-dashed border-border pt-5",
           insight.actions.length > 0 && "sm:grid-cols-2",
         )}
       >
@@ -150,7 +150,7 @@ function InsightBody({ insight }: { insight: PlaytestInsight }) {
         />
         {insight.actions.length > 0 && (
           <div className="min-w-0 space-y-3">
-            <h4 className="flex items-center gap-1.5 text-sm font-semibold text-info">
+            <h4 className="flex items-center gap-1.5 text-sm font-bold text-info">
               <Lightbulb className="size-3.5" aria-hidden /> Suggested next steps
             </h4>
             <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-subtle-foreground">
@@ -187,7 +187,7 @@ export function InsightsPanel({
   const { insight, loading, generating, error, generate, reload } =
     useInsight(playtestId);
 
-  const frame = cn("rounded-xl border border-border bg-surface p-5 sm:p-6", className);
+  const frame = cn("rounded-xl border-2 border-line bg-surface p-5 sm:p-6", className);
 
   if (error && !insight) {
     return (
@@ -217,7 +217,7 @@ export function InsightsPanel({
         <div className="space-y-2">
           <h3
             id={`insight-title-${playtestId}`}
-            className="font-display text-base font-semibold"
+            className="font-display text-base font-bold"
           >
             Feedback summary
           </h3>
@@ -254,7 +254,7 @@ export function InsightsPanel({
 
         {!generating && status && (
           <p
-            className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground"
+            className="flex items-start gap-2 rounded-lg border-2 border-warning bg-warning/10 px-3 py-2 text-sm text-foreground"
             role="status"
           >
             <Info className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />

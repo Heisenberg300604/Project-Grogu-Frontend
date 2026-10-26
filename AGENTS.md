@@ -242,43 +242,27 @@ read/write cycle.
 
 ## 10. Design System
 
-Current Grogu reference palette:
+Grogu uses a playful "arcade" look: bright, high-contrast, flat colour with
+thick ink outlines, hard offset shadows, pixel-font labels and motion. It ships
+a light theme (default) and a dark theme, toggled by the user.
 
-* Primary: `#6C37C3`
-* Secondary: `#B0B3D7`
-* Background: `#0F0D19`
-* Dark: `#080D0A`
+Brand palette (the same in both themes): grape `#5b3ff0`, gold `#ffc933`,
+coral `#ff5a7a`, mint `#19c58d`, azure `#34b6ff`, lilac `#b9a8ff`, ink `#17142b`.
 
-Do not use these colors blindly.
-
-Establish a coherent semantic design system around them.
-
-Define semantic tokens for:
-
-* background
-* foreground
-* surface
-* surface elevated
-* border
-* primary
-* primary foreground
-* muted
-* muted foreground
-* success
-* warning
-* destructive
-* info
+All raw colour values live in `app/globals.css`. Components use the semantic
+tokens (`background`, `foreground`, `surface`, `elevated`, `border`, `line`,
+`primary`, `secondary`, `muted`, `success`, `warning`, `destructive`, `info`)
+and the brand utilities (`bg-gold`, `text-ink`, ...). See
+`docs/design-system.md` for the full reference.
 
 The final design should feel:
 
-* premium
-* modern
-* gaming-oriented
-* sophisticated
-* dark
-* visually controlled
+* playful and game-like
+* high contrast and legible
+* consistent: one outline weight, one shadow style, one motion language
 
-Avoid excessive neon effects, gradients, glow effects, and decorative elements.
+Keep contrast accessible: brand colours are fills; status text uses the
+theme-aware `success` / `warning` / `destructive` / `info` tokens.
 
 ---
 
@@ -286,7 +270,7 @@ Avoid excessive neon effects, gradients, glow effects, and decorative elements.
 
 Grogu should feel closer to:
 
-Steam + modern SaaS + UserTesting
+a playful game launcher with the clarity of a modern SaaS product
 
 than:
 
@@ -303,7 +287,8 @@ Prioritize:
 * meaningful empty states
 * clear calls to action
 
-Do not over-design.
+Motion is part of the design (see `docs/design-system.md`), but it must stay
+purposeful, respect `prefers-reduced-motion`, and never hide content or state.
 
 Every visual element should support usability.
 

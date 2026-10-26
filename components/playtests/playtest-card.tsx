@@ -36,12 +36,11 @@ export function PlaytestCard({
   return (
     <article
       className={cn(
-        "lift group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface",
-        "hover:border-border-strong focus-within:border-border-strong",
+        "card-lift group relative flex flex-col overflow-hidden rounded-xl border-2 border-line bg-surface shadow-md",
         className,
       )}
     >
-      <GameArt game={playtest.game} ratio="16/9" scrim>
+      <GameArt game={playtest.game} ratio="16/9" scrim className="border-b-2 border-line">
         <div className="absolute inset-x-3 top-3 flex flex-wrap items-start justify-between gap-2">
           <StatusBadge kind="playtest" status={playtest.status} overlay />
           <div className="flex gap-1.5">
@@ -58,7 +57,7 @@ export function PlaytestCard({
 
         {/* Game identity sits on the art — this is a game first, a task second. */}
         <div className="absolute inset-x-4 bottom-3">
-          <h3 className="font-display text-lg font-semibold leading-tight text-white">
+          <h3 className="font-display text-lg font-extrabold leading-tight text-white">
             {playtest.game.title}
           </h3>
           <p className="mt-0.5 truncate text-xs text-white/70">
@@ -74,8 +73,8 @@ export function PlaytestCard({
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="space-y-1.5">
-          <p className="text-label text-subtle-foreground">PLAYTEST FOCUS</p>
-          <h4 className="font-medium leading-snug">
+          <p className="hud text-muted-foreground">Playtest focus</p>
+          <h4 className="font-display text-lg font-bold leading-tight">
             <Link href={link} className="transition-colors hover:text-secondary">
               {/* Stretched link makes the whole card clickable without a div-button. */}
               <span className="absolute inset-0" aria-hidden />
@@ -84,7 +83,7 @@ export function PlaytestCard({
           </h4>
         </div>
 
-        <MetaRow className="mt-auto border-t border-border pt-3">
+        <MetaRow className="mt-auto border-t-2 border-dashed border-border pt-3 font-semibold">
           <MetaItem
             icon={Gift}
             label="Reward"

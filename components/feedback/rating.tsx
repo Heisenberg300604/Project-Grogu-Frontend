@@ -31,8 +31,8 @@ export function RatingStars({
           className={cn(
             size === "sm" ? "size-3.5" : "size-5",
             i < rounded
-              ? "fill-warning text-warning"
-              : "fill-transparent text-border-strong",
+              ? "fill-gold text-ink dark:text-line"
+              : "fill-transparent text-border",
           )}
         />
       ))}
@@ -75,14 +75,14 @@ export function RatingInput({
             aria-label={`${rating} star${rating > 1 ? "s" : ""}`}
             onClick={() => onChange(rating)}
             onMouseEnter={() => setHovered(rating)}
-            className="rounded p-0.5 transition-transform duration-[120ms] hover:scale-110 focus-visible:outline-none"
+            className="rounded p-0.5 transition-transform duration-[120ms] hover:scale-125 active:scale-95"
           >
             <Star
               className={cn(
                 "size-7 transition-colors duration-[120ms]",
                 active
-                  ? "fill-warning text-warning"
-                  : "fill-transparent text-border-strong",
+                  ? "fill-gold text-ink dark:text-line"
+                  : "fill-transparent text-border",
               )}
             />
           </button>
@@ -110,11 +110,11 @@ export function RatingBar({
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium tabular-nums">{value.toFixed(1)}</span>
+        <span className="font-bold tabular-nums">{value.toFixed(1)}</span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-muted">
+      <div className="h-3.5 overflow-hidden rounded-full border-2 border-line bg-elevated">
         <div
-          className="h-full rounded-full bg-primary transition-[width] duration-500 ease-[var(--ease-out-soft)]"
+          className="h-full rounded-full border-r-2 border-line bg-primary transition-[width] duration-700 ease-[var(--ease-out-soft)]"
           style={{ width: `${pct}%` }}
         />
       </div>

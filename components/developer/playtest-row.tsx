@@ -31,8 +31,8 @@ export function DeveloperPlaytestRow({
   return (
     <article
       className={cn(
-        "rounded-xl border border-border bg-surface p-4 transition-colors duration-[180ms] hover:border-border-strong",
-        summary.pending > 0 && "border-warning/30",
+        "card-lift rounded-xl border-2 border-line bg-surface p-4 shadow-md",
+        summary.pending > 0 && "border-warning",
         className,
       )}
     >
@@ -52,7 +52,7 @@ export function DeveloperPlaytestRow({
                   {playtest.game.title} · {formatDeadline(playtest.closesAt)}
                 </span>
               </div>
-              <h3 className="font-medium leading-snug">
+              <h3 className="font-display text-lg font-bold leading-snug">
                 <Link
                   href={manageHref}
                   className="transition-colors hover:text-secondary"

@@ -1,194 +1,146 @@
 # Design System
 
-Direction: **premium · modern · dark · gaming-oriented · sophisticated.**
-It should read as a serious gaming product, not a generic dashboard. No neon, no
-glow, minimal gradients, no glassmorphism, no decorative animation.
+Direction: **playful arcade** — bright, high-contrast, game-like. Flat colour,
+thick ink outlines, hard offset shadows, pixel-font labels and a lot of small,
+purposeful motion. It was designed in Figma Make and ported onto the existing
+component set; the Figma export is kept as a visual reference in
+`design rework/` (it is its own Vite project and is excluded from `tsc` and
+ESLint).
 
-All raw colour/spacing values live in **one file**: [`app/globals.css`](../app/globals.css).
-Components only ever use the semantic Tailwind utilities generated from those
-tokens (`bg-surface`, `text-muted-foreground`, `border-border`, …).
+All raw colour/spacing values live in **one file**:
+[`app/globals.css`](../app/globals.css). Components only use the semantic
+Tailwind utilities generated from those tokens (`bg-surface`,
+`text-muted-foreground`, `border-line`, …) and the brand colours.
+
+## Themes
+
+Light is the default; dark is a class on `<html>`.
+
+- `app/layout.tsx` runs a tiny inline script before first paint that adds
+  `dark` when `localStorage["grogu-theme"] === "dark"`, so there is no flash.
+- `components/ui/theme-toggle.tsx` flips the class and stores the choice. It is
+  in the public header, the app header, the auth screen and the 404 page.
+- Tailwind's `dark:` variant is wired to `.dark` (`@custom-variant dark`).
 
 ## Colours
 
-Built around the reference palette:
+Brand colours (identical in both themes, used for flat fills):
 
-| Reference  | Hex       | Role in the system            |
-| ---------- | --------- | ----------------------------- |
-| Primary    | `#6C37C3` | `--primary` (actions, brand)  |
-| Secondary  | `#B0B3D7` | `--secondary` (accents, eyebrows, links) |
-| Background | `#0F0D19` | `--background` (app canvas)   |
-| Dark       | `#080D0A` | `--dark` (footer, deepest surfaces) |
-
-### Semantic tokens
-
-| Token | Value | Use |
+| Utility | Hex | Typical use |
 | --- | --- | --- |
-| `background` / `foreground` | `#0F0D19` / `#F0EEF7` | Page canvas + default text |
-| `surface` / `surface-foreground` | `#15121F` / `#F0EEF7` | Cards, panels |
-| `elevated` / `elevated-foreground` | `#1C1829` / `#F7F5FC` | Raised surfaces, popovers, secondary buttons |
-| `dark` | `#080D0A` | Footer, deep wells, artwork scrims |
-| `border` / `border-strong` | `#262138` / `#3A3355` | Hairlines / emphasized dividers |
-| `input` | `#1A1626` | Form field background |
-| `ring` | `#8B5CF0` | Focus outline |
-| `primary` / `primary-foreground` | `#6C37C3` / `#F8F5FF` | Primary actions |
-| `primary-hover` / `primary-active` | `#7C46D6` / `#5E2CAD` | Primary button interaction |
-| `primary-soft` / `primary-line` | `primary` @16% / @38% | Selected filters, active nav, soft washes |
-| `secondary` / `secondary-foreground` | `#B0B3D7` / `#14111F` | Accents, quiet emphasis |
-| `muted` / `muted-foreground` | `#1E1A2B` / `#9C96B3` | Subtle fills / secondary text |
-| `subtle-foreground` | `#6F6987` | Metadata keys, labels, tertiary text |
-| `accent` / `accent-foreground` | `#272134` / `#F7F5FC` | Hover states |
-| `success` | `#3FB984` | Recruiting, accepted, positive |
-| `warning` | `#E0A73B` | In review, pending |
-| `destructive` | `#E5555A` | Rejected, destructive actions |
-| `info` | `#5B8DFF` | In progress, informational |
+| `grape` | `#5b3ff0` | Brand tile, marketing panels, links/accents in light |
+| `gold` | `#ffc933` | Primary action, active nav/tab, highlights |
+| `coral` | `#ff5a7a` | Destructive / bugs / notification badge |
+| `mint` | `#19c58d` | Success, recruiting, accepted |
+| `azure` | `#34b6ff` | Info, secondary accents |
+| `lilac` | `#b9a8ff` | Avatar fallback |
+| `ink` | `#17142b` | Text on bright fills, art outlines |
 
-Status colours are used at ~15% opacity for badge fills (`bg-success/15`
-`text-success`) so the UI stays calm.
+Semantic tokens (value differs per theme):
 
-The theme is **dark-only** for the prototype (`color-scheme: dark` on `:root`).
-Tokens are structured so a light theme could be added later by overriding
-`:root` values under a `[data-theme="light"]` selector.
+| Token | Light | Dark | Use |
+| --- | --- | --- | --- |
+| `background` / `foreground` | `#fff` / `#17142b` | `#0f0d1f` / `#f3f1ff` | Canvas + text |
+| `surface` | `#fff` | `#181633` | Cards, panels, inputs |
+| `elevated` | `#f3f0ff` | `#201d44` | Section bands, wells, hover |
+| `line` | `#17142b` | `#5d55d6` | The signature 2px outline |
+| `border` | ink @ 24% | `#5d55d6` @ 45% | Quiet dividers (dashed) |
+| `primary` | gold | gold | Actions; text on it is `primary-foreground` (ink) |
+| `secondary` | grape | gold | Accent text, eyebrows, links |
+| `muted-foreground` / `subtle-foreground` | `#5f5b7e` / `#6b6790` | `#a9a5d0` / `#8d89b8` | Secondary / tertiary text |
+| `success` `warning` `destructive` `info` | darkened for text on white | the brand colour | Status **text** and tints |
+
+Status badges use flat brand fills with ink text (`bg-mint text-ink`); the
+`success`/`warning`/`destructive`/`info` tokens are for text, borders and tints
+so they stay readable on white.
 
 ## Typography
 
-Two families, loaded via `next/font/google` (self-hosted, no layout shift):
+Loaded with `next/font/google` in `app/layout.tsx` and exposed as CSS variables:
 
-| Family | Variable | Applied to |
+| Family | Variable | Used for |
 | --- | --- | --- |
-| **Space Grotesk** (500/600/700) | `--font-space-grotesk` → `--font-display` | `h1`–`h4`, logo wordmark, stat figures (`.font-display`) |
-| **Inter** | `--font-inter` → `--font-sans` | All body text, UI, controls |
+| **Bricolage Grotesque** | `--font-display` | `h1`–`h4`, numbers, wordmark (`font-display`) |
+| **Figtree** | `--font-sans` | Body copy and UI |
+| **Silkscreen** | `--font-pixel` | HUD labels (`.hud`, `.text-label`) |
 
-Rationale: Space Grotesk is geometric with a slightly technical character that
-suits a gaming product, used **only** for headings and numeric display so it
-never hurts readability. Inter carries everything else — it is the most legible
-UI typeface available and keeps long-form content (playtest goals, feedback)
-comfortable. A monospace stack (`--font-mono`) is defined for future
-code/build-version display but no monospace webfont is loaded.
+Utilities: `.text-display` (hero), `.text-display-sm` (section/page titles),
+`.hud` / `.text-label` (uppercase pixel label), `.hl` (tilted gold
+"highlighter" word).
 
-Headings use `letter-spacing: -0.022em` and `text-wrap: balance`; body copy uses
-`text-wrap: pretty`.
+## Shape, outline and shadow
 
-Three utilities carry the expressive end of the scale:
+- Cards `rounded-xl`, controls `rounded-lg`/`rounded-md`, chips `rounded-full`,
+  big panels `rounded-2xl`.
+- Every bordered surface is **`border-2 border-line`**. Dividers inside a
+  surface are `border-t-2 border-dashed border-border`.
+- Shadows are hard offsets with no blur: `shadow-sm` 2px, `shadow-md` 4px,
+  `shadow-lg` 6px, in `--shadow-ink`. Buttons use 3px that grows to 5px on
+  hover and collapses to 0 when pressed.
+- Focus: inputs get a 4px grape offset shadow; everything else gets the global
+  3px `:focus-visible` outline (grape, gold in dark). Do not remove it.
 
-| Utility | Use |
-| --- | --- |
-| `.text-display` | Landing hero only. Fluid `clamp(2.5rem … 4.75rem)`. |
-| `.text-display-sm` | Section and page-level headlines. Fluid `clamp(1.875rem … 2.75rem)`. |
-| `.text-label` | 11px uppercase, `0.1em` tracking — metadata keys and eyebrows. |
+## Primitives (`components/ui/`)
 
-## Spacing & layout
+`Button` (variants `primary` gold, `secondary` white, `outline`, `grape`, `ink`,
+`destructive`, `success`, `ghost`, `link`), `Badge` (flat fills; `dot` on a
+success badge becomes a white chip with a pulsing green dot), `Card`, `Input` /
+`Textarea` / `Select`, `Tabs` (active = gold), `Dialog`, `Sheet`,
+`DropdownMenu`, `Checkbox`, `Radio`, `Progress`, `Avatar` (initials get a
+stable flat colour), `Skeleton`, `states` (empty/error/success), `Pagination`,
+`Toast`, `Tooltip`, and the additions below.
 
-- Page gutter: the `.container-page` utility (`max-width: 82rem`, responsive
-  inline padding `1.25rem` → `2rem`). Exposed as `<Container />`.
-- Section vertical rhythm: `py-20` (`py-16` for compact headers).
-- Grid gaps: `gap-4`/`gap-5` for card grids, `gap-3` for inline groups.
-
-## Border radius
-
-`--radius: 0.625rem` base, with the shadcn-style scale:
-`--radius-sm` (−4px) · `--radius-md` (−2px) · `--radius-lg` (base) ·
-`--radius-xl` (+4px) · `--radius-2xl` (+10px).
-
-One rule, applied everywhere: **cards `rounded-xl`, controls `rounded-md`,
-badges and chips `rounded-full`, large feature panels `rounded-2xl`.** Nothing
-else. If a new element doesn't fit one of those four, it is probably a card.
-
-## Elevation
-
-Restrained, shadow-only (no glow):
-
-- `--shadow-sm`: `0 1px 2px 0 rgb(0 0 0 / .4)` — resting buttons
-- `--shadow-md`: `0 10px 30px -12px rgb(0 0 0 / .65)` — menus, popovers, apply rail
-- `--shadow-lg`: `0 30px 70px -24px rgb(0 0 0 / .75)` — dialogs, sheets, toasts
-
-Primary separation comes from `border` + `surface` contrast, not shadow.
+New: `Eyebrow`, `Segments` (segmented XP bar), `Marquee`, `Reveal`,
+`AnimatedNumber`, `ThemeToggle`; `components/art/pixel-art.tsx` has `Sprite`,
+`SpriteTile` and `HeroScene`.
 
 ## Motion
 
-Fast, subtle, purposeful — nothing exceeds 240ms.
+Defined once in `globals.css`. Keyframes are prefixed `g-`.
 
-| Token | Value | Use |
+| Class | Effect | Where |
 | --- | --- | --- |
-| `--duration-fast` | 120ms | Colour / border transitions on controls |
-| `--duration-base` | 180ms | Card hover lift, toasts |
-| `--duration-slow` | 240ms | Entrances (`.animate-rise`) |
-| `--ease-out-soft` | `cubic-bezier(.22,1,.36,1)` | All of the above |
+| `.card-lift` | Hover: lift up-left, longer shadow, slight tilt | Cards, tiles |
+| `.page-in` | Route content rises in | App shell, auth, 404 |
+| `.a-pop` | Springy scale-in | Stat tiles, menus, toasts, errors |
+| `.a-float` / `.a-float-2` / `.a-hop` / `.a-coin` / `.a-wave` / `.a-pulse` / `.a-drift` / `.a-spin-slow` | Ambient loops | Hero scene, covers, empty states |
+| `.a-marquee` | Ticker | Landing page band |
+| `.a-blink` | Cursor blink | Eyebrows, footer |
+| `.a-live` | Pulsing green ring | Live status dot |
+| `.a-shake` | Wiggle | Form errors |
+| `.wiggle-hover` + `.wiggle-target` | Icon wiggles when its card is hovered | Feature cards |
+| `.reveal` / `<Reveal>` | Fade-and-rise on scroll | Marketing sections |
+| `.btn .arrow` | Arrow nudges forward on hover | Buttons |
 
-Utilities: `.lift` (2px card hover raise), `.animate-rise` (above-the-fold
-entrance), `.animate-shimmer` (skeletons), `.glass` (sticky bar blur).
+JS-driven: `<Reveal>` (IntersectionObserver), `AnimatedNumber` and the
+marketing `CountUp` (number counters), `Segments` (staggered fill), the brief
+card (auto-rotating tabs), and the landing-page `BugSquash` mini-game.
 
-**`prefers-reduced-motion: reduce` collapses every animation and transition to
-0.01ms and disables the hover lift** — state changes stay visible, movement does
-not.
-
-## Cards vs. sections
-
-The quickest way a product starts looking like a generic dashboard is wrapping
-every group in a card. The rule here:
-
-- **Use a card** for a repeated unit in a list or grid (playtest, game, tester,
-  feedback report), for a side rail, or for a genuinely bounded panel.
-- **Use a section** — heading, hairline, whitespace — for page structure.
-  `SectionTitle`, `SectionHeading`, and the `border-t border-border pt-*` pattern
-  cover this.
-- `StatCard` is deliberately a hairline tile rather than a `Card`, so a four-up
-  stat row above a list of cards doesn't read as eight stacked boxes.
+**Rules.** `<Reveal>` only hides blocks that are below the fold after mount, so
+server-rendered content is never invisible. `prefers-reduced-motion: reduce`
+collapses all animation/transition durations, disables the card tilt, and
+`AnimatedNumber` skips counting. Motion must never carry information that is
+not also shown statically.
 
 ## Game artwork
 
-The prototype ships no image assets, so `components/games/game-cover.tsx`
-generates cover art:
+`components/games/game-cover.tsx` generates cover art when a game has no
+uploaded poster. The motif still comes from the first genre
+(`ridge`, `shards`, `grid`, `contour`, `orbit`, `fog`) and the colour from
+`accentHue`, seeded by the title so it is deterministic. The art is now flat
+and outlined, with one or two animated shapes. **Always use `GameArt`** so
+every game image crops the same way.
 
-- The **motif** comes from the game's first genre — `ridge` (adventure / RPG /
-  platformer), `shards` (action / shooter), `grid` (puzzle / strategy),
-  `contour` (simulation), `orbit` (roguelike), `fog` (horror).
-- The **colour** comes from `game.accentHue`; the **layout** is jittered by a
-  seeded PRNG keyed on the title, so art is fully deterministic — identical on
-  server and client, and stable for a given game forever.
-- `GameArt` wraps `GameCover` in a fixed ratio (`16/9`, `16/10`, `3/2`, `21/9`)
-  with an optional bottom `scrim`. **Always use `GameArt`** instead of a
-  hand-rolled `aspect-*` wrapper, so every game image crops identically.
-- An uploaded poster (`coverImageUrl`) wins over the generator when it can be loaded, via `assetUrl()` in `lib/assets.ts`; the generated art is the fallback.
+## Charts
 
-## Component conventions
+`components/charts/chart-theme.ts`: brand colours for fills (same in both
+themes); lines and text use CSS variables (`var(--border)`,
+`var(--muted-foreground)`) so they follow the theme.
 
-| Component | File | Notes |
-| --- | --- | --- |
-| `Button` / `buttonVariants` | `components/ui/button.tsx` | Variants: `primary`, `secondary`, `outline`, `ghost`, `destructive`, `success`, `link`. Sizes: `sm`, `md`, `lg`, `icon`, `icon-sm`. `asChild` (Radix Slot) styles a `<Link>` as a button; `loading` shows a spinner and disables. |
-| `Card` (+ Header/Title/Description/Content/Footer) | `components/ui/card.tsx` | Variants: `default`, `elevated`, `interactive` (hover lift), `plain` (grouping with no frame). |
-| `Badge` | `components/ui/badge.tsx` | Tones: `default`, `muted`, `primary`, `success`, `warning`, `destructive`, `info`, `outline`, `overlay` (sits on artwork). Sizes `sm`/`md`, optional leading `dot`. Tone names match the metadata maps in `lib/constants.ts`. |
-| `StatusBadge` | `components/ui/status-badge.tsx` | One badge for every domain status (`kind`: `playtest` / `application` / `test` / `game`) — keeps label + tone consistent. |
-| `Input` / `Textarea` | `components/ui/*` | `input` background, focus moves the border to `ring`. |
-| `Field` | `components/ui/field.tsx` | Label + hint + control + error, wired for a11y (`htmlFor` / `aria-describedby`). Use it for every form control. |
-| Radix wrappers | `checkbox`, `radio-group`, `select`, `dialog`, `sheet`, `dropdown-menu`, `tabs`, `avatar`, `progress`, `separator` | Themed to the tokens; animations from `tw-animate-css`. |
-| `states.tsx` | `EmptyState`, `ErrorState`, `LoadingState`, `PageSkeleton` | Every list/async view uses these for the non-happy paths. |
-| `Container` | `components/ui/container.tsx` | Wraps `.container-page`. |
-| `SectionHeading` | `components/ui/section-heading.tsx` | Eyebrow + title + lead, left or centered. |
-| `Logo` | `components/ui/logo.tsx` | Wordmark + radar-sweep mark; `compact` renders the mark alone. |
-| `MetaItem` / `MetaRow` / `MetaStat` / `MetaStatGrid` | `components/ui/meta.tsx` | Compact metadata (reward, duration, slots, deadline). Defined once so every card states the same facts the same way. |
-| `Tooltip` | `components/ui/tooltip.tsx` | Hover/focus tooltip with `role="tooltip"` + `aria-describedby`. Hand-written — Radix's tooltip isn't a project dependency and doesn't justify adding one. |
-| `ToastProvider` / `useToast` | `components/ui/toast.tsx` | Transient confirmations. Mounted once in the root layout so every route group has it; `useToast()` no-ops outside a provider. |
-| `Pagination` | `components/ui/pagination.tsx` | Client-side paging for Discover; renders nothing at a single page. |
+## Cards vs. sections
 
-### Focus states
-
-Global rule in `globals.css`: every `:focus-visible` gets
-`outline: 2px solid var(--color-ring)` with `2px` offset. Interactive elements
-are real `<button>` / `<a>` so they are keyboard-reachable by default.
-
-### Primitives & shadcn/ui
-
-`components.json` is configured (new-york, Tailwind v4, `@/components/ui`, lucide).
-The primitives in `components/ui/` are hand-written but shadcn-compatible and
-built on Radix where accessibility demands it (dialog, dropdown-menu, tabs,
-select, checkbox, radio-group, label, avatar, progress, separator). New
-primitives can be added with `npx shadcn@latest add <component>` — retheme
-the generated CSS variables to the tokens above.
-
-### States
-
-Loading, empty, and error states are first-class: `components/ui/states.tsx`
-provides `LoadingState`, `EmptyState`, `ErrorState`, `SuccessState`, and
-skeletons (`PlaytestCardSkeleton`, `CardGridSkeleton`, `ListSkeleton`,
-`StatsSkeleton`, `PageSkeleton`). Persisted-store views render `PageSkeleton`
-until `useHydrated()` is true.
+Use a card for a repeated unit (playtest, game, tester, feedback report), a
+side rail or a genuinely bounded panel. Use headings, dashed dividers and
+whitespace for page structure. `StatCard` is a card on purpose in this design:
+a coloured icon chip, a HUD label and a counting number; chip colours cycle
+gold / azure / mint / coral by position in `StatCardGrid`.

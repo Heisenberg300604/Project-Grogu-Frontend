@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Figma export used as a visual reference only; it is its own Vite project.
+    "design rework/**",
   ]),
   {
     rules: {

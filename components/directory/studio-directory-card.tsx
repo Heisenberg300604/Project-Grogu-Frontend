@@ -23,8 +23,8 @@ export function StudioDirectoryCard({
   return (
     <article
       className={cn(
-        "lift group relative flex flex-col gap-4 rounded-xl border border-border bg-surface p-5",
-        "hover:border-border-strong focus-within:border-border-strong",
+        "card-lift shadow-md group relative flex flex-col gap-4 rounded-xl border-2 border-line bg-surface p-5",
+        "hover:border-border-strong",
         className,
       )}
     >
@@ -35,7 +35,7 @@ export function StudioDirectoryCard({
           className="size-12 shrink-0"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-display text-base font-semibold">
+          <h3 className="truncate font-display text-base font-bold">
             <Link
               href={`/studios/${user.id}`}
               className="transition-colors hover:text-secondary"
@@ -59,7 +59,7 @@ export function StudioDirectoryCard({
         {user.bio || "This studio hasn't added a description yet."}
       </p>
 
-      <dl className="mt-auto flex flex-wrap gap-x-5 gap-y-1.5 border-t border-border pt-3.5 text-xs text-muted-foreground">
+      <dl className="mt-auto flex flex-wrap gap-x-5 gap-y-1.5 border-t-2 border-dashed border-border pt-3.5 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <Building2 className="size-3.5 text-subtle-foreground" aria-hidden />
           <dt className="sr-only">Studio size</dt>

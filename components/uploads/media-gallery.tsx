@@ -22,7 +22,7 @@ export function MediaGallery({ media }: { media: FeedbackMedia[] }) {
         {items.map((item) => (
           <li
             key={item.url}
-            className="overflow-hidden rounded-lg border border-border bg-elevated"
+            className="overflow-hidden rounded-lg border-2 border-line bg-elevated"
           >
             {item.kind === "image" ? (
               <a

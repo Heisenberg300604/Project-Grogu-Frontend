@@ -15,6 +15,7 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { CountUp } from "@/components/marketing/count-up";
 
@@ -85,14 +86,14 @@ function ReasonList({
             className={cn(
               "grid size-9 shrink-0 place-items-center rounded-lg",
               accent === "primary"
-                ? "border border-primary-line bg-primary-soft text-secondary"
-                : "border border-border bg-elevated text-secondary",
+                ? "border-2 border-line bg-primary-soft text-secondary"
+                : "border-2 border-line bg-elevated text-secondary",
             )}
           >
             <reason.icon className="size-4" aria-hidden />
           </span>
           <div className="space-y-1.5">
-            <h3 className="text-sm font-semibold">{reason.title}</h3>
+            <h3 className="text-sm font-bold">{reason.title}</h3>
             <p className="text-sm leading-relaxed text-muted-foreground">
               {reason.body}
             </p>
@@ -106,7 +107,7 @@ function ReasonList({
 /** "Why developers use Grogu" — the studio side of the pitch. */
 export function WhyDevelopers() {
   return (
-    <section className="border-b border-border bg-surface/40 py-20">
+    <section className="border-b-2 border-dashed border-border bg-surface/40 py-20">
       <Container className="flex flex-col gap-12">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
@@ -130,7 +131,7 @@ export function WhyDevelopers() {
 /** "Why playtesters use Grogu" — the player side of the pitch. */
 export function WhyTesters() {
   return (
-    <section className="border-b border-border py-20">
+    <section className="border-b-2 border-dashed border-border py-20">
       <Container className="flex flex-col gap-12">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
@@ -163,27 +164,31 @@ export function PlatformStats({
   };
 }) {
   const figures = [
-    { label: "Games in testing", value: stats.games },
-    { label: "Active playtests", value: stats.activePlaytests },
-    { label: "Verified testers", value: stats.testers },
-    { label: "Feedback reports", value: stats.feedbackSubmitted },
+    { label: "Games in testing", value: stats.games, bar: "bg-gold" },
+    { label: "Active playtests", value: stats.activePlaytests, bar: "bg-azure" },
+    { label: "Verified testers", value: stats.testers, bar: "bg-mint" },
+    { label: "Feedback reports", value: stats.feedbackSubmitted, bar: "bg-coral" },
   ];
 
   return (
-    <section className="border-b border-border py-16">
+    <section className="pb-24">
       <Container>
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
-          {figures.map((figure) => (
-            <div key={figure.label}>
-              <dd className="font-display text-4xl font-semibold tabular-nums sm:text-5xl">
-                <CountUp value={figure.value} />
-              </dd>
-              <dt className="mt-2 text-sm text-muted-foreground">
-                {figure.label}
-              </dt>
-            </div>
-          ))}
-        </dl>
+        <Reveal>
+          <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {figures.map((figure) => (
+              <div
+                key={figure.label}
+                className="relative overflow-hidden rounded-xl border-2 border-line bg-surface p-5 shadow-md"
+              >
+                <span aria-hidden className={cn("absolute inset-x-0 top-0 h-3", figure.bar)} />
+                <dd className="mt-2 font-display text-5xl font-extrabold tabular-nums sm:text-6xl">
+                  <CountUp value={figure.value} />
+                </dd>
+                <dt className="hud mt-3 text-muted-foreground">{figure.label}</dt>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
       </Container>
     </section>
   );
@@ -198,22 +203,17 @@ const CTA_POINTS = [
 /** Closing call to action for studios. */
 export function DeveloperCta() {
   return (
-    <section className="py-20">
+    <section className="pt-24">
       <Container>
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-elevated">
-          <div
-            aria-hidden
-            className="absolute -right-24 -top-24 size-72 rounded-full bg-primary/12 blur-3xl"
-          />
-          <div className="relative grid gap-10 p-8 md:grid-cols-2 md:gap-14 md:p-12">
-            <div className="flex flex-col gap-5">
+        <Reveal>
+          <div className="grid gap-8 overflow-hidden rounded-xl border-2 border-line bg-grape p-8 text-white shadow-[8px_8px_0_var(--shadow-ink)] md:p-12 lg:grid-cols-2">
+            <div>
               <h2 className="text-display-sm">Run your next playtest on Grogu</h2>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                Set up a game, publish a playtest, and get a focused group of
-                testers who understand the assignment — without living in a
-                spreadsheet.
+              <p className="mb-7 mt-4 max-w-md text-white/85">
+                Set up a game, publish a playtest, and get a focused group of testers
+                who understand the assignment — without living in a spreadsheet.
               </p>
-              <div className="mt-1 flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-wrap gap-3">
                 <Link
                   href="/signup"
                   className={buttonVariants({ variant: "primary", size: "lg" })}
@@ -222,27 +222,29 @@ export function DeveloperCta() {
                 </Link>
                 <Link
                   href="/developers"
-                  className={buttonVariants({ variant: "outline", size: "lg" })}
+                  className={buttonVariants({
+                    variant: "secondary",
+                    size: "lg",
+                    className: "!bg-white !text-ink",
+                  })}
                 >
                   See how it works
                 </Link>
               </div>
             </div>
 
-            <ul className="flex flex-col justify-center gap-4">
+            <ul className="grid content-center gap-4">
               {CTA_POINTS.map((point) => (
-                <li key={point} className="flex items-start gap-3">
-                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-success/15 text-success">
-                    <Check className="size-3" aria-hidden />
+                <li key={point} className="flex gap-3 font-semibold">
+                  <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md bg-gold text-ink">
+                    <Check className="size-3.5" strokeWidth={3} aria-hidden />
                   </span>
-                  <span className="text-sm leading-relaxed text-foreground">
-                    {point}
-                  </span>
+                  {point}
                 </li>
               ))}
             </ul>
           </div>
-        </div>
+        </Reveal>
       </Container>
     </section>
   );

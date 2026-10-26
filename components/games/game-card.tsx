@@ -24,13 +24,13 @@ export function GameCard({
 }) {
   const body = (
     <>
-      <GameArt game={game} ratio="16/9" scrim>
+      <GameArt game={game} ratio="16/9" scrim className="border-b-2 border-line">
         <div className="absolute right-3 top-3">
           <StatusBadge kind="game" status={game.status} overlay />
         </div>
         <div className="absolute inset-x-4 bottom-3 flex items-end justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate font-display text-lg font-semibold text-white">
+            <h3 className="truncate font-display text-lg font-extrabold text-white">
               {game.title}
             </h3>
             <p className="truncate text-xs text-white/70">
@@ -55,7 +55,7 @@ export function GameCard({
   );
 
   const shell = cn(
-    "lift group flex flex-col overflow-hidden rounded-xl border border-border bg-surface hover:border-border-strong",
+    "card-lift group flex flex-col overflow-hidden rounded-xl border-2 border-line bg-surface shadow-md",
     className,
   );
 

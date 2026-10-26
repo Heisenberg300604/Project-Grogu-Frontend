@@ -63,51 +63,58 @@ function motifFor(genres: GameGenre[] | undefined): Motif {
 
 /* -------------------------------------------------------------------------- */
 /*  Motifs — each draws into a 400 × 225 viewBox                               */
+/*                                                                            */
+/*  Flat colour, thick ink outlines, one or two shapes that move. Colours are  */
+/*  derived from the game's hue, so a game keeps its identity in both themes.  */
 /* -------------------------------------------------------------------------- */
+
+const INK = "#17142b";
 
 interface MotifProps {
   hue: number;
-  random: () => number;
+  /** Each motif seeds its own generator, so a render is a pure function of
+      (hue, seed) — React may render twice in development and must get the same art. */
+  seed: number;
 }
 
-/** Layered ridgelines under a low sun. Reads as "world to explore". */
-function Ridge({ hue, random }: MotifProps) {
-  const layers = [0, 1, 2, 3].map((i) => {
-    const baseY = 96 + i * 30;
+/** HSL helper that keeps hue in range. */
+const tone = (hue: number, s: number, l: number, shift = 0) =>
+  `hsl(${(((hue + shift) % 360) + 360) % 360} ${s}% ${l}%)`;
+
+/** Sunny hills with a flag-pole castle. Reads as "world to explore". */
+function Ridge({ hue, seed }: MotifProps) {
+  const random = rng(seed);
+  const layers = [0, 1, 2].map((i) => {
+    const baseY = 112 + i * 30;
     const points: string[] = [];
-    for (let x = -20; x <= 420; x += 55) {
-      const peak = baseY - random() * (44 - i * 8);
-      points.push(`${x},${Math.round(peak)}`);
+    for (let x = -20; x <= 420; x += 70) {
+      points.push(`${x},${Math.round(baseY - random() * (46 - i * 10))}`);
     }
     return {
       d: `M-20,240 L${points.join(" L")} L420,240 Z`,
-      fill: `hsl(${(hue + i * 7) % 360} ${44 - i * 5}% ${9 + i * 4}%)`,
+      fill: tone(hue, 58 + i * 8, 70 - i * 10, 150 + i * 24),
     };
   });
+  const sunX = 70 + Math.round(random() * 240);
 
   return (
     <>
-      <circle
-        cx={100 + Math.round(random() * 180)}
-        cy={78}
-        r={30}
-        fill={`hsl(${(hue + 20) % 360} 70% 62%)`}
-        opacity={0.22}
-      />
+      <circle cx={sunX} cy={56} r={26} fill="#ffc933" stroke={INK} strokeWidth={4} className="svg-anim a-pulse" />
       {layers.map((layer, i) => (
-        <path key={i} d={layer.d} fill={layer.fill} />
+        <path key={i} d={layer.d} fill={layer.fill} stroke={INK} strokeWidth={4} strokeLinejoin="round" />
       ))}
+      <rect x={0} y={196} width={400} height={29} fill="#19c58d" stroke={INK} strokeWidth={4} />
     </>
   );
 }
 
-/** Diagonal angular bands. Reads as speed / impact. */
-function Shards({ hue, random }: MotifProps) {
-  const bands = Array.from({ length: 7 }, (_, i) => {
-    const x = -60 + i * 68 + random() * 24;
-    const w = 12 + random() * 34;
-    return { x, w, o: 0.06 + random() * 0.16 };
-  });
+/** Spinning crosshair over diagonal stripes. Reads as speed / impact. */
+function Shards({ hue, seed }: MotifProps) {
+  const random = rng(seed);
+  const bands = Array.from({ length: 5 }, (_, i) => ({
+    x: -40 + i * 90 + random() * 20,
+    w: 28 + random() * 26,
+  }));
 
   return (
     <>
@@ -115,29 +122,25 @@ function Shards({ hue, random }: MotifProps) {
         <path
           key={i}
           d={`M${band.x},-20 L${band.x + band.w},-20 L${band.x + band.w - 90},245 L${band.x - 90},245 Z`}
-          fill={`hsl(${(hue + (i % 3) * 14) % 360} 72% 60%)`}
-          opacity={band.o}
+          fill={tone(hue, 90, i % 2 ? 72 : 66, 24)}
         />
       ))}
-      <path
-        d="M-20,168 L420,120 L420,245 L-20,245 Z"
-        fill={`hsl(${hue} 48% 8%)`}
-        opacity={0.85}
-      />
+      <g stroke={INK} strokeWidth={6} fill="none" className="svg-anim a-spin-slow">
+        <circle cx={200} cy={112} r={50} />
+        <path d="M200 44v36M200 144v36M132 112h36M232 112h36" />
+      </g>
+      <circle cx={200} cy={112} r={8} fill="#ff5a7a" stroke={INK} strokeWidth={3} />
     </>
   );
 }
 
-/** Isometric block field. Reads as systems / puzzles. */
-function Grid({ hue, random }: MotifProps) {
+/** Block field with a few lit tiles that bob. Reads as systems / puzzles. */
+function Grid({ hue, seed }: MotifProps) {
+  const random = rng(seed);
   const cells: { x: number; y: number; lit: boolean }[] = [];
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 11; col++) {
-      cells.push({
-        x: col * 38 + (row % 2 ? 19 : 0),
-        y: row * 38 + 8,
-        lit: random() > 0.82,
-      });
+      cells.push({ x: col * 38 + (row % 2 ? 19 : 0) - 6, y: row * 38 - 2, lit: random() > 0.8 });
     }
   }
 
@@ -148,99 +151,85 @@ function Grid({ hue, random }: MotifProps) {
           key={i}
           x={cell.x}
           y={cell.y}
-          width={26}
-          height={26}
-          rx={5}
-          fill={
-            cell.lit
-              ? `hsl(${(hue + 24) % 360} 70% 58%)`
-              : `hsl(${hue} 40% 24%)`
-          }
-          opacity={cell.lit ? 0.5 : 0.16}
+          width={30}
+          height={30}
+          rx={6}
+          fill={cell.lit ? tone(hue, 90, 64, 150) : tone(hue, 70, 78)}
+          stroke={INK}
+          strokeWidth={cell.lit ? 3 : 2}
+          strokeOpacity={cell.lit ? 1 : 0.35}
+          className={cell.lit ? (i % 2 ? "svg-anim a-float" : "svg-anim a-float-2") : undefined}
         />
       ))}
     </>
   );
 }
 
-/** Nested topographic contours. Reads as terrain / simulation. */
-function Contour({ hue, random }: MotifProps) {
-  const cx = 90 + random() * 220;
-  const cy = 60 + random() * 100;
-  const rings = Array.from({ length: 9 }, (_, i) => ({
-    rx: 26 + i * 27,
-    ry: 18 + i * 19,
-    rot: -18 + random() * 36,
-  }));
+/** Nested terrain rings. Reads as simulation. */
+function Contour({ hue, seed }: MotifProps) {
+  const random = rng(seed);
+  const cx = 110 + random() * 180;
+  const cy = 80 + random() * 60;
 
   return (
     <>
-      {rings.map((ring, i) => (
+      {[5, 4, 3, 2, 1].map((n, i) => (
         <ellipse
-          key={i}
+          key={n}
           cx={cx}
           cy={cy}
-          rx={ring.rx}
-          ry={ring.ry}
-          transform={`rotate(${ring.rot} ${cx} ${cy})`}
-          fill="none"
-          stroke={`hsl(${(hue + i * 4) % 360} 66% 62%)`}
-          strokeWidth={1.25}
-          opacity={0.3 - i * 0.024}
+          rx={n * 34}
+          ry={n * 24}
+          fill={tone(hue, 70, 66 + (i % 2 ? 14 : 0), i * 18)}
+          stroke={INK}
+          strokeWidth={4}
         />
       ))}
+      <g className="svg-anim a-float">
+        <circle cx={cx} cy={cy - 6} r={13} fill="#ffc933" stroke={INK} strokeWidth={4} />
+        <rect x={cx - 2} y={cy - 13} width={4} height={14} fill={INK} />
+      </g>
     </>
   );
 }
 
-/** Concentric arcs with scattered nodes. Reads as runs / procedural depth. */
-function Orbit({ hue, random }: MotifProps) {
-  const cx = 300;
-  const cy = 52;
-  const nodes = Array.from({ length: 16 }, () => ({
-    x: random() * 400,
-    y: random() * 225,
-    r: 0.9 + random() * 2.1,
+/** Night sky, moon and orbiting rings. Reads as runs / procedural depth. */
+function Orbit({ hue, seed }: MotifProps) {
+  const random = rng(seed);
+  const stars = Array.from({ length: 14 }, () => ({
+    x: random() * 390,
+    y: random() * 140,
   }));
 
   return (
     <>
-      {Array.from({ length: 7 }, (_, i) => (
-        <circle
-          key={i}
-          cx={cx}
-          cy={cy}
-          r={26 + i * 32}
-          fill="none"
-          stroke={`hsl(${(hue + 12) % 360} 68% 62%)`}
-          strokeWidth={1}
-          opacity={0.26 - i * 0.028}
-        />
-      ))}
-      {nodes.map((node, i) => (
-        <circle
-          key={`n${i}`}
-          cx={node.x}
-          cy={node.y}
-          r={node.r}
-          fill={`hsl(${(hue + 30) % 360} 75% 72%)`}
-          opacity={0.4}
-        />
-      ))}
+      <rect width={400} height={225} fill={tone(hue, 48, 22)} />
+      <g fill="#fff">
+        {stars.map((star, i) => (
+          <rect key={i} x={star.x} y={star.y} width={4} height={4} opacity={0.85} />
+        ))}
+      </g>
+      <polygon points="0,225 70,150 130,190 200,130 270,180 340,140 400,175 400,225" fill={tone(hue, 40, 32)} />
+      <g className="svg-anim a-spin-slow" fill="none" stroke={tone(hue, 90, 72, 30)} strokeWidth={4}>
+        <ellipse cx={290} cy={70} rx={70} ry={22} transform="rotate(-20 290 70)" />
+      </g>
+      <circle cx={290} cy={70} r={28} fill="#e9e6ff" stroke={INK} strokeWidth={4} />
     </>
   );
 }
 
-/** Tall silhouettes swallowed by fog. Reads as dread. */
-function Fog({ hue, random }: MotifProps) {
-  const pillars = Array.from({ length: 9 }, (_, i) => ({
-    x: i * 46 + random() * 18,
-    w: 14 + random() * 26,
-    top: 40 + random() * 90,
+/** Tall pillars and a bobbing ghost. Reads as dread, but friendly. */
+function Fog({ hue, seed }: MotifProps) {
+  const random = rng(seed);
+  const pillars = Array.from({ length: 7 }, (_, i) => ({
+    x: 12 + i * 58 + random() * 10,
+    w: 22 + random() * 16,
+    top: 90 + random() * 60,
   }));
 
   return (
     <>
+      <circle cx={320} cy={54} r={24} fill="#e9e6ff" stroke={INK} strokeWidth={4} />
       {pillars.map((pillar, i) => (
         <rect
           key={i}
@@ -248,11 +237,16 @@ function Fog({ hue, random }: MotifProps) {
           y={pillar.top}
           width={pillar.w}
           height={240 - pillar.top}
-          fill={`hsl(${hue} 30% 6%)`}
-          opacity={0.7}
+          fill={tone(hue, 36, 24 + (i % 2) * 8)}
+          stroke={INK}
+          strokeWidth={4}
         />
       ))}
-      <rect width="400" height="225" fill={`url(#fog-${Math.round(hue)})`} />
+      <g className="svg-anim a-float">
+        <path d="M150 96a26 26 0 0 1 52 0v44l-9-8-8 8-9-8-9 8-9-8-8 8z" fill="#fff" stroke={INK} strokeWidth={4} strokeLinejoin="round" />
+        <rect x={163} y={88} width={6} height={10} fill={INK} />
+        <rect x={183} y={88} width={6} height={10} fill={INK} />
+      </g>
     </>
   );
 }
@@ -264,6 +258,16 @@ const MOTIFS: Record<Motif, (props: MotifProps) => React.JSX.Element> = {
   contour: Contour,
   orbit: Orbit,
   fog: Fog,
+};
+
+/** Backdrop colour per motif: bright for the daytime motifs, deep for the night ones. */
+const BACKDROP: Record<Motif, (hue: number) => string> = {
+  ridge: (hue) => tone(hue, 85, 76, 200),
+  shards: (hue) => tone(hue, 95, 58, 10),
+  grid: (hue) => tone(hue, 80, 58),
+  contour: (hue) => tone(hue, 75, 74, 170),
+  orbit: (hue) => tone(hue, 48, 22),
+  fog: (hue) => tone(hue, 42, 34),
 };
 
 /* -------------------------------------------------------------------------- */
@@ -295,20 +299,16 @@ export function GameCover({
 
   const hue = game.accentHue;
   const seed = hash(`${game.title}:${hue}`);
-  const random = rng(seed);
   const motif = motifFor(game.genres);
   const Motif = MOTIFS[motif];
-
-  // Suffix keeps <defs> ids unique per game; identical games render identical
-  // ids, which is harmless because their gradients are identical too.
-  const uid = `${motif}-${seed.toString(36)}`;
+  const backdrop = BACKDROP[motif](hue);
 
   return (
     <div
       role="img"
       aria-label={`${game.title} cover art`}
       className={cn("relative h-full w-full overflow-hidden", className)}
-      style={{ backgroundColor: `hsl(${hue} 42% 9%)` }}
+      style={{ backgroundColor: backdrop }}
     >
       <svg
         viewBox="0 0 400 225"
@@ -316,24 +316,8 @@ export function GameCover({
         aria-hidden
         preserveAspectRatio="xMidYMid slice"
       >
-        <defs>
-          <linearGradient id={`sky-${uid}`} x1="0" y1="0" x2="0.4" y2="1">
-            <stop offset="0" stopColor={`hsl(${(hue + 26) % 360} 56% 22%)`} />
-            <stop offset="1" stopColor={`hsl(${hue} 44% 8%)`} />
-          </linearGradient>
-          <radialGradient id={`vig-${uid}`} cx="0.5" cy="0.42" r="0.78">
-            <stop offset="0.45" stopColor="#000" stopOpacity="0" />
-            <stop offset="1" stopColor="#000" stopOpacity="0.55" />
-          </radialGradient>
-          <radialGradient id={`fog-${Math.round(hue)}`} cx="0.5" cy="0.9" r="0.9">
-            <stop offset="0" stopColor={`hsl(${hue} 30% 40%)`} stopOpacity="0.5" />
-            <stop offset="1" stopColor={`hsl(${hue} 30% 8%)`} stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        <rect width="400" height="225" fill={`url(#sky-${uid})`} />
-        <Motif hue={hue} random={random} />
-        <rect width="400" height="225" fill={`url(#vig-${uid})`} />
+        <rect width="400" height="225" fill={backdrop} />
+        <Motif hue={hue} seed={seed} />
       </svg>
 
       {scrim && (

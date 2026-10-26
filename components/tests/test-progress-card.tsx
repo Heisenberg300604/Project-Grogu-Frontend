@@ -29,14 +29,14 @@ export function TestProgressCard({
   return (
     <article
       className={cn(
-        "lift group relative flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 hover:border-border-strong sm:flex-row sm:items-center",
+        "card-lift shadow-md group relative flex flex-col gap-4 rounded-xl border-2 border-line bg-surface p-4 sm:flex-row sm:items-center",
         className,
       )}
     >
       <GameArt
         game={playtest.game}
         ratio="16/10"
-        className="w-full shrink-0 rounded-lg sm:w-40"
+        className="w-full shrink-0 rounded-lg border-2 border-line sm:w-40"
       />
 
       <div className="min-w-0 flex-1 space-y-2.5">
@@ -47,7 +47,7 @@ export function TestProgressCard({
           </span>
         </div>
 
-        <h3 className="font-medium leading-snug">
+        <h3 className="font-display text-lg font-bold leading-snug">
           <Link href={href} className="transition-colors hover:text-secondary">
             <span className="absolute inset-0" aria-hidden />
             <span className="line-clamp-1">{playtest.title}</span>

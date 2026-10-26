@@ -2,11 +2,9 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
-import { GroguMark } from "@/components/ui/grogu-mark";
 
 /**
- * Grogu wordmark. The mark is a signal waypoint: the connection between an
- * unreleased build and the people who can make it better.
+ * Grogu wordmark: a pixel "G" tile that tips over on hover, beside the name.
  */
 export function Logo({
   className,
@@ -29,14 +27,12 @@ export function Logo({
     >
       <span
         aria-hidden
-        className="grid size-8 place-items-center rounded-md border border-primary/70 bg-[#12191a] text-primary shadow-sm transition-colors duration-[120ms] group-hover:border-primary-hover group-hover:bg-[#182021]"
+        className="grid size-9 place-items-center rounded-[10px] border-2 border-line bg-grape font-pixel text-lg text-white shadow-sm transition-transform duration-200 group-hover:-rotate-6 group-hover:scale-110"
       >
-        <GroguMark className="size-5" />
+        G
       </span>
       {!compact && (
-        <span className="font-display text-lg font-semibold tracking-tight">
-          {SITE.name}
-        </span>
+        <span className="font-display text-xl font-extrabold">{SITE.name}</span>
       )}
     </Link>
   );

@@ -27,11 +27,11 @@ export function SignupStepIndicator({
     <div className="w-full py-2">
       <div className="relative flex items-center justify-between">
         {/* Background track line */}
-        <div className="absolute top-1/2 left-0 h-0.5 w-full -translate-y-1/2 bg-border" />
+        <div className="absolute top-1/2 left-0 h-1 w-full -translate-y-1/2 bg-border" />
 
         {/* Animated fill line */}
         <motion.div
-          className="absolute top-1/2 left-0 h-0.5 -translate-y-1/2 bg-gradient-to-r from-primary to-secondary"
+          className="absolute top-1/2 left-0 h-1 -translate-y-1/2 bg-primary"
           initial={{ width: "0%" }}
           animate={{ width: `${progressPercentage}%` }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -51,14 +51,14 @@ export function SignupStepIndicator({
                 onClick={() => isClickable && onStepClick(step.id)}
                 aria-current={isCurrent ? "step" : undefined}
                 className={cn(
-                  "relative flex size-9 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "hud relative flex size-10 items-center justify-center rounded-full border-2 border-line text-xs transition-[transform,background-color] duration-200",
                   isCompleted &&
-                    "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:scale-105",
+                    "bg-mint text-ink shadow-sm hover:scale-105",
                   isCurrent &&
-                    "border-primary bg-surface text-primary ring-4 ring-primary/20 shadow-lg shadow-primary/25 scale-110",
+                    "a-pop scale-110 bg-primary text-primary-foreground shadow-md",
                   !isCompleted &&
                     !isCurrent &&
-                    "border-border bg-muted/60 text-muted-foreground cursor-not-allowed",
+                    "bg-elevated text-muted-foreground cursor-not-allowed",
                   isClickable && "cursor-pointer"
                 )}
               >
@@ -71,7 +71,7 @@ export function SignupStepIndicator({
 
               <span
                 className={cn(
-                  "absolute top-11 text-[11px] font-medium whitespace-nowrap transition-colors duration-200",
+                  "absolute top-12 text-[11px] font-bold whitespace-nowrap transition-colors duration-200",
                   isCurrent
                     ? "text-foreground font-semibold"
                     : isCompleted

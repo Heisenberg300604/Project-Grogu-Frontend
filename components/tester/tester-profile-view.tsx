@@ -88,7 +88,7 @@ export function TesterProfileView() {
       />
 
       {/* ---- Identity ------------------------------------------------- */}
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="overflow-hidden rounded-2xl border-2 border-line bg-surface">
         <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
           <UserAvatar
             name={user.name}
@@ -98,7 +98,7 @@ export function TesterProfileView() {
 
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="font-display text-2xl font-semibold">{user.name}</h2>
+              <h2 className="font-display text-2xl font-bold">{user.name}</h2>
               <Badge tone="primary" size="md">
                 <Gamepad2 /> Game tester
               </Badge>
@@ -113,8 +113,8 @@ export function TesterProfileView() {
           </div>
 
           {/* Reputation is the headline number for a tester. */}
-          <div className="shrink-0 rounded-xl border border-primary-line bg-primary-soft px-6 py-4 text-center">
-            <p className="font-display text-4xl font-semibold tabular-nums text-secondary">
+          <div className="shrink-0 rounded-xl border-2 border-line bg-primary-soft px-6 py-4 text-center">
+            <p className="font-display text-4xl font-bold tabular-nums text-secondary">
               {profile.reputation}
             </p>
             <p className="text-label mt-1.5 text-subtle-foreground">
@@ -124,7 +124,7 @@ export function TesterProfileView() {
           </div>
         </div>
 
-        <div className="border-t border-border px-6 py-4 sm:px-8">
+        <div className="border-t-2 border-dashed border-border px-6 py-4 sm:px-8">
           <LevelProgress profile={profile} />
         </div>
       </section>
@@ -176,7 +176,7 @@ export function TesterProfileView() {
                 return (
                   <li
                     key={f.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-line bg-surface p-4"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
@@ -211,7 +211,7 @@ export function TesterProfileView() {
         {/* ---- Credentials -------------------------------------------- */}
         <aside className="space-y-8">
           <section className="space-y-4">
-            <h2 className="font-display text-lg font-semibold">Badges</h2>
+            <h2 className="font-display text-lg font-bold">Badges</h2>
             {profile.badges.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Badges unlock as you complete playtests.
@@ -221,7 +221,7 @@ export function TesterProfileView() {
                 {profile.badges.map((badge) => (
                   <li
                     key={badge}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3.5 py-2.5"
+                    className="flex items-center gap-3 rounded-lg border-2 border-line bg-surface px-3.5 py-2.5"
                   >
                     <span className="grid size-7 shrink-0 place-items-center rounded-md bg-primary-soft text-secondary">
                       <Award className="size-3.5" aria-hidden />
@@ -233,8 +233,8 @@ export function TesterProfileView() {
             )}
           </section>
 
-          <section className="space-y-5 border-t border-border pt-8">
-            <h2 className="font-display text-lg font-semibold">Skills</h2>
+          <section className="space-y-5 border-t-2 border-dashed border-border pt-8">
+            <h2 className="font-display text-lg font-bold">Skills</h2>
             <SkillGroup
               label="Platforms"
               values={profile.platforms.map((p) => PLATFORM_LABELS[p])}

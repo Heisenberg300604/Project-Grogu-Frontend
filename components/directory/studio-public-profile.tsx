@@ -46,7 +46,7 @@ export function StudioPublicProfile({
         <ArrowLeft className="size-4" aria-hidden /> All studios
       </Link>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="overflow-hidden rounded-2xl border-2 border-line bg-surface">
         <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
           <UserAvatar
             name={profile.studioName}
@@ -56,7 +56,7 @@ export function StudioPublicProfile({
 
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="font-display text-2xl font-semibold">
+              <h1 className="font-display text-2xl font-bold">
                 {profile.studioName}
               </h1>
               <Badge tone="primary" size="md">
@@ -127,7 +127,7 @@ export function StudioPublicProfile({
       </StatCardGrid>
 
       <section className="space-y-5">
-        <h2 className="font-display text-lg font-semibold">Open playtests</h2>
+        <h2 className="font-display text-lg font-bold">Open playtests</h2>
         {open.length === 0 ? (
           <EmptyState
             icon={ListChecks}
@@ -144,7 +144,7 @@ export function StudioPublicProfile({
       </section>
 
       <section className="space-y-5">
-        <h2 className="font-display text-lg font-semibold">Games</h2>
+        <h2 className="font-display text-lg font-bold">Games</h2>
         {games.length === 0 ? (
           <EmptyState
             icon={Gamepad2}

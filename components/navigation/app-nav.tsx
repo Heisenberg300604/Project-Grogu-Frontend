@@ -41,24 +41,15 @@ export function AppNavBar({
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex h-16 items-center gap-2 px-3 text-sm font-medium",
+                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold",
                   "transition-colors duration-[120ms]",
                   active
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-elevated hover:text-foreground",
                 )}
               >
-                <item.icon
-                  className={cn("size-4", active && "text-secondary")}
-                  aria-hidden
-                />
+                <item.icon className="size-4" aria-hidden />
                 {item.label}
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary"
-                  />
-                )}
               </Link>
             </li>
           );
@@ -88,16 +79,13 @@ export function AppNavList({
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
                 active
-                  ? "bg-primary-soft text-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-elevated hover:text-foreground",
               )}
             >
-              <item.icon
-                className={cn("size-4", active && "text-secondary")}
-                aria-hidden
-              />
+              <item.icon className="size-4" aria-hidden />
               {item.label}
             </Link>
           </li>

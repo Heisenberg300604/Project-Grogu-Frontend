@@ -28,7 +28,7 @@ export function FeaturedPlaytest({
   return (
     <article
       className={cn(
-        "grid overflow-hidden rounded-2xl border border-border bg-surface lg:grid-cols-2",
+        "card-lift grid overflow-hidden rounded-2xl border-2 border-line bg-surface shadow-lg lg:grid-cols-2",
         className,
       )}
     >
@@ -43,7 +43,7 @@ export function FeaturedPlaytest({
           {playtest.requirements.ndaRequired && <Badge tone="overlay">NDA</Badge>}
         </div>
         <div className="absolute inset-x-5 bottom-4 lg:hidden">
-          <p className="font-display text-2xl font-semibold text-white">
+          <p className="font-display text-2xl font-bold text-white">
             {playtest.game.title}
           </p>
         </div>
@@ -51,8 +51,8 @@ export function FeaturedPlaytest({
 
       <div className="flex flex-col gap-5 p-6 sm:p-8">
         <div className="space-y-2">
-          <p className="text-label text-secondary">Featured playtest</p>
-          <p className="hidden font-display text-2xl font-semibold lg:block">
+          <p className="hud text-secondary">Featured playtest</p>
+          <p className="hidden font-display text-2xl font-bold lg:block">
             {playtest.game.title}
           </p>
           <p className="text-sm text-muted-foreground">
@@ -65,7 +65,7 @@ export function FeaturedPlaytest({
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold leading-snug">{playtest.title}</h2>
+          <h2 className="text-lg font-bold leading-snug">{playtest.title}</h2>
           <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
             {playtest.summary}
           </p>
@@ -79,7 +79,7 @@ export function FeaturedPlaytest({
           ))}
         </div>
 
-        <MetaRow className="gap-x-6 border-t border-border pt-4 text-sm">
+        <MetaRow className="gap-x-6 border-t-2 border-dashed border-border pt-4 text-sm">
           <MetaItem
             icon={Gift}
             label="Reward"

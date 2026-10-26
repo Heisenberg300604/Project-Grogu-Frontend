@@ -20,7 +20,7 @@ export function DirectoryTabs({ className }: { className?: string }) {
 
   return (
     <nav aria-label="Browse" className={className}>
-      <ul className="flex items-center gap-1 rounded-full border border-border bg-surface/60 p-1 w-fit">
+      <ul className="flex w-fit items-center gap-1 rounded-xl border-2 border-line bg-surface p-1 shadow-sm">
         {TABS.map((tab) => {
           const active =
             pathname === tab.href || pathname.startsWith(`${tab.href}/`);
@@ -30,9 +30,9 @@ export function DirectoryTabs({ className }: { className?: string }) {
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "block rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-[120ms]",
+                  "block rounded-lg px-4 py-1.5 text-sm font-bold transition-colors duration-[120ms]",
                   active
-                    ? "bg-primary-soft text-secondary"
+                    ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >

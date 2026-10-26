@@ -1,73 +1,74 @@
-import { BarChart3, ClipboardList, MessageSquareText, UsersRound } from "lucide-react";
+import { BarChart3, ClipboardList, UsersRound, Zap } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { Reveal } from "@/components/ui/reveal";
+import { BriefCard } from "@/components/marketing/brief-card";
 
 const STUDIO_STEPS = [
-  { number: "01", title: "Frame the mission", body: "Define the game, the focus of the session, and the kind of player perspective your build needs.", icon: ClipboardList },
-  { number: "02", title: "Meet the right players", body: "Review applicants in context, then give accepted testers a clear brief and a place to complete it.", icon: UsersRound },
-  { number: "03", title: "Read the signal", body: "Bring ratings, written feedback, bugs, and completion together so the next build has a clear direction.", icon: BarChart3 },
-] as const;
-
-const SIGNALS = [
-  { label: "Brief", detail: "What the build needs observed" },
-  { label: "Mission", detail: "The play session and tasks" },
-  { label: "Return", detail: "Feedback tied back to the build" },
+  { number: "01", title: "Frame the mission", body: "Define the game, the focus of the session, and the kind of player perspective your build needs.", icon: ClipboardList, xp: "+50 XP", tile: "bg-gold" },
+  { number: "02", title: "Meet the right players", body: "Review applicants in context, then give accepted testers a clear brief and a place to complete it.", icon: UsersRound, xp: "+80 XP", tile: "bg-azure" },
+  { number: "03", title: "Read the signal", body: "Bring ratings, written feedback, bugs, and completion together so the next build has a clear direction.", icon: BarChart3, xp: "+120 XP", tile: "bg-mint" },
 ] as const;
 
 export function PlatformWorkflowShowcase() {
   return (
-    <section id="platform" className="relative border-b border-border bg-background py-24 sm:py-32 lg:min-h-[calc(100svh-4rem)] lg:py-40">
-      <div aria-hidden className="surface-grid pointer-events-none absolute inset-0 opacity-25" />
-      <Container className="relative">
-        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:gap-24">
-          <div className="max-w-xl">
-            <p className="telemetry-label flex items-center gap-3 text-secondary"><span className="size-1.5 rounded-full bg-secondary" /> Studio workflow</p>
-            <h2 className="mt-5 text-display-sm">Feedback is most useful when the session is designed for it.</h2>
-            <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">
+    <>
+      <section id="platform">
+        <Container className="grid gap-12 py-24 lg:grid-cols-[0.8fr_1.2fr]">
+          <Reveal>
+            <Eyebrow>Studio workflow</Eyebrow>
+            <h2 className="text-display-sm">
+              Feedback is most useful when the session is designed for it.
+            </h2>
+            <p className="mt-5 max-w-md text-muted-foreground">
               Grogu turns the gap between a work-in-progress build and a player&apos;s
               experience into a clear, shared process for studios and testers.
             </p>
-          </div>
+            <div className="mt-6 flex items-center gap-3">
+              <Zap className="text-gold" fill="currentColor" aria-hidden />
+              <span className="hud">3 quests · 250 XP total</span>
+            </div>
+          </Reveal>
 
-          <ol className="border-t border-border">
-            {STUDIO_STEPS.map((step) => {
+          <ol className="grid gap-4">
+            {STUDIO_STEPS.map((step, i) => {
               const Icon = step.icon;
               return (
-                <li key={step.number} className="group grid grid-cols-[3.5rem_1fr] gap-4 border-b border-border py-6 sm:grid-cols-[5rem_1fr_auto] sm:gap-6 sm:py-8">
-                  <span className="font-mono text-xs font-medium tracking-[0.14em] text-secondary">{step.number}</span>
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground">{step.title}</h3>
-                    <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">{step.body}</p>
-                  </div>
-                  <span className="hidden self-start border border-border bg-surface p-2 text-secondary sm:grid sm:size-10 sm:place-items-center"><Icon className="size-4" aria-hidden /></span>
+                <li key={step.number}>
+                  <Reveal delay={i * 90}>
+                    <div className="card-lift wiggle-hover flex items-start gap-4 rounded-xl border-2 border-line bg-surface p-5 shadow-md">
+                      <span
+                        className={`hud grid size-12 shrink-0 place-items-center rounded-xl border-2 border-line text-lg text-ink ${step.tile}`}
+                      >
+                        {step.number}
+                      </span>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold">{step.title}</h3>
+                        <p className="mt-1.5 text-muted-foreground">{step.body}</p>
+                      </div>
+                      <div className="hidden flex-col items-end gap-3 sm:flex">
+                        <span className="wiggle-target grid size-10 place-items-center rounded-lg border-2 border-line bg-elevated">
+                          <Icon size={18} aria-hidden />
+                        </span>
+                        <span className="hud text-success">{step.xp}</span>
+                      </div>
+                    </div>
+                  </Reveal>
                 </li>
               );
             })}
           </ol>
-        </div>
+        </Container>
+      </section>
 
-        <div className="mt-16 grid border border-border bg-surface sm:grid-cols-[0.9fr_1.1fr] lg:mt-24">
-          <div className="border-b border-border p-6 sm:border-b-0 sm:border-r sm:p-8 lg:p-10">
-            <div className="flex items-center gap-3 text-secondary"><MessageSquareText className="size-4" aria-hidden /><span className="telemetry-label">A clear test brief</span></div>
-            <p className="mt-6 text-xl font-semibold leading-snug text-foreground">Every mission tells the tester what to explore, why it matters, and how to report what they find.</p>
-          </div>
-          <div className="grid gap-px bg-border sm:grid-cols-2">
-            <div className="bg-surface p-6 sm:p-8 lg:p-10"><p className="telemetry-label text-subtle-foreground">Mission context</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Game, focus area, platform requirements, and testing window are visible before the work begins.</p></div>
-            <div className="bg-surface p-6 sm:p-8 lg:p-10"><p className="telemetry-label text-subtle-foreground">Structured return</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Ratings and written observations stay connected to the specific session that produced them.</p></div>
-          </div>
-        </div>
-
-        <div className="mt-10 grid border border-border bg-surface/70 md:grid-cols-3">
-          {SIGNALS.map((signal, index) => (
-            <div key={signal.label} className="relative min-h-40 border-b border-border p-6 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0 lg:p-8">
-              {index < SIGNALS.length - 1 && <span aria-hidden className="absolute right-0 top-1/2 hidden h-px w-8 translate-x-full bg-secondary/50 md:block" />}
-              <p className="font-mono text-xs text-secondary">0{index + 1}</p>
-              <h3 className="mt-6 text-lg font-semibold text-foreground">{signal.label}</h3>
-              <p className="mt-2 max-w-52 text-sm leading-6 text-muted-foreground">{signal.detail}</p>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
+      <section>
+        <Container className="pb-24">
+          <Reveal>
+            <BriefCard />
+          </Reveal>
+        </Container>
+      </section>
+    </>
   );
 }

@@ -10,40 +10,43 @@ import { cn } from "@/lib/utils";
  * `<Link className={buttonVariants()}>` — or use `<Button asChild><Link/></Button>`.
  *
  * Hierarchy, strongest to weakest: primary → secondary → outline → ghost → link.
- * A screen should carry exactly one primary action.
+ * A screen should carry exactly one primary action. `grape` and `ink` are
+ * bold alternates for marketing surfaces.
  */
+const POP =
+  "border-2 border-line shadow-[3px_3px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none";
+
 export const buttonVariants = cva(
   [
-    "relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap",
-    "rounded-md font-semibold",
-    "transition-[background-color,border-color,color,transform,opacity] duration-[120ms] ease-[var(--ease-out-soft)]",
-    "focus-visible:outline-none",
-    "active:translate-y-px",
-    "disabled:pointer-events-none disabled:opacity-45",
+    "btn relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap",
+    "rounded-lg font-bold",
+    "transition-[transform,box-shadow,background-color,color,opacity] duration-[120ms]",
+    "disabled:pointer-events-none disabled:opacity-50",
     "[&_svg]:size-4 [&_svg]:shrink-0",
   ].join(" "),
   {
     variants: {
       variant: {
-        primary:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:bg-primary-active",
-        secondary:
-          "border border-border bg-elevated text-elevated-foreground hover:border-border-strong hover:bg-accent",
-        outline:
-          "border border-border-strong bg-transparent text-foreground hover:border-secondary/50 hover:bg-accent",
+        // Bordered "arcade" buttons: hard shadow that grows on hover and
+        // collapses when pressed.
+        primary: `${POP} bg-primary text-primary-foreground hover:bg-primary-hover`,
+        secondary: `${POP} bg-surface text-surface-foreground hover:bg-elevated`,
+        outline: `${POP} bg-transparent text-foreground hover:bg-elevated`,
+        grape: `${POP} bg-grape text-white hover:brightness-110`,
+        ink: `${POP} border-ink bg-ink text-white dark:border-foreground dark:bg-foreground dark:text-background`,
+        destructive: `${POP} bg-destructive text-destructive-foreground hover:brightness-110`,
+        success: `${POP} bg-success text-success-foreground hover:brightness-110`,
+        // Flat variants: no border or shadow.
         ghost: "bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground",
-        destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:opacity-90",
-        success: "bg-success text-success-foreground shadow-sm hover:opacity-90",
         link: "text-secondary underline-offset-4 hover:underline",
       },
       size: {
-        sm: "h-8 px-3 text-xs",
+        sm: "h-8 rounded-md px-3 text-xs",
         md: "h-10 px-4 text-sm",
         lg: "h-11 px-5 text-sm",
         xl: "h-12 px-7 text-base",
         icon: "size-10",
-        "icon-sm": "size-8",
+        "icon-sm": "size-8 rounded-md",
       },
     },
     defaultVariants: {

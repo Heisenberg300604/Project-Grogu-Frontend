@@ -3,35 +3,52 @@ import { ArrowRight, Building2, Gamepad2 } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { Reveal } from "@/components/ui/reveal";
 
 export function ClosingCta() {
   return (
-    <section className="border-b border-border bg-dark py-24 sm:py-32 lg:py-40">
+    <section>
       <Container>
-        <div className="max-w-2xl">
-          <p className="telemetry-label flex items-center gap-3 text-secondary"><span className="size-1.5 rounded-full bg-secondary" /> Enter the build</p>
-          <h2 className="mt-5 text-display-sm">The next useful signal starts with the right person.</h2>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Whether you are preparing a game or looking for an unreleased world to explore, there is a clear place to begin.</p>
-        </div>
-        <div className="mt-12 grid border border-border md:grid-cols-2 lg:mt-16">
-          <article className="flex min-h-72 flex-col justify-between border-b border-border bg-surface p-7 md:min-h-80 md:border-b-0 md:border-r md:p-10">
-            <div>
-              <Building2 className="size-5 text-primary" aria-hidden />
-              <p className="mt-8 telemetry-label text-secondary">For studios</p>
-              <h3 className="mt-3 text-2xl font-semibold text-foreground">Run a playtest with intent.</h3>
-              <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">Recruit the players your build needs and collect feedback that is ready for the next decision.</p>
-            </div>
-            <Link href="/developers" className={buttonVariants({ variant: "outline", size: "lg", className: "mt-8 w-fit" })}>For developers <ArrowRight aria-hidden /></Link>
-          </article>
-          <article className="flex min-h-72 flex-col justify-between bg-[#151b1b] p-7 md:min-h-80 md:p-10">
-            <div>
-              <Gamepad2 className="size-5 text-secondary" aria-hidden />
-              <p className="mt-8 telemetry-label text-secondary">For players</p>
-              <h3 className="mt-3 text-2xl font-semibold text-foreground">Discover a game before it&apos;s finished.</h3>
-              <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">Find a fitting mission, play with attention, and make the feedback you give count.</p>
-            </div>
-            <Link href="/discover" className={buttonVariants({ variant: "primary", size: "lg", className: "mt-8 w-fit" })}>Find playtests <ArrowRight aria-hidden /></Link>
-          </article>
+        <Reveal className="mb-10">
+          <Eyebrow>Enter the build</Eyebrow>
+          <h2 className="max-w-2xl text-display-sm">
+            The next useful signal starts with the right person.
+          </h2>
+        </Reveal>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Reveal>
+            <article className="card-lift h-full rounded-xl border-2 border-line bg-grape p-8 text-white shadow-md">
+              <Building2 className="mb-6" size={32} aria-hidden />
+              <p className="hud mb-3 text-white/70">For studios</p>
+              <h3 className="text-3xl font-extrabold">Run a playtest with intent.</h3>
+              <p className="mb-7 mt-3 text-white/85">
+                Recruit the players your build needs and collect feedback that is ready
+                for the next decision.
+              </p>
+              <Link
+                href="/developers"
+                className={buttonVariants({ variant: "secondary", className: "!text-ink !bg-white" })}
+              >
+                For developers <ArrowRight size={16} aria-hidden className="arrow" />
+              </Link>
+            </article>
+          </Reveal>
+          <Reveal delay={100}>
+            <article className="card-lift h-full rounded-xl border-2 border-line bg-gold p-8 text-ink shadow-md">
+              <Gamepad2 className="mb-6" size={32} aria-hidden />
+              <p className="hud mb-3 opacity-70">For players</p>
+              <h3 className="text-3xl font-extrabold">Discover a game before it&apos;s finished.</h3>
+              <p className="mb-7 mt-3 opacity-85">
+                Find a fitting mission, play with attention, and make the feedback you
+                give count.
+              </p>
+              <Link href="/discover" className={buttonVariants({ variant: "ink" })}>
+                Find playtests <ArrowRight size={16} aria-hidden className="arrow" />
+              </Link>
+            </article>
+          </Reveal>
         </div>
       </Container>
     </section>

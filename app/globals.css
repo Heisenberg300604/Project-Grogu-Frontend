@@ -2,83 +2,162 @@
 @import "tw-animate-css";
 
 /* -------------------------------------------------------------------------- */
-/*  Grogu design system                                                        */
+/*  Grogu design system — "Playful arcade"                                     */
 /*                                                                            */
-/*  Dark-first, cinematic and operational. Raw colour values live ONLY here.   */
-/*  Components consume semantic Tailwind utilities (bg-surface, text-muted-    */
-/*  foreground, border-border, …) that map to the tokens below.               */
-/*                                                                            */
-/*  Warm ivory is action. Cyan is signal. Everything else stays deliberately   */
-/*  quiet, so the game worlds and product data have room to speak.             */
+/*  Bright, high-contrast and game-like: thick ink outlines, hard offset       */
+/*  shadows, flat colour and pixel accents. Light and dark themes share one    */
+/*  set of semantic tokens; raw colour values live ONLY here. Components       */
+/*  consume utilities such as bg-surface, text-muted-foreground, border-line   */
+/*  and the brand colours (grape, gold, coral, mint, azure, ink).              */
 /* -------------------------------------------------------------------------- */
 
+/* Dark theme is a class on <html>, set before paint by the inline script in
+   app/layout.tsx and toggled by <ThemeToggle />. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
   /* ---- Surfaces -------------------------------------------------------- */
-  /* Four steps only. Anything that needs a fifth is over-nested.           */
-  --background: #0d1112;
-  --foreground: #f2eee5;
-  --surface: #151a1b;
-  --surface-foreground: #f2eee5;
-  --elevated: #1c2223;
-  --elevated-foreground: #f7f3ea;
-  --dark: #080c0d;
-
-  /* Translucent overlay used for glass headers and art scrims. Kept subtle. */
-  --scrim: color-mix(in oklab, #0d1112 82%, transparent);
+  --background: #ffffff;
+  --foreground: #17142b;
+  --surface: #ffffff;
+  --surface-foreground: #17142b;
+  /* "soft" in the design: washes, section bands, wells. */
+  --elevated: #f3f0ff;
+  --elevated-foreground: #17142b;
+  /* Always-dark ink, for art wells and scrims that sit on either theme. */
+  --dark: #17142b;
 
   /* ---- Lines & fields --------------------------------------------------- */
-  --border: #2a3332;
-  --border-strong: #495452;
-  --input: #121819;
-  --ring: #d9a96a;
+  /* `line` is the signature thick outline; `border` is the quiet divider.   */
+  --line: #17142b;
+  --border: color-mix(in oklab, #17142b 24%, transparent);
+  --border-strong: #17142b;
+  --input: #ffffff;
+  --ring: #5b3ff0;
+  --shadow-ink: #17142b;
 
   /* ---- Brand ------------------------------------------------------------ */
-  --primary: #d6a15d;
-  --primary-foreground: #17120c;
-  --primary-hover: #e2b779;
-  --primary-active: #bd8344;
-  /* Tints used for washes, selected states and progress tracks. */
-  --primary-soft: color-mix(in oklab, #d6a15d 14%, transparent);
-  --primary-line: color-mix(in oklab, #d6a15d 38%, transparent);
+  --grape: #5b3ff0;
+  --gold: #ffc933;
+  --coral: #ff5a7a;
+  --mint: #19c58d;
+  --azure: #34b6ff;
+  --lilac: #b9a8ff;
+  --ink: #17142b;
 
-  --secondary: #9ec8cb;
-  --secondary-foreground: #0d1718;
-  --secondary-muted: #748f91;
+  /* Gold is the action colour; grape is the accent. */
+  --primary: #ffc933;
+  --primary-foreground: #17142b;
+  --primary-hover: #ffd65c;
+  --primary-active: #f0b81c;
+  --primary-soft: color-mix(in oklab, #ffc933 26%, transparent);
+  --primary-line: #17142b;
+
+  /* Accent text / links / eyebrows. */
+  --secondary: #5b3ff0;
+  --secondary-foreground: #ffffff;
 
   /* ---- Neutral text / fills --------------------------------------------- */
-  --muted: #202827;
-  --muted-foreground: #b2b5ad;
-  --subtle-foreground: #76817f;
-  --accent: #252e2d;
-  --accent-foreground: #f7f3ea;
+  --muted: #f3f0ff;
+  --muted-foreground: #5f5b7e;
+  --subtle-foreground: #6b6790;
+  --accent: #ebe6ff;
+  --accent-foreground: #17142b;
 
-  /* ---- Status ----------------------------------------------------------- */
-  --success: #78b092;
-  --success-foreground: #07130d;
-  --warning: #d9a96a;
-  --warning-foreground: #201608;
-  --destructive: #dd6d68;
-  --destructive-foreground: #1c0507;
-  --info: #8bbdc3;
-  --info-foreground: #071314;
+  /* ---- Status (text-safe on white) -------------------------------------- */
+  --success: #0a7a55;
+  --success-foreground: #ffffff;
+  --warning: #9a6200;
+  --warning-foreground: #ffffff;
+  --destructive: #d4264a;
+  --destructive-foreground: #ffffff;
+  --info: #1d6fd1;
+  --info-foreground: #ffffff;
 
   /* ---- Radius ----------------------------------------------------------- */
-  /* One base; every component derives from it so corners never disagree.    */
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
-  /* ---- Elevation — restrained, no glow ---------------------------------- */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.32);
-  --shadow-md: 0 14px 32px -18px rgb(0 0 0 / 0.7);
-  --shadow-lg: 0 30px 70px -32px rgb(0 0 0 / 0.8);
+  /* ---- Elevation — hard offset, no blur --------------------------------- */
+  --shadow-sm: 2px 2px 0 var(--shadow-ink);
+  --shadow-md: 4px 4px 0 var(--shadow-ink);
+  --shadow-lg: 6px 6px 0 var(--shadow-ink);
 
   /* ---- Motion ----------------------------------------------------------- */
-  /* Fast and purposeful. Nothing here should ever exceed 240ms.             */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-pop: cubic-bezier(0.3, 1.6, 0.5, 1);
   --duration-fast: 120ms;
   --duration-base: 180ms;
-  --duration-slow: 240ms;
+  --duration-slow: 450ms;
+
+  /* ---- Pixel dot texture ------------------------------------------------ */
+  --dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='11' y='11' width='2' height='2' fill='%2317142b' fill-opacity='.14'/%3E%3C/svg%3E");
+
+  /* ---- Pixel scene (hero art) ------------------------------------------- */
+  --scene-sky: #bfe9ff;
+  --scene-sun: #ffc933;
+  --scene-cloud: #ffffff;
+  --scene-far: #9fd3f5;
+  --scene-castle: #8c78ff;
+  --scene-castle-d: #5b3ff0;
+  --scene-mid: #5fd6a4;
+  --scene-grass: #19c58d;
+  --scene-dirt: #c98a52;
+  --scene-stars: 0;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #0f0d1f;
+  --foreground: #f3f1ff;
+  --surface: #181633;
+  --surface-foreground: #f3f1ff;
+  --elevated: #201d44;
+  --elevated-foreground: #f3f1ff;
+  --dark: #0a0916;
+
+  --line: #5d55d6;
+  --border: color-mix(in oklab, #5d55d6 45%, transparent);
+  --border-strong: #5d55d6;
+  --input: #181633;
+  --ring: #ffc933;
+  --shadow-ink: #3a34a0;
+
+  --primary-soft: color-mix(in oklab, #ffc933 18%, transparent);
+  --primary-line: #5d55d6;
+
+  --secondary: #ffc933;
+  --secondary-foreground: #17142b;
+
+  --muted: #201d44;
+  --muted-foreground: #a9a5d0;
+  --subtle-foreground: #8d89b8;
+  --accent: #2a2659;
+  --accent-foreground: #f3f1ff;
+
+  --success: #19c58d;
+  --success-foreground: #07130d;
+  --warning: #ffc933;
+  --warning-foreground: #201608;
+  --destructive: #ff5a7a;
+  --destructive-foreground: #1c0507;
+  --info: #34b6ff;
+  --info-foreground: #071314;
+
+  --dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='11' y='11' width='2' height='2' fill='%23ffffff' fill-opacity='.09'/%3E%3C/svg%3E");
+
+  --scene-sky: #1b1840;
+  --scene-sun: #e9e6ff;
+  --scene-cloud: #3a3580;
+  --scene-far: #2b2766;
+  --scene-castle: #4b3fd1;
+  --scene-castle-d: #382fa8;
+  --scene-mid: #1e7f6b;
+  --scene-grass: #19a878;
+  --scene-dirt: #5a3a2a;
+  --scene-stars: 1;
 }
 
 @theme inline {
@@ -90,8 +169,8 @@
   --color-elevated: var(--elevated);
   --color-elevated-foreground: var(--elevated-foreground);
   --color-dark: var(--dark);
-  --color-scrim: var(--scrim);
 
+  --color-line: var(--line);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-input: var(--input);
@@ -105,7 +184,6 @@
   --color-primary-line: var(--primary-line);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary-muted: var(--secondary-muted);
 
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
@@ -122,12 +200,22 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
 
-  /* Typography */
-  --font-sans: "Manrope", "Avenir Next", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Manrope", "Avenir Next", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+  /* Brand palette — the same in both themes, used for flat fills. */
+  --color-grape: var(--grape);
+  --color-gold: var(--gold);
+  --color-coral: var(--coral);
+  --color-mint: var(--mint);
+  --color-azure: var(--azure);
+  --color-lilac: var(--lilac);
+  --color-ink: var(--ink);
 
-  /* Radius scale — 6 / 8 / 10 / 14 / 20 */
+  /* Typography (families are loaded with next/font in app/layout.tsx) */
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-pixel: var(--font-silkscreen), ui-monospace, monospace;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+
+  /* Radius scale */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -141,9 +229,10 @@
 
   /* Motion */
   --ease-out-soft: var(--ease-out-soft);
+  --ease-pop: var(--ease-pop);
 
   /* Content width used by the page container */
-  --spacing-container: 86rem;
+  --spacing-container: 82rem;
 }
 
 @layer base {
@@ -155,19 +244,20 @@
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
     /* Anchor targets clear the sticky header. */
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 6rem;
   }
 
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    /* Nothing should ever push the page sideways on mobile. `clip` rather than
-       `hidden`: `hidden` would make the body a scroll container and break every
-       `position: sticky` rail in the app. */
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+    /* `clip` rather than `hidden`: `hidden` would make the body a scroll
+       container and break every `position: sticky` rail in the app. */
     overflow-x: clip;
   }
 
@@ -176,29 +266,27 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.032em;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
     text-wrap: balance;
   }
 
-  /* Long-form copy reads better without balanced ragging. */
   p {
     text-wrap: pretty;
   }
 
-  /* Consistent, visible focus ring for every interactive element */
   :focus-visible {
-    outline: 2px solid var(--color-ring);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
+    outline: 3px solid var(--color-ring);
+    outline-offset: 3px;
+    border-radius: 8px;
   }
 
   ::selection {
-    background-color: color-mix(in oklab, var(--color-primary) 55%, transparent);
-    color: var(--color-dark);
+    background-color: var(--gold);
+    color: var(--ink);
   }
 
-  /* Dark, unobtrusive scrollbars — the default light ones break the theme. */
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-border-strong) transparent;
@@ -208,7 +296,6 @@
 @layer utilities {
   /* ---- Layout ---------------------------------------------------------- */
 
-  /* Page container — one definition, used by <Container />. */
   .container-page {
     width: 100%;
     margin-inline: auto;
@@ -224,73 +311,55 @@
 
   /* ---- Typography ------------------------------------------------------ */
 
-  /* Expressive marketing display type. Fluid so it never wraps awkwardly. */
   .text-display {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 1.3rem + 5vw, 4.75rem);
+    font-size: clamp(2.6rem, 1.4rem + 4.6vw, 4.4rem);
     line-height: 1.02;
-    letter-spacing: -0.035em;
-    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-weight: 800;
   }
 
   .text-display-sm {
     font-family: var(--font-display);
-    font-size: clamp(1.875rem, 1.2rem + 2.6vw, 2.75rem);
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    font-weight: 600;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    font-weight: 800;
   }
 
-  /* Compact all-caps label used for metadata keys and section eyebrows. */
+  /* Pixel-font HUD label: eyebrows, metadata keys, scores. */
+  .hud,
   .text-label {
-    font-size: 0.6875rem;
+    font-family: var(--font-pixel);
+    font-size: 0.7rem;
     line-height: 1;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
   /* ---- Surface treatments ---------------------------------------------- */
 
-  /* Very subtle textured backdrop for hero / section bands — no neon, no glow */
+  .dots {
+    background-image: var(--dots);
+  }
+
   .surface-grid {
-    background-image:
-      linear-gradient(to bottom, transparent 55%, var(--color-background)),
-      radial-gradient(
-        circle at 1px 1px,
-        color-mix(in oklab, var(--color-secondary) 9%, transparent) 1px,
-        transparent 0
-      );
-    background-size:
-      100% 100%,
-      44px 44px;
+    background-image: var(--dots);
   }
 
-  /* Sticky bars: translucent, blurred, with a hairline. Used sparingly. */
-  .glass {
-    background-color: color-mix(in oklab, var(--color-background) 88%, transparent);
-    backdrop-filter: blur(10px) saturate(1.15);
+  /* Highlighter-pen word: gold block, tilted, with a hard shadow. */
+  .hl {
+    position: relative;
+    display: inline-block;
+    padding: 0 0.2em;
+    margin-inline: -0.05em;
+    background: var(--gold);
+    color: var(--ink);
+    border-radius: 10px;
+    transform: rotate(-1.5deg);
+    box-shadow: 4px 4px 0 var(--shadow-ink);
   }
 
-  .hero-scrim {
-    background:
-      linear-gradient(90deg, rgb(5 8 8 / 0.93) 0%, rgb(7 11 11 / 0.78) 31%, rgb(7 11 11 / 0.32) 58%, transparent 78%),
-      linear-gradient(0deg, var(--color-background) 0%, transparent 23%);
-  }
-
-  .signal-rule {
-    background: linear-gradient(90deg, var(--color-secondary), color-mix(in oklab, var(--color-secondary) 8%, transparent));
-  }
-
-  .telemetry-label {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 500;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-  }
-
-  /* Fades the right edge of a horizontally scrolling rail. */
   .scroll-fade-x {
     mask-image: linear-gradient(
       to right,
@@ -308,55 +377,155 @@
     display: none;
   }
 
-  /* ---- Motion ---------------------------------------------------------- */
+  /* ---- Motion: interaction ---------------------------------------------- */
 
-  /* Card / tile lift. One definition so every hover in the app agrees. */
+  /* Card hover: lift up-left with a longer hard shadow and a slight tilt. */
+  .card-lift,
   .lift {
     transition:
-      transform var(--duration-base) var(--ease-out-soft),
-      border-color var(--duration-base) var(--ease-out-soft),
-      background-color var(--duration-base) var(--ease-out-soft);
+      transform 0.18s var(--ease-pop),
+      box-shadow 0.18s,
+      border-color 0.18s,
+      background-color 0.18s;
   }
+  .card-lift:hover,
   .lift:hover {
-    transform: translateY(-2px);
+    transform: translate(-3px, -3px) rotate(-0.4deg);
+    box-shadow: 8px 8px 0 var(--shadow-ink);
   }
 
-  /* Entrance for above-the-fold content. Never chained, never staggered long. */
-  .animate-rise {
-    animation: grogu-rise var(--duration-slow) var(--ease-out-soft) both;
+  /* Arrow icons inside buttons nudge forward on hover. */
+  .btn .arrow {
+    transition: transform 0.15s;
+  }
+  .btn:hover .arrow {
+    transform: translateX(3px);
   }
 
-  @keyframes grogu-rise {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
+  .wiggle-hover:hover .wiggle-target {
+    animation: g-wiggle 0.5s ease;
   }
 
+  /* ---- Motion: entrances ------------------------------------------------ */
+
+  /* Scroll reveal. <Reveal /> only applies .reveal once it knows the element is
+     below the fold, so server-rendered content is never hidden. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .page-in {
+    animation: g-page-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+  }
+
+  .a-pop {
+    animation: g-pop 0.45s var(--ease-pop) both;
+  }
+  .a-bounce-in {
+    animation: g-bug-up 0.25s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  }
+  .a-shake {
+    animation: g-wiggle 0.4s ease;
+  }
+
+  /* ---- Motion: ambient loops -------------------------------------------- */
+
+  .svg-anim {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .a-float {
+    animation: g-float 4s ease-in-out infinite;
+  }
+  .a-float-2 {
+    animation: g-float 5s ease-in-out -1.5s infinite;
+  }
+  .a-hop {
+    animation: g-hop 1.6s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+  .a-coin {
+    animation: g-coin 1.4s ease-in-out infinite;
+  }
+  .a-drift {
+    animation: g-drift 40s linear infinite;
+  }
+  .a-drift-2 {
+    animation: g-drift 60s linear -20s infinite;
+  }
+  .a-wave {
+    animation: g-wave 1.2s ease-in-out infinite;
+    transform-origin: left center;
+  }
+  .a-pulse {
+    animation: g-pulse-scale 3s ease-in-out infinite;
+  }
+  .a-marquee {
+    animation: g-marquee 32s linear infinite;
+  }
+  .a-blink {
+    animation: g-blink 1s steps(2) infinite;
+  }
+  .a-live {
+    animation: g-live 1.6s ease-out infinite;
+  }
+  .a-spin-slow {
+    animation: g-spin 14s linear infinite;
+  }
   .animate-shimmer {
     background-image: linear-gradient(
       90deg,
       transparent,
-      color-mix(in oklab, var(--color-secondary) 8%, transparent),
+      color-mix(in oklab, var(--color-foreground) 9%, transparent),
       transparent
     );
     background-size: 200% 100%;
-    animation: grogu-shimmer 1.6s linear infinite;
+    animation: g-shimmer 1.6s linear infinite;
   }
 
-  @keyframes grogu-shimmer {
-    from {
-      background-position: 200% 0;
-    }
-    to {
-      background-position: -200% 0;
-    }
-  }
+  /* ---- Pixel scene fills (HeroScene / GameCover) ------------------------ */
+
+  .f-sky { fill: var(--scene-sky); }
+  .f-sun { fill: var(--scene-sun); }
+  .f-cloud { fill: var(--scene-cloud); }
+  .f-far { fill: var(--scene-far); }
+  .f-castle { fill: var(--scene-castle); }
+  .f-castle-d { fill: var(--scene-castle-d); }
+  .f-mid { fill: var(--scene-mid); }
+  .f-grass { fill: var(--scene-grass); }
+  .f-dirt { fill: var(--scene-dirt); }
+  .stars { opacity: var(--scene-stars); transition: opacity 0.4s; }
+  .stars rect { animation: g-twinkle 2.4s steps(2) infinite; }
+  .stars rect:nth-child(2n) { animation-delay: 0.7s; }
+  .stars rect:nth-child(3n) { animation-delay: 1.3s; }
 }
+
+@keyframes g-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes g-hop { 0%, 55%, 100% { transform: translateY(0) scale(1, 1); } 10% { transform: translateY(0) scale(1.08, 0.9); } 30% { transform: translateY(-22px) scale(0.95, 1.06); } }
+@keyframes g-coin { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.15); } }
+@keyframes g-drift { from { transform: translateX(-120px); } to { transform: translateX(640px); } }
+@keyframes g-wave { 0%, 100% { transform: skewY(0) scaleX(1); } 50% { transform: skewY(6deg) scaleX(0.9); } }
+@keyframes g-pulse-scale { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes g-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes g-blink { 50% { opacity: 0; } }
+@keyframes g-twinkle { 50% { opacity: 0.2; } }
+@keyframes g-pop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes g-bug-up { from { transform: translateY(70%) scale(0.8); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes g-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+@keyframes g-page-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes g-live { 0% { box-shadow: 0 0 0 0 rgba(25, 197, 141, 0.7); } 100% { box-shadow: 0 0 0 9px rgba(25, 197, 141, 0); } }
+@keyframes g-spin { to { transform: rotate(360deg); } }
+@keyframes g-score-up { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-34px); opacity: 0; } }
+@keyframes g-fill-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes g-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
 /* Respect the OS setting: keep state changes, drop the movement. */
 @media (prefers-reduced-motion: reduce) {
@@ -373,7 +542,13 @@
     scroll-behavior: auto !important;
   }
 
+  .card-lift:hover,
   .lift:hover {
+    transform: none;
+  }
+
+  .reveal {
+    opacity: 1;
     transform: none;
   }
 }

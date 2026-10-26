@@ -30,20 +30,18 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border bg-surface/40 px-6 py-16 text-center",
+        "flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-line bg-transparent px-6 py-16 text-center",
         className,
       )}
     >
       <span
         aria-hidden
-        className="relative grid size-12 place-items-center rounded-full bg-muted text-subtle-foreground"
+        className="a-float grid size-16 place-items-center rounded-2xl border-2 border-line bg-elevated text-muted-foreground shadow-sm"
       >
-        {/* Faint halo — gives the mark presence without decoration. */}
-        <span className="absolute inset-0 rounded-full ring-8 ring-muted/40" />
-        <Icon className="relative size-5" />
+        <Icon className="size-6" />
       </span>
       <div className="space-y-1">
-        <p className="font-display text-base font-semibold text-foreground">
+        <p className="font-display text-xl font-extrabold text-foreground">
           {title}
         </p>
         {description && (
@@ -76,11 +74,11 @@ export function ErrorState({
     <div
       role="alert"
       className={cn(
-        "flex flex-col items-center justify-center gap-4 rounded-xl border border-destructive/30 bg-destructive/8 px-6 py-14 text-center",
+        "a-pop flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-destructive bg-destructive/10 px-6 py-14 text-center",
         className,
       )}
     >
-      <span className="grid size-12 place-items-center rounded-full bg-destructive/15 text-destructive">
+      <span className="grid size-14 place-items-center rounded-2xl border-2 border-line bg-coral text-ink shadow-sm">
         <AlertTriangle className="size-5" aria-hidden />
       </span>
       <div className="space-y-1">
@@ -119,11 +117,11 @@ export function SuccessState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-4 rounded-xl border border-success/30 bg-success/8 px-6 py-12 text-center",
+        "a-pop flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-success bg-success/10 px-6 py-12 text-center",
         className,
       )}
     >
-      <span className="grid size-12 place-items-center rounded-full bg-success/15 text-success">
+      <span className="grid size-14 place-items-center rounded-2xl border-2 border-line bg-mint text-ink shadow-sm">
         <CheckCircle2 className="size-6" aria-hidden />
       </span>
       <div className="space-y-1">
@@ -173,7 +171,7 @@ export function LoadingState({
 /** Mirrors `PlaytestCard` so the layout doesn't jump when data arrives. */
 export function PlaytestCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <div className="overflow-hidden rounded-xl border-2 border-line bg-surface shadow-md">
       <Skeleton className="aspect-[16/9] w-full rounded-none" />
       <div className="space-y-3 p-4">
         <Skeleton className="h-3 w-1/3" />
@@ -209,7 +207,7 @@ export function ListSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex gap-4 rounded-xl border border-border bg-surface p-4"
+          className="flex gap-4 rounded-xl border-2 border-line bg-surface p-4 shadow-md"
         >
           <Skeleton className="aspect-[16/10] w-36 shrink-0" />
           <div className="flex-1 space-y-2.5 py-1">
@@ -227,7 +225,7 @@ export function StatsSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-hidden>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-border bg-surface p-4">
+        <div key={i} className="rounded-xl border-2 border-line bg-surface p-4 shadow-md">
           <Skeleton className="h-2.5 w-20" />
           <Skeleton className="mt-3 h-7 w-14" />
         </div>

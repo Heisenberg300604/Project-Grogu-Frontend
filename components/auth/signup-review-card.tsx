@@ -53,29 +53,29 @@ export function SignupReviewCard({ formData, onEditStep }: SignupReviewCardProps
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-4 rounded-xl border border-primary/30 bg-surface/80 p-5 shadow-xl shadow-primary/5"
+      className="space-y-4 rounded-xl border-2 border-line bg-surface p-5 shadow-md"
     >
-      <div className="flex items-center justify-between border-b border-border pb-3">
+      <div className="flex items-center justify-between border-b-2 border-dashed border-border pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary/20 text-secondary">
+          <div className="flex size-8 items-center justify-center rounded-md border-2 border-line bg-primary text-primary-foreground">
             <UserCheck className="size-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Review Account Profile</h3>
+            <h3 className="text-sm font-bold text-foreground">Review Account Profile</h3>
             <p className="text-[11px] text-muted-foreground">
               Confirm your details before launching your Grogu profile.
             </p>
           </div>
         </div>
 
-        <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-secondary border border-primary/20">
+        <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-secondary border-2 border-line">
           <Sparkles className="size-3" />
           {isTester ? "Playtester" : "Developer"}
         </span>
       </div>
 
       {/* Account Info Section */}
-      <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-3 text-xs">
+      <div className="space-y-2 rounded-lg border-2 border-border bg-elevated p-3 text-xs">
         <div className="flex items-center justify-between">
           <span className="font-medium text-subtle-foreground uppercase tracking-wider text-[10px]">
             Account Credentials
@@ -112,7 +112,7 @@ export function SignupReviewCard({ formData, onEditStep }: SignupReviewCardProps
       </div>
 
       {/* Profile Details Section */}
-      <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-3 text-xs">
+      <div className="space-y-2 rounded-lg border-2 border-border bg-elevated p-3 text-xs">
         <div className="flex items-center justify-between">
           <span className="font-medium text-subtle-foreground uppercase tracking-wider text-[10px]">
             {isTester ? "Testing Preferences" : "Studio Profile"}
@@ -156,7 +156,7 @@ export function SignupReviewCard({ formData, onEditStep }: SignupReviewCardProps
                   {formData.preferredGenres.map((g) => (
                     <span
                       key={g}
-                      className="rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] text-secondary font-medium"
+                      className="rounded-md border-2 border-line bg-primary-soft px-2 py-0.5 text-[11px] text-secondary font-medium"
                     >
                       {GENRE_LABELS[g as GameGenre] || g}
                     </span>
@@ -174,7 +174,7 @@ export function SignupReviewCard({ formData, onEditStep }: SignupReviewCardProps
                   {formData.platforms.map((p) => (
                     <span
                       key={p}
-                      className="rounded-md border border-border bg-surface px-2 py-0.5 text-[11px] text-foreground font-medium"
+                      className="rounded-md border-2 border-line bg-surface px-2 py-0.5 text-[11px] text-foreground font-medium"
                     >
                       {PLATFORM_LABELS[p as GamePlatform] || p}
                     </span>

@@ -50,7 +50,7 @@ const STUDIO_SIZES = Object.keys(
 ) as DeveloperProfile["studioSize"][];
 
 const CHIP =
-  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-[120ms] focus-visible:outline-none";
+  "rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-colors duration-[120ms]";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -122,9 +122,9 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-5 border-t border-border pt-6 first:border-0 first:pt-0">
+    <section className="space-y-5 border-t-2 border-dashed border-border pt-6 first:border-0 first:pt-0">
       <div className="space-y-1">
-        <h2 className="font-display text-lg font-semibold">{title}</h2>
+        <h2 className="font-display text-lg font-bold">{title}</h2>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}
@@ -156,8 +156,8 @@ function ChipGroup<T extends string>({
           className={cn(
             CHIP,
             selected.includes(option)
-              ? "border-primary-line bg-primary-soft text-secondary"
-              : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
+              ? "border-line bg-primary text-primary-foreground shadow-sm"
+              : "border-line bg-surface text-foreground hover:-translate-y-0.5",
           )}
         >
           {labels[option]}
@@ -171,7 +171,7 @@ function FormFeedback({ error }: { error: string | null }) {
   if (!error) return null;
   return (
     <p
-      className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+      className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive"
       role="alert"
     >
       {error}
@@ -193,7 +193,7 @@ function IdentityPreview({
 }) {
   return (
     <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-      <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="rounded-xl border-2 border-line bg-surface p-5">
         <p className="text-label mb-4 text-subtle-foreground">Preview</p>
         <div className="flex items-center gap-4">
           <UserAvatar
@@ -202,7 +202,7 @@ function IdentityPreview({
             className="size-14 text-base"
           />
           <div className="min-w-0">
-            <p className="truncate font-display text-base font-semibold">
+            <p className="truncate font-display text-base font-bold">
               {name || "Your name"}
             </p>
             <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
